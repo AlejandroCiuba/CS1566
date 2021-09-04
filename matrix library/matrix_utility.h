@@ -31,4 +31,8 @@ ERROR_NUM print_matrix_ptr(const mat4x4* mat);
 
 ERROR_NUM print_GLfloat_ptr(const GLfloat* flt);
 
+//Makes a vector4 into a mat4x4 with the values
+//Copied into every column
+mat4x4* vec_to_mat(vector4* vec);
+
 #endif

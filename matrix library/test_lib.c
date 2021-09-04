@@ -5,6 +5,7 @@
 #include "matrix_def.h"
 #include "matrix_utility.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int main() {
 
@@ -27,11 +28,26 @@ int main() {
 
     if(print_GLfloat_ptr(&(mat_ptr->y.z)) == -2) goto err;
 
+    //TEST FOR NULL POINTER ERROR
+    /*vector4* vec_null = NULL;
+    if(print_vector_ptr(vec_null) == -2) goto err;*/
+
+    vector4* vec_ptr2 = (vector4*) malloc(sizeof(vector4));
+    vec_ptr2->x = 694.5;
+    vec_ptr2->y = 23.5;
+    vec_ptr2->z = 3456.22;
+    vec_ptr2->w = 2342.2342;
+
+    mat4x4* vec_mat_ptr = vec_to_mat(vec_ptr2);
+    if(print_matrix_ptr(vec_mat_ptr) == -2) goto err;
+
+    printf("\nNotice how we do not free the vector in vec_to_mac\n");
+    if(print_vector_ptr(vec_ptr2) == -2) goto err;
+
     printf("Successful run\n");
 
-    //TEST FOR NULL POINTER ERROR
-    vector4* vec_null = NULL;
-    if(print_vector_ptr(vec_null) == -2) goto err;
+    free(vec_mat_ptr);
+    free(vec_ptr2);
 
     return 0;
 
