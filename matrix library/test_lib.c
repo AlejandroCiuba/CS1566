@@ -1,12 +1,13 @@
 /**
  * Designed to test header files
+ * and various matrix library functions
  */
 #include "matrix_def.h"
 #include "matrix_utility.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 int main() {
+
     //TEST BASE MATRICES
     vector4 vec_test = {2.4, 2.343, 2.33, 4.33};
     print_vector(vec_test);
@@ -27,6 +28,10 @@ int main() {
     if(print_GLfloat_ptr(&(mat_ptr->y.z)) == -2) goto err;
 
     printf("Successful run\n");
+
+    //TEST FOR NULL POINTER ERROR
+    vector4* vec_null = NULL;
+    if(print_vector_ptr(vec_null) == -2) goto err;
 
     return 0;
 
