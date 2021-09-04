@@ -23,4 +23,12 @@ void print_matrix(const mat4x4 mat);
 //Prints the given GLfloat 
 void print_GLfloat(const GLfloat flt);
 
+//Pointer versions of print debugging functions
+
+ERROR_NUM print_vector_ptr(const vector4* vec);
+
+ERROR_NUM print_matrix_ptr(const mat4x4* mat);
+
+ERROR_NUM print_GLfloat_ptr(const GLfloat* flt);
+
 #endif

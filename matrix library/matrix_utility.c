@@ -1,5 +1,7 @@
 /**
  * definitions for the matrix_utility.h functions
+ * ERROR_NUM to return -2 to signify pointer problem
+ * with matrix pointers
  * 
  * Created by Alejandro Ciuba
  */
@@ -8,9 +10,7 @@
 #include <stdio.h>
 
 //Prints the given vector
-void print_vector(const vector4 vec) {
-    printf("[x : %f, y : %f, z : %f, w : %f]\n", vec.x, vec.y, vec.z, vec.w);
-}
+void print_vector(const vector4 vec) {printf("[x : %f, y : %f, z : %f, w : %f]\n", vec.x, vec.y, vec.z, vec.w);}
 
 //Prints the given 4x4 matrix
 void print_matrix(const mat4x4 mat) {
@@ -23,3 +23,22 @@ void print_matrix(const mat4x4 mat) {
 
 //Prints the given GLfloat 
 void print_GLfloat(const GLfloat flt) {printf("GLfloat : %f\n", flt);}
+
+//Pointer versions of debugging statements
+ERROR_NUM print_vector_ptr(const vector4* vec) {
+    if(vec == NULL) return -2;
+    print_vector(*vec);
+    return 0;
+}
+
+ERROR_NUM print_matrix_ptr(const mat4x4* mat) {
+    if(mat == NULL) return -2;
+    print_matrix(*mat);
+    return 0;
+}
+
+ERROR_NUM print_GLfloat_ptr(const GLfloat* flt) {
+    if(flt == NULL) return -2;
+    print_GLfloat(*flt);
+    return 0;
+}
