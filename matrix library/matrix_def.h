@@ -9,10 +9,15 @@
 #ifndef MATRIX_DEF_H
 #define MATRIX_DEF_H
 
+//Error handling type and constants
+typedef char ERROR_NUM;
+#define MATLIB_POINTER_ERROR -2
+#define MATLIB_ALLOC_ERROR -3
+
 //Defines datatype for OpenGL
 typedef float GLfloat;
 
-//Defines base Calumn Vector needed for OpenGL functions
+//Defines base Column Vector needed for OpenGL functions
 typedef struct vector4 {
     GLfloat x;
     GLfloat y;

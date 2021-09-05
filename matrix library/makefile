@@ -1,2 +1,20 @@
-test: test_lib.c matrix_utility.o matrix_utility.h  matrix_def.h
-	gcc -o test test_lib.c matrix_utility.o 
+#Flags used by the rest of the makefile use $(FLAGNAME) to use flag
+CC = gcc
+CFLAGS = -Wall
+#Linking stuff like -lm
+LDFLAGS = 
+#Will recompile if .c != .o or if .o does not exist
+OBJFILES = test_lib.o matrix_utility.o 
+#Name of the main file
+TARGET = test
+
+#What to do when we type ONLY "make"
+all: $(TARGET)
+
+#Tab is necessary
+$(TARGET): $(OBJFILES)
+	$(CC) $(CCFLAGS) -o $(TARGET) $(OBJFILES) $(LDFLAGS)
+
+#Type make clean to remove object files, main file, and all ~ files
+clean:
+	rm -f $(OBJFILES) $(TARGET) *~

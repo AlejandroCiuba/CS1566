@@ -19,14 +19,13 @@ int main() {
     print_GLfloat(mat_test.y.z);
 
     //TEST WITH POINTERS
-
     vector4* vec_ptr = &vec_test;
-    if(print_vector_ptr(vec_ptr) == -2) goto err;
+    if(print_vector_ptr(vec_ptr) == -2) goto pointer_err;
 
     mat4x4* mat_ptr =  &mat_test;
-    if(print_matrix_ptr(mat_ptr) == -2) goto err;
+    if(print_matrix_ptr(mat_ptr) == -2) goto pointer_err;
 
-    if(print_GLfloat_ptr(&(mat_ptr->y.z)) == -2) goto err;
+    if(print_GLfloat_ptr(&(mat_ptr->y.z)) == -2) goto pointer_err;
 
     //TEST FOR NULL POINTER ERROR
     /*vector4* vec_null = NULL;
@@ -39,10 +38,10 @@ int main() {
     vec_ptr2->w = 2342.2342;
 
     mat4x4* vec_mat_ptr = vec_to_mat(vec_ptr2);
-    if(print_matrix_ptr(vec_mat_ptr) == -2) goto err;
+    if(print_matrix_ptr(vec_mat_ptr) == -2) goto pointer_err;
 
     printf("\nNotice how we do not free the vector in vec_to_mac\n");
-    if(print_vector_ptr(vec_ptr2) == -2) goto err;
+    if(print_vector_ptr(vec_ptr2) == -2) goto pointer_err;
 
     printf("Successful run\n");
 
@@ -52,7 +51,7 @@ int main() {
     return 0;
 
     //Error handling
-    err:
+    pointer_err:
         printf("Something went wrong\n");
         return -1;
 }
