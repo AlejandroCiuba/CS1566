@@ -66,6 +66,25 @@ int main() {
     scalar(&vec, alpha, 0);
     print_vector(vec);
 
+    //TESTING VECTOR ADDITION
+    printf("\nNOW TESTING VECTOR ADDITION\n");
+    printf("VECTOR 1 (PREVIOUS VECTOR):\n");
+    print_vector(vec);
+
+    printf("\nVECTOR 2 (PREVIOUS VECTOR WITH ALPHA 2:\n");
+    vector4 vec2 = vec;
+    scalar(&vec2, 2, 0);
+    print_vector(vec2);
+
+    vector4* vec3_ptr = (vector4*) malloc(sizeof(vector4));
+
+    vector4* vec_arr[] = {&vec, &vec2};
+
+    vector_add(vec_arr, 2, vec3_ptr);
+
+    printf("\nFINAL RESULT:\n");
+    print_vector_ptr(vec3_ptr);
+
     printf("Successful run\n");
 
     return 0;

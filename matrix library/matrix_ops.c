@@ -24,3 +24,21 @@ ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args) {
 
     return 0;
 }
+
+//============== VECTOR MATH FUNCTIONS ==============
+//Add any number of vectors at once
+ERROR_NUM vector_add(const vector4** vectors, int count, vector4* final) {
+
+    //Test for all vectors if any equal null
+    for(int i = 0; i < count; i++) {
+
+        if(vectors[i] == NULL) return MATLIB_POINTER_ERROR;
+
+        final->x += vectors[i]->x;
+        final->y += vectors[i]->y;
+        final->z += vectors[i]->z;
+        final->w += vectors[i]->w;
+    }
+
+    return 0;
+}
