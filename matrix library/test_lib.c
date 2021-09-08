@@ -85,6 +85,8 @@ int main() {
     printf("\nFINAL RESULT:\n");
     print_vector_ptr(vec3_ptr);
 
+    free(vec3_ptr);
+
     printf("Successful run\n");
 
     return 0;
