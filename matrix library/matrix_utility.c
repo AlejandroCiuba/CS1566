@@ -50,19 +50,22 @@ ERROR_NUM print_GLfloat_ptr(const GLfloat* flt) {
 }
 
 //Returns a pointer to a 0 vector4
-vector4* zero_vector() {
-
-    vector4* zero = (vector4*) malloc(sizeof(vector4));
-    if(zero != NULL) return zero;
-    return NULL;
+ERROR_NUM zero_vector(vector4* vec) {
+    
+    if(vec == NULL) return MATLIB_POINTER_ERROR;
+    vec->x = vec-> y = vec->z = vec->w = 0;
+    return 0;
 }
 
 //Returns a pointer to a 0 matrix
-mat4x4* zero_matrix() {
+ERROR_NUM zero_matrix(mat4x4* mat) {
 
-    mat4x4* zero = (mat4x4*) malloc(sizeof(mat4x4));
-    if(zero != NULL) return zero;
-    return NULL;
+    if(mat == NULL) return MATLIB_POINTER_ERROR;
+    zero_vector(&mat->x);
+    zero_vector(&mat->y);
+    zero_vector(&mat->z);
+    zero_vector(&mat->w);
+    return 0;
 }
 
 //Copies stuff from one vector to another
@@ -94,4 +97,23 @@ mat4x4* vec_to_mat(const vector4* vec) {
     mat->w = *vec;
 
     return mat;
+}
+
+//Creates an matrix/vector filled with the
+//passed in value
+ERROR_NUM fill_matrix(mat4x4* mat, const GLfloat flt) {
+
+    if(mat == NULL) return MATLIB_POINTER_ERROR;
+    fill_vector(&mat->x, flt);
+    fill_vector(&mat->y, flt);
+    fill_vector(&mat->z, flt);
+    fill_vector(&mat->w, flt);
+    return 0;
+}
+
+ERROR_NUM fill_vector(vector4* vec, const GLfloat flt) {
+
+    if(vec == NULL) return MATLIB_POINTER_ERROR;
+    vec->x = vec->y = vec->z = vec->w = flt;
+    return 0;
 }

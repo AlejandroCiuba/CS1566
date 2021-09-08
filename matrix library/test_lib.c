@@ -4,12 +4,15 @@
  */
 #include "matrix_def.h"
 #include "matrix_utility.h"
+#include "matrix_ops.h"
 #include <stdio.h>
 #include <stdlib.h>
 
 int main() {
 
     //TEST BASE MATRICES
+    printf("NOW TESTING PRINT FUNCTIONS\n");
+
     vector4 vec_test = {2.4, 2.343, 2.33, 4.33};
     print_vector(vec_test);
 
@@ -37,16 +40,33 @@ int main() {
     vec_ptr2->z = 3456.22;
     vec_ptr2->w = 2342.2342;
 
+    printf("\nTESTING VEC_TO_MAT()\n");
     mat4x4* vec_mat_ptr = vec_to_mat(vec_ptr2);
     if(print_matrix_ptr(vec_mat_ptr) == -2) goto pointer_err;
 
     printf("\nNotice how we do not free the vector in vec_to_mac\n");
     if(print_vector_ptr(vec_ptr2) == -2) goto pointer_err;
 
-    printf("Successful run\n");
-
     free(vec_mat_ptr);
     free(vec_ptr2);
+
+    //TESTING SCALR OPERATION ON MATRIX AND VECTOR
+    printf("\nNOW TESTING SCALAR OPERATION ON VECTOR AND MATRIX\n");
+
+    vector4 vec = {1, 2, 3, 4};
+    print_vector(vec);
+
+    char alpha_string[6];
+    printf("\nALPHA WILL BE(Max 6 digist): ");
+    fgets(alpha_string, 6, stdin);
+    GLfloat alpha = atof(alpha_string);
+
+    printf("\nAFTER SCALAR %f IS APPLIED: \n", alpha);
+
+    scalar(&vec, alpha, 0);
+    print_vector(vec);
+
+    printf("Successful run\n");
 
     return 0;
 

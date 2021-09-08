@@ -4,7 +4,7 @@ CFLAGS = -Wall
 #Linking stuff like -lm
 LDFLAGS = 
 #Will recompile if .c != .o or if .o does not exist
-OBJFILES = test_lib.o matrix_utility.o 
+OBJFILES = test_lib.o matrix_utility.o matrix_ops.o
 #Name of the main file
 TARGET = test
 
