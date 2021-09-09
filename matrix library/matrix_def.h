@@ -14,7 +14,8 @@ typedef char ERROR_NUM;
 #define MATLIB_POINTER_ERROR -2
 #define MATLIB_VECTOR_ERROR -3
 #define MATLIB_MATRIX_ERROR -4
-#define MATLIB_ALLOC_ERROR -5
+#define MATLIB_NAN_ERROR -5
+#define MATLIB_ALLOC_ERROR -6
 
 //Defines datatype for OpenGL
 typedef float GLfloat;

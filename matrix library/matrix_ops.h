@@ -22,4 +22,10 @@ ERROR_NUM vector_sub(vector4* vectors[], int count, vector4* result);
 //Returns that vectors magnitude
 ERROR_NUM vector_mag(const vector4* vec, GLfloat* result);
 
+//Normalizes the given vector
+ERROR_NUM vector_norm(const vector4* vec);
+
+//Returns the Dot Product of 2 given vectors
+ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result);
+
 #endif

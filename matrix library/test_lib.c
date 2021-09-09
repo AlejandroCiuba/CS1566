@@ -97,6 +97,23 @@ int main() {
     if(vector_mag(&vec4, &mag) == -2) goto pointer_err;
     printf("\nRESULT: %f\n", mag);
 
+    //TESTING VECTOR NORMALIZATION
+    printf("\nTESTING VECTOR NORMALIZATION\n");
+    vector4 alltwos = {2.0,2.0,2.0,2.0};
+    print_vector(alltwos);
+
+    vector_norm(&alltwos);
+    print_vector(alltwos);
+
+    //TESTING DOT PRODUCT
+    printf("\nTESTING DOT PRODUCT\n");
+    vector4 allthrees = {3.0,3.0,3.0,3.0};
+    GLfloat dotty = 0.0f;
+
+    print_vector(allthrees);
+    vector_dot(&allthrees, &allthrees, &dotty);
+    print_GLfloat(dotty);
+
     printf("Successful run\n");
 
     return 0;
