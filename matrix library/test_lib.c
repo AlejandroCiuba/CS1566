@@ -80,12 +80,22 @@ int main() {
 
     vector4* vec_arr[] = {&vec, &vec2};
 
-    vector_add(vec_arr, 2, vec3_ptr);
+    if(vector_add(vec_arr, 2, vec3_ptr) == -2) goto pointer_err;
 
     printf("\nFINAL RESULT:\n");
     print_vector_ptr(vec3_ptr);
 
     free(vec3_ptr);
+
+    //TESTING VECTOR MAGNITUDE
+    printf("\nTESTING VECTOR MAGNITUDE\n");
+    vector4 vec4 = {1.1, 2.2, 3.3, 4.4};
+    GLfloat mag = 0.0;
+
+    print_vector(vec4);
+    print_GLfloat(mag);
+    if(vector_mag(&vec4, &mag) == -2) goto pointer_err;
+    printf("\nRESULT: %f\n", mag);
 
     printf("Successful run\n");
 
