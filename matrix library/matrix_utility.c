@@ -54,7 +54,10 @@ vector4* zero_vector() {
     
     vector4* vec = (vector4*) malloc(sizeof(vector4));
     if(vec == NULL) return NULL;
-    vec->x = vec-> y = vec->z = vec->w = 0;
+    vec->x = 0;
+    vec->y = 0;
+    vec->z = 0;
+    vec->w = 0;
     return vec;
 }
 
@@ -64,11 +67,25 @@ mat4x4* zero_matrix() {
     mat4x4* mat = (mat4x4*) malloc(sizeof(mat4x4));
 
     if(mat == NULL) return NULL;
-    zero_vector(&mat->x);
-    zero_vector(&mat->y);
-    zero_vector(&mat->z);
-    zero_vector(&mat->w);
+    mat->x.x = 0;
+    mat->x.y = 0;
+    mat->x.z = 0;
+    mat->x.w = 0;
 
+    mat->y.x = 0;
+    mat->y.y = 0;
+    mat->y.z = 0;
+    mat->y.w = 0;
+
+    mat->z.x = 0;
+    mat->z.y = 0;
+    mat->z.z = 0;
+    mat->z.w = 0;
+
+    mat->w.x = 0;
+    mat->w.y = 0;
+    mat->w.z = 0;
+    mat->w.w = 0;
     return mat;
 }
 

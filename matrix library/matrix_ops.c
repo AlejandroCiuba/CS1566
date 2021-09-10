@@ -49,8 +49,15 @@ ERROR_NUM vector_add(vector4* vectors[], int count, vector4* result) {
 //Subtract any number of vectors at once
 ERROR_NUM vector_sub(vector4* vectors[], int count, vector4* result) {
 
+    if(vectors[0] == NULL) return MATLIB_POINTER_ERROR;
+
+    result->x = vectors[0]->x;
+    result->y = vectors[0]->y;
+    result->z = vectors[0]->z;
+    result->w = vectors[0]->w;
+
     //Test for all vectors if any equal null
-    for(int i = 0; i < count; i++) {
+    for(int i = 1; i < count; i++) {
 
         if(vectors[i] == NULL) return MATLIB_POINTER_ERROR;
 
@@ -127,5 +134,53 @@ ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result) {
 
 //Subtract any number of matrices at once
 ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result) {
+
+    if(matrices[0] == NULL) return MATLIB_POINTER_ERROR;
+
+    result->x.x += matrices[0]->x.x;
+    result->x.y += matrices[0]->x.y;
+    result->x.z += matrices[0]->x.z;
+    result->x.w += matrices[0]->x.w;
+
+    result->y.x += matrices[0]->y.x;
+    result->y.y += matrices[0]->y.y;
+    result->y.z += matrices[0]->y.z;
+    result->y.w += matrices[0]->y.w;
+
+    result->z.x += matrices[0]->z.x;
+    result->z.y += matrices[0]->z.y;
+    result->z.z += matrices[0]->z.z;
+    result->z.w += matrices[0]->z.w;
+
+    result->w.x += matrices[0]->w.x;
+    result->w.y += matrices[0]->w.y;
+    result->w.z += matrices[0]->w.z;
+    result->w.w += matrices[0]->w.w;
+
+    for(int i = 1; i < count; i++) {
+
+        if(matrices[i] == NULL) return MATLIB_POINTER_ERROR;
+
+        result->x.x -= matrices[i]->x.x;
+        result->x.y -= matrices[i]->x.y;
+        result->x.z -= matrices[i]->x.z;
+        result->x.w -= matrices[i]->x.w;
+
+        result->y.x -= matrices[i]->y.x;
+        result->y.y -= matrices[i]->y.y;
+        result->y.z -= matrices[i]->y.z;
+        result->y.w -= matrices[i]->y.w;
+
+        result->z.x -= matrices[i]->z.x;
+        result->z.y -= matrices[i]->z.y;
+        result->z.z -= matrices[i]->z.z;
+        result->z.w -= matrices[i]->z.w;
+
+        result->w.x -= matrices[i]->w.x;
+        result->w.y -= matrices[i]->w.y;
+        result->w.z -= matrices[i]->w.z;
+        result->w.w -= matrices[i]->w.w;
+    }
+
     return 0;
 }

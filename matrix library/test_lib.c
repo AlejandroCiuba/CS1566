@@ -128,12 +128,27 @@ int main() {
     print_matrix(matrix2);
     printf("\n");
 
+    vector4 matrix_vec3 = {3.3,4.4,5.5,6.6};
+    mat4x4 matrix3 = {matrix_vec3,matrix_vec3,matrix_vec3,matrix_vec3};
+    
+    print_matrix(matrix3);
+    printf("\n");
 
-    mat4x4* matrices[] = {&matrix1, &matrix2};
+
+    mat4x4* matrices[] = {&matrix1, &matrix2, &matrix3};
     mat4x4* result = zero_matrix();
  
-    matrix_add(matrices, 2, result);
+    matrix_add(matrices, 3, result);
     print_matrix(*result);
+
+    //TESTING MATRIX SUBTRACTION
+    printf("\nTESTING MATRIX SUBTRACTION\nSAMEVECTORS\n");
+
+    mat4x4* result2 = zero_matrix(); 
+    mat4x4* matrices2[] = {result, &matrix3, &matrix2};
+
+    matrix_sub(matrices2, 3, result2);
+    print_matrix_ptr(result2);
 
     printf("Successful run\n");
 
