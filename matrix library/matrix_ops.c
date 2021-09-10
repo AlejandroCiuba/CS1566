@@ -92,3 +92,40 @@ ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result) 
     *result = (vec1->x * vec2->x) + (vec1->y * vec2->y) + (vec1->z * vec2->z) + (vec1->w * vec2->w);
     return 0;
 }
+
+//============== MATRIX MATH FUNCTIONS ==============
+//Add any number of matrices at once
+ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result) {
+
+    for(int i = 0; i < count; i++) {
+        
+        if(matrices[i] == NULL) return MATLIB_POINTER_ERROR;
+
+        result->x.x += matrices[i]->x.x;
+        result->x.y += matrices[i]->x.y;
+        result->x.z += matrices[i]->x.z;
+        result->x.w += matrices[i]->x.w;
+
+        result->y.x += matrices[i]->y.x;
+        result->y.y += matrices[i]->y.y;
+        result->y.z += matrices[i]->y.z;
+        result->y.w += matrices[i]->y.w;
+
+        result->z.x += matrices[i]->z.x;
+        result->z.y += matrices[i]->z.y;
+        result->z.z += matrices[i]->z.z;
+        result->z.w += matrices[i]->z.w;
+
+        result->w.x += matrices[i]->w.x;
+        result->w.y += matrices[i]->w.y;
+        result->w.z += matrices[i]->w.z;
+        result->w.w += matrices[i]->w.w;
+    }
+
+    return 0;
+}
+
+//Subtract any number of matrices at once
+ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result) {
+    return 0;
+}

@@ -50,22 +50,26 @@ ERROR_NUM print_GLfloat_ptr(const GLfloat* flt) {
 }
 
 //Returns a pointer to a 0 vector4
-ERROR_NUM zero_vector(vector4* vec) {
+vector4* zero_vector() {
     
-    if(vec == NULL) return MATLIB_POINTER_ERROR;
+    vector4* vec = (vector4*) malloc(sizeof(vector4));
+    if(vec == NULL) return NULL;
     vec->x = vec-> y = vec->z = vec->w = 0;
-    return 0;
+    return vec;
 }
 
 //Returns a pointer to a 0 matrix
-ERROR_NUM zero_matrix(mat4x4* mat) {
+mat4x4* zero_matrix() {
 
-    if(mat == NULL) return MATLIB_POINTER_ERROR;
+    mat4x4* mat = (mat4x4*) malloc(sizeof(mat4x4));
+
+    if(mat == NULL) return NULL;
     zero_vector(&mat->x);
     zero_vector(&mat->y);
     zero_vector(&mat->z);
     zero_vector(&mat->w);
-    return 0;
+
+    return mat;
 }
 
 //Copies stuff from one vector to another

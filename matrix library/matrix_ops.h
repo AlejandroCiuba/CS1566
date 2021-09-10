@@ -28,4 +28,12 @@ ERROR_NUM vector_norm(const vector4* vec);
 //Returns the Dot Product of 2 given vectors
 ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result);
 
+
+//============== MATRIX MATH FUNCTIONS ==============
+//Add any number of matrices at once
+ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result);
+
+//Subtract any number of matrices at once
+ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result);
+
 #endif

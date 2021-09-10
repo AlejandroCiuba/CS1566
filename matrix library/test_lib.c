@@ -114,6 +114,27 @@ int main() {
     vector_dot(&allthrees, &allthrees, &dotty);
     print_GLfloat(dotty);
 
+    //TESTING MATRIX ADDITION
+    printf("\nTESTING MATRIX ADDITION\n");
+    vector4 matrix_vec = {1.1,2.2,3.3,4.4};
+    mat4x4 matrix1 = {matrix_vec, matrix_vec, matrix_vec, matrix_vec};
+
+    print_matrix(matrix1);
+    printf("\n");
+
+    vector4 matrix_vec2 = {2.2,3.3,4.4,5.5};
+    mat4x4 matrix2 = {matrix_vec2, matrix_vec2, matrix_vec2,matrix_vec2};
+
+    print_matrix(matrix2);
+    printf("\n");
+
+
+    mat4x4* matrices[] = {&matrix1, &matrix2};
+    mat4x4* result = zero_matrix();
+ 
+    matrix_add(matrices, 2, result);
+    print_matrix(*result);
+
     printf("Successful run\n");
 
     return 0;
