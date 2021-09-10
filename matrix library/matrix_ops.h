@@ -37,4 +37,19 @@ ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result);
 //Subtract any number of matrices at once
 ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result);
 
+//Matrix-matrix multiplication, 2 ONLY
+ERROR_NUM matxmat(mat4x4* matrix1, mat4x4* matrix2, mat4x4* result);
+
+//Matrix-vector multiplication, 2 ONLY
+ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result);
+
+//Transpose a matrix
+ERROR_NUM transpose(mat4x4* matrix);
+
+//Transpose a matrix with a separate matrix to store the results
+ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result);
+
+//Inverse of a matrix
+ERROR_NUM inverse();
+
 #endif

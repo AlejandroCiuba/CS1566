@@ -184,3 +184,21 @@ ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result) {
 
     return 0;
 }
+
+//Matrix-matrix multiplication, 2 ONLY
+ERROR_NUM matxmat(mat4x4* matrix1, mat4x4* matrix2, mat4x4* result) {
+
+    if(matrix1 == NULL || matrix2 == NULL) return MATLIB_POINTER_ERROR;
+
+    result->x.x = (matrix1->x.x * matrix2->x.x) + (matrix1->y.x * matrix2->x.y) + (matrix1->z.x * matrix2->x.z) + (matrix1->w.x * matrix2->x.w); 
+    result->x.y = (matrix1->x.y * matrix2->x.x) + (matrix1->y.y * matrix2->x.y) + (matrix1->z.y * matrix2->x.z) + (matrix1->w.y * matrix2->x.w);
+    result->x.z = (matrix1->x.z * matrix2->x.x) + (matrix1->y.z * matrix2->x.y) + (matrix1->z.z * matrix2->x.z) + (matrix1->w.z * matrix2->x.w); 
+    result->x.w = (matrix1->x.w * matrix2->x.x) + (matrix1->y.w * matrix2->x.y) + (matrix1->z.w * matrix2->x.z) + (matrix1->w.w * matrix2->x.w); 
+
+    return 0;
+}
+
+//Matrix-vector multiplication, 2 ONLY
+ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result) {
+    return 0;
+}
