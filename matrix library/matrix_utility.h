@@ -30,10 +30,10 @@ ERROR_NUM print_matrix_ptr(const mat4x4* mat);
 ERROR_NUM print_GLfloat_ptr(const GLfloat* flt);
 
 //Returns a pointer to a 0 vector4
-ERROR_NUM zero_vector(vector4* vec);
+vector4* zero_vector();
 
 //Returns a pointer to a 0 matrix
-ERROR_NUM zero_matrix(mat4x4* mat);
+mat4x4* zero_matrix();
 
 //Copies stuff from one vector to another
 ERROR_NUM copy_vector(const vector4* og, vector4* cpy);

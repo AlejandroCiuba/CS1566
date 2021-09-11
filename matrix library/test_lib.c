@@ -80,12 +80,75 @@ int main() {
 
     vector4* vec_arr[] = {&vec, &vec2};
 
-    vector_add(vec_arr, 2, vec3_ptr);
+    if(vector_add(vec_arr, 2, vec3_ptr) == -2) goto pointer_err;
 
     printf("\nFINAL RESULT:\n");
     print_vector_ptr(vec3_ptr);
 
     free(vec3_ptr);
+
+    //TESTING VECTOR MAGNITUDE
+    printf("\nTESTING VECTOR MAGNITUDE\n");
+    vector4 vec4 = {1.1, 2.2, 3.3, 4.4};
+    GLfloat mag = 0.0;
+
+    print_vector(vec4);
+    print_GLfloat(mag);
+    if(vector_mag(&vec4, &mag) == -2) goto pointer_err;
+    printf("\nRESULT: %f\n", mag);
+
+    //TESTING VECTOR NORMALIZATION
+    printf("\nTESTING VECTOR NORMALIZATION\n");
+    vector4 alltwos = {2.0,2.0,2.0,2.0};
+    print_vector(alltwos);
+
+    vector_norm(&alltwos);
+    print_vector(alltwos);
+
+    //TESTING DOT PRODUCT
+    printf("\nTESTING DOT PRODUCT\n");
+    vector4 allthrees = {3.0,3.0,3.0,3.0};
+    GLfloat dotty = 0.0f;
+
+    print_vector(allthrees);
+    vector_dot(&allthrees, &allthrees, &dotty);
+    print_GLfloat(dotty);
+
+    //TESTING MATRIX ADDITION
+    printf("\nTESTING MATRIX ADDITION\n");
+    vector4 matrix_vec = {1.1,2.2,3.3,4.4};
+    mat4x4 matrix1 = {matrix_vec, matrix_vec, matrix_vec, matrix_vec};
+
+    print_matrix(matrix1);
+    printf("\n");
+
+    vector4 matrix_vec2 = {2.2,3.3,4.4,5.5};
+    mat4x4 matrix2 = {matrix_vec2, matrix_vec2, matrix_vec2,matrix_vec2};
+
+    print_matrix(matrix2);
+    printf("\n");
+
+    vector4 matrix_vec3 = {3.3,4.4,5.5,6.6};
+    mat4x4 matrix3 = {matrix_vec3,matrix_vec3,matrix_vec3,matrix_vec3};
+    
+    print_matrix(matrix3);
+    printf("\n");
+
+
+    mat4x4* matrices[] = {&matrix1, &matrix2, &matrix3};
+    mat4x4* result = zero_matrix();
+ 
+    matrix_add(matrices, 3, result);
+    print_matrix(*result);
+
+    //TESTING MATRIX SUBTRACTION
+    printf("\nTESTING MATRIX SUBTRACTION\nSAMEVECTORS\n");
+
+    mat4x4* result2 = zero_matrix(); 
+    mat4x4* matrices2[] = {result, &matrix3, &matrix2};
+
+    matrix_sub(matrices2, 3, result2);
+    print_matrix_ptr(result2);
 
     printf("Successful run\n");
 

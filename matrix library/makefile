@@ -2,7 +2,7 @@
 CC = gcc
 CFLAGS = -Wall
 #Linking stuff like -lm
-LDFLAGS = 
+LDFLAGS = -lm
 #Will recompile if .c != .o or if .o does not exist
 OBJFILES = test_lib.o matrix_utility.o matrix_ops.o
 #Name of the main file
