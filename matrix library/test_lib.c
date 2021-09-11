@@ -150,6 +150,43 @@ int main() {
     matrix_sub(matrices2, 3, result2);
     print_matrix_ptr(result2);
 
+    free(result2);
+
+    //TESTING MATRIX MULTIPLICATION
+    printf("\nTESTING MATRIX MULTIPLICATION\n");
+
+    mat4x4 basic = {{1,2,3,4},{2,3,4,5},{3,4,5,6},{4,5,6,7}};
+    mat4x4 basic2 = basic;
+
+    print_matrix(basic);
+
+    mat4x4* basic3 = zero_matrix();
+
+    matxmat(&basic, &basic2, basic3);
+
+    if(print_matrix_ptr(basic3) == -2) goto pointer_err;
+
+    free(basic3);
+
+    //TESTING MATRIX VECTOR MULTIPLICATION
+    printf("\nTESTING MATRIX-VECTOR MULTIPLICATION\n");
+
+    vector4 final_vec = {1,1,1,1};
+    vector4* basic4 = zero_vector();
+
+    matxvec(&basic, &final_vec, basic4);
+
+    if(print_vector_ptr(basic4) == -2) goto pointer_err;
+
+    //TESTING TRANSPOSE
+    printf("\nTESTING TRANSPOSE\n");
+
+    basic.y.x = 7;
+    print_matrix(basic);
+    printf("\n");
+    transpose(&basic);
+    print_matrix(basic);
+
     printf("Successful run\n");
 
     return 0;

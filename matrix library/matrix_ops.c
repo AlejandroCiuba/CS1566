@@ -100,6 +100,10 @@ ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result) 
     return 0;
 }
 
+ERROR_NUM vector_cross() {
+    return 0;
+}
+
 //============== MATRIX MATH FUNCTIONS ==============
 //Add any number of matrices at once
 ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result) {
@@ -188,17 +192,73 @@ ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result) {
 //Matrix-matrix multiplication, 2 ONLY
 ERROR_NUM matxmat(mat4x4* matrix1, mat4x4* matrix2, mat4x4* result) {
 
-    if(matrix1 == NULL || matrix2 == NULL) return MATLIB_POINTER_ERROR;
+    if(matrix1 == NULL || matrix2 == NULL || result == NULL) return MATLIB_POINTER_ERROR;
 
     result->x.x = (matrix1->x.x * matrix2->x.x) + (matrix1->y.x * matrix2->x.y) + (matrix1->z.x * matrix2->x.z) + (matrix1->w.x * matrix2->x.w); 
     result->x.y = (matrix1->x.y * matrix2->x.x) + (matrix1->y.y * matrix2->x.y) + (matrix1->z.y * matrix2->x.z) + (matrix1->w.y * matrix2->x.w);
     result->x.z = (matrix1->x.z * matrix2->x.x) + (matrix1->y.z * matrix2->x.y) + (matrix1->z.z * matrix2->x.z) + (matrix1->w.z * matrix2->x.w); 
-    result->x.w = (matrix1->x.w * matrix2->x.x) + (matrix1->y.w * matrix2->x.y) + (matrix1->z.w * matrix2->x.z) + (matrix1->w.w * matrix2->x.w); 
+    result->x.w = (matrix1->x.w * matrix2->x.x) + (matrix1->y.w * matrix2->x.y) + (matrix1->z.w * matrix2->x.z) + (matrix1->w.w * matrix2->x.w);
+
+    result->y.x = (matrix1->x.x * matrix2->y.x) + (matrix1->y.x * matrix2->y.y) + (matrix1->z.x * matrix2->y.z) + (matrix1->w.x * matrix2->y.w); 
+    result->y.y = (matrix1->x.y * matrix2->y.x) + (matrix1->y.y * matrix2->y.y) + (matrix1->z.y * matrix2->y.z) + (matrix1->w.y * matrix2->y.w);
+    result->y.z = (matrix1->x.z * matrix2->y.x) + (matrix1->y.z * matrix2->y.y) + (matrix1->z.z * matrix2->y.z) + (matrix1->w.z * matrix2->y.w); 
+    result->y.w = (matrix1->x.w * matrix2->y.x) + (matrix1->y.w * matrix2->y.y) + (matrix1->z.w * matrix2->y.z) + (matrix1->w.w * matrix2->y.w); 
+
+    result->z.x = (matrix1->x.x * matrix2->z.x) + (matrix1->y.x * matrix2->z.y) + (matrix1->z.x * matrix2->z.z) + (matrix1->w.x * matrix2->z.w); 
+    result->z.y = (matrix1->x.y * matrix2->z.x) + (matrix1->y.y * matrix2->z.y) + (matrix1->z.y * matrix2->z.z) + (matrix1->w.y * matrix2->z.w);
+    result->z.z = (matrix1->x.z * matrix2->z.x) + (matrix1->y.z * matrix2->z.y) + (matrix1->z.z * matrix2->z.z) + (matrix1->w.z * matrix2->z.w); 
+    result->z.w = (matrix1->x.w * matrix2->z.x) + (matrix1->y.w * matrix2->z.y) + (matrix1->z.w * matrix2->z.z) + (matrix1->w.w * matrix2->z.w); 
+
+    result->w.x = (matrix1->x.x * matrix2->w.x) + (matrix1->y.x * matrix2->w.y) + (matrix1->z.x * matrix2->w.z) + (matrix1->w.x * matrix2->w.w); 
+    result->w.y = (matrix1->x.y * matrix2->w.x) + (matrix1->y.y * matrix2->w.y) + (matrix1->z.y * matrix2->w.z) + (matrix1->w.y * matrix2->w.w);
+    result->w.z = (matrix1->x.z * matrix2->w.x) + (matrix1->y.z * matrix2->w.y) + (matrix1->z.z * matrix2->w.z) + (matrix1->w.z * matrix2->w.w); 
+    result->w.w = (matrix1->x.w * matrix2->w.x) + (matrix1->y.w * matrix2->w.y) + (matrix1->z.w * matrix2->w.z) + (matrix1->w.w * matrix2->w.w); 
 
     return 0;
 }
 
 //Matrix-vector multiplication, 2 ONLY
 ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result) {
+
+    if(matrix == NULL || vector == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+
+    result->x = (matrix->x.x * vector->x) + (matrix->y.x * vector->y) + (matrix->z.x * vector->z) + (matrix->w.x * vector->w);
+    result->y = (matrix->x.y * vector->x) + (matrix->y.y * vector->y) + (matrix->z.y * vector->z) + (matrix->w.y * vector->w);
+    result->z = (matrix->x.z * vector->x) + (matrix->y.z * vector->y) + (matrix->z.z * vector->z) + (matrix->w.z * vector->w);
+    result->w = (matrix->x.w * vector->x) + (matrix->y.w * vector->y) + (matrix->z.w * vector->z) + (matrix->w.w * vector->w);
+
+    return 0;
+}
+
+//Transpose a matrix
+ERROR_NUM transpose(mat4x4* matrix) {
+
+    if(matrix == NULL) return MATLIB_POINTER_ERROR;
+
+    mat4x4 store = *matrix;
+
+    matrix->x.x = store.x.x; matrix->x.y = store.y.x; matrix->x.z = store.z.x; matrix->x.w = store.w.x;
+    matrix->y.x = store.x.y; matrix->y.y = store.y.y; matrix->y.z = store.z.y; matrix->y.w = store.w.y;
+    matrix->z.x = store.x.z; matrix->z.y = store.y.z; matrix->z.z = store.z.z; matrix->z.w = store.w.z;
+    matrix->w.x = store.x.w; matrix->w.y = store.y.w; matrix->w.z = store.z.w; matrix->w.w = store.w.w;
+
+    return 0;
+}
+
+//Transpose a matrix with a separate matrix to store the results
+ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result) {
+
+    if(matrix == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+
+    result->x.x = matrix->x.x; result->x.y = matrix->y.x; result->x.z = matrix->z.x; result->x.w = matrix->w.x;
+    result->y.x = matrix->x.y; result->y.y = matrix->y.y; result->y.z = matrix->z.y; result->y.w = matrix->w.y;
+    result->z.x = matrix->x.z; result->z.y = matrix->y.z; result->z.z = matrix->z.z; result->z.w = matrix->w.z;
+    result->w.x = matrix->x.w; result->w.y = matrix->y.w; result->w.z = matrix->z.w; result->w.w = matrix->w.w;
+
+    return 0;
+}
+
+//Inverse of a matrix
+ERROR_NUM inverse() {
     return 0;
 }
