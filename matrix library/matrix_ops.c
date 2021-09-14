@@ -276,16 +276,43 @@ ERROR_NUM identity(mat4x4* identity) {
 
     if(identity == NULL) return MATLIB_POINTER_ERROR;
 
-    GLfloat* ident = (GLfloat*) identity;
-
-    for(char i = 0; i < 16; i++)
-        *(ident + i) = (i % 5 == 0)? 1 : 0;
+    for(char i = 0; i < 16; i++) *(((GLfloat*) identity) + i) = (i % 5 == 0)? 1 : 0;
 
     return 0;
 }
 
 //Returns a minor matrix for a given matrix
 ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
+
+    if(matrix == NULL || minor == NULL) return MATLIB_POINTER_ERROR;
+
+    mat4x4 mat = *matrix;
+
+    typedef GLfloat det_mat[9];
+
+    //ROWxCOL for det_mat but COLxROW for mat
+    //NO X IN ROW
+    det_mat mat11 = {mat.y.y, mat.z.y, mat.w.y, mat.y.z, mat.z.z, mat.w.z, mat.y.w, mat.z.w, mat.w.w};
+    det_mat mat12 = {mat.x.y, mat.z.y, mat.w.y, mat.x.z, mat.z.z, mat.w.z, mat.x.w, mat.z.w, mat.w.w};
+    det_mat mat13 = {mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.z, mat.x.w, mat.y.w, mat.w.w};
+    det_mat mat14 = {mat.x.y, mat.y.y, mat.z.y, mat.x.z, mat.y.z, mat.z.z, mat.x.w, mat.y.w, mat.z.w};
+
+    //NO Y IN ROW
+    det_mat mat21 = {mat.y.x, mat.z.x, mat.w.x, mat.y.z, mat.z.z, mat.w.z, mat.y.w, mat.z.w, mat.w.w};
+    det_mat mat22 = {mat.x.x, mat.z.x, mat.w.x, mat.x.z, mat.z.z, mat.w.z, mat.x.w, mat.z.w, mat.w.w};
+    det_mat mat23 = {mat.x.x, mat.y.x, mat.w.x, mat.x.z, mat.y.z, mat.w.z, mat.x.w, mat.y.w, mat.w.w};
+    det_mat mat24 = {mat.x.x, mat.y.x, mat.z.x, mat.x.z, mat.y.z, mat.z.z, mat.x.w, mat.y.w, mat.z.w};
+
+    det_mat mat31;
+    det_mat mat32;
+    det_mat mat33;
+    det_mat mat34;
+
+    det_mat mat41;
+    det_mat mat42;
+    det_mat mat43;
+    det_mat mat44;
+
     return 0;
 }
 
