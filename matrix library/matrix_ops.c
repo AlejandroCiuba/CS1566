@@ -100,7 +100,15 @@ ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result) 
     return 0;
 }
 
-ERROR_NUM vector_cross() {
+ERROR_NUM vector_cross(const vector4* vec1, const vector4* vec2, vector4* result) {
+
+    if(vec1 == NULL || vec2 == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+
+    result->x = (vec1->y * vec2->z) - (vec1->z * vec2->y);
+    result->y = (vec1->z * vec2->x) - (vec1->x * vec2->z);
+    result->z = (vec1->x * vec2->y) - (vec1->y * vec2->x);
+    result->w = 0.0f;
+
     return 0;
 }
 
@@ -259,6 +267,34 @@ ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result) {
 }
 
 //Inverse of a matrix
-ERROR_NUM inverse() {
+ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse) {
+    return 0;
+}
+
+//Returns the identity matrix
+ERROR_NUM identity(mat4x4* identity) {
+
+    if(identity == NULL) return MATLIB_POINTER_ERROR;
+
+    GLfloat* ident = (GLfloat*) identity;
+
+    for(char i = 0; i < 16; i++)
+        *(ident + i) = (i % 5 == 0)? 1 : 0;
+
+    return 0;
+}
+
+//Returns a minor matrix for a given matrix
+ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
+    return 0;
+}
+
+//Flips signs of a matrix, affects original matrix
+ERROR_NUM cofactor(mat4x4* matrix) {
+    return 0;
+}
+
+//Calculates the determinant of a matrix
+ERROR_NUM determinant(mat4x4* matrix, GLfloat* result) {
     return 0;
 }

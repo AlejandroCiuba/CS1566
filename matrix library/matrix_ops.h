@@ -52,4 +52,15 @@ ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result);
 //Inverse of a matrix
 ERROR_NUM inverse();
 
+//Returns the identity matrix
+ERROR_NUM identity(mat4x4* identity);
+
+//Returns a minor matrix for a given matrix
+ERROR_NUM minor(mat4x4* matrix, mat4x4* minor);
+
+//Flips signs of a matrix, affects original matrix
+ERROR_NUM cofactor(mat4x4* matrix);
+
+//Calculates the determinant of a matrix
+ERROR_NUM determinant(mat4x4* matrix, GLfloat* result);
 #endif

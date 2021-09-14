@@ -187,6 +187,11 @@ int main() {
     transpose(&basic);
     print_matrix(basic);
 
+    mat4x4* ident = (mat4x4*) malloc(sizeof(mat4x4));
+    identity(ident);
+
+    print_matrix_ptr(ident);
+
     printf("Successful run\n");
 
     return 0;
