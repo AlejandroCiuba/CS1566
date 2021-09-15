@@ -28,6 +28,14 @@ ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args) {
 }
 
 //============== VECTOR MATH FUNCTIONS ==============
+//Tells if two vectors are equal
+bool vector_equal(vector4* vec1, vector4* vec2) {
+
+    if((vec1 == NULL && vec2 != NULL)|| (vec2 == NULL && vec1 != NULL)) return false;
+    else if(vec1 == NULL && vec2 == NULL) return true;
+    else if(vec1 == vec2) return true;
+    else return vec1->x == vec2->x && vec1->y == vec2->y && vec1->z == vec2->z && vec1->w == vec2->w;
+}
 
 //Add any number of vectors at once
 ERROR_NUM vector_add(vector4* vectors[], int count, vector4* result) {
@@ -113,6 +121,16 @@ ERROR_NUM vector_cross(const vector4* vec1, const vector4* vec2, vector4* result
 }
 
 //============== MATRIX MATH FUNCTIONS ==============
+//Tells if two matrices are equal
+bool matrix_equal(mat4x4* mat1, mat4x4* mat2) {
+    
+    if((mat1 == NULL && mat2 != NULL) || (mat2 == NULL && mat1 != NULL)) return false;
+    else if(mat1 == NULL && mat2 == NULL) return true;
+    else if(mat1 == mat2) return true;
+    else return vector_equal(&(mat1->x), &(mat2->x)) && vector_equal(&(mat1->y), &(mat2->y)) 
+    && vector_equal(&(mat1->z), &(mat2->z)) && vector_equal(&(mat1->w), &(mat2->w));
+}
+
 //Add any number of matrices at once
 ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result) {
 
@@ -268,6 +286,30 @@ ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result) {
 
 //Inverse of a matrix
 ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse) {
+
+    if(matrix == NULL || inverse == NULL) return MATLIB_POINTER_ERROR;
+
+    mat4x4 min = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+
+    if(minor(matrix, &min) == MATLIB_POINTER_ERROR) return MATLIB_POINTER_ERROR;
+
+    GLfloat det_inv = 1 / ((matrix->x.x * min.x.x) - (matrix->x.y * min.x.y) + (matrix->x.z * min.x.z) - (matrix->x.w * min.x.w));
+
+    if(cofactor(&min) == MATLIB_POINTER_ERROR) return MATLIB_POINTER_ERROR;
+    if(transpose(&min) == MATLIB_POINTER_ERROR) return MATLIB_POINTER_ERROR;
+
+    scalar(&min, det_inv, 1);
+
+    mat4x4 test = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    matxmat(matrix, &min, &test);
+
+    mat4x4 ident = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    identity(&ident);
+
+    if(matrix_equal(&ident, &test) != true) return MATLIB_MATRIX_ERROR;
+
+    *inverse = min; 
+
     return 0;
 }
 
@@ -303,21 +345,78 @@ ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
     det_mat mat23 = {mat.x.x, mat.y.x, mat.w.x, mat.x.z, mat.y.z, mat.w.z, mat.x.w, mat.y.w, mat.w.w};
     det_mat mat24 = {mat.x.x, mat.y.x, mat.z.x, mat.x.z, mat.y.z, mat.z.z, mat.x.w, mat.y.w, mat.z.w};
 
-    det_mat mat31;
-    det_mat mat32;
-    det_mat mat33;
-    det_mat mat34;
+    //NO Z IN ROW
+    det_mat mat31 = {mat.y.x, mat.z.x, mat.w.x, mat.y.y, mat.z.y, mat.w.y, mat.y.w, mat.z.w, mat.w.w};
+    det_mat mat32 = {mat.x.x, mat.z.x, mat.w.x, mat.x.y, mat.z.y, mat.w.y, mat.x.w, mat.z.w, mat.w.w};
+    det_mat mat33 = {mat.x.x, mat.y.x, mat.w.x, mat.x.y, mat.y.y, mat.w.y, mat.x.w, mat.y.w, mat.w.w};
+    det_mat mat34 = {mat.x.x, mat.y.x, mat.z.x, mat.x.y, mat.y.y, mat.z.y, mat.x.w, mat.y.w, mat.z.w};
 
-    det_mat mat41;
-    det_mat mat42;
-    det_mat mat43;
-    det_mat mat44;
+    //NO W IN ROW
+    det_mat mat41 = {mat.y.x, mat.z.x, mat.w.x, mat.y.y, mat.z.y, mat.w.y, mat.y.z, mat.z.z, mat.w.z};
+    det_mat mat42 = {mat.x.x, mat.z.x, mat.w.x, mat.x.y, mat.z.y, mat.w.y, mat.x.z, mat.z.z, mat.w.z};
+    det_mat mat43 = {mat.x.x, mat.y.x, mat.w.x, mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.x};
+    det_mat mat44 = {mat.x.x, mat.y.x, mat.z.x, mat.x.y, mat.y.y, mat.z.y, mat.x.z, mat.y.z, mat.z.z};
+
+    //Put them in an array
+    GLfloat fl11 = (mat11[0] * mat11[4] * mat11[8]) + (mat11[1] * mat11[5] * mat11[6]) + (mat11[2] * mat11[3] * mat11[7])
+     - (mat11[6] * mat11[4] * mat11[2]) - (mat11[7] * mat11[5] * mat11[0]) - (mat11[8] * mat11[3] * mat11[1]); 
+    GLfloat fl12 = (mat12[0] * mat12[4] * mat12[8]) + (mat12[1] * mat12[5] * mat12[6]) + (mat12[2] * mat12[3] * mat12[7])
+     - (mat12[6] * mat12[4] * mat12[2]) - (mat12[7] * mat12[5] * mat12[0]) - (mat12[8] * mat12[3] * mat12[1]); 
+    GLfloat fl13 = (mat13[0] * mat13[4] * mat13[8]) + (mat13[1] * mat13[5] * mat13[6]) + (mat13[2] * mat13[3] * mat13[7])
+     - (mat13[6] * mat13[4] * mat13[2]) - (mat13[7] * mat13[5] * mat13[0]) - (mat13[8] * mat13[3] * mat13[1]); 
+    GLfloat fl14 = (mat14[0] * mat14[4] * mat14[8]) + (mat14[1] * mat14[5] * mat14[6]) + (mat14[2] * mat14[3] * mat14[7])
+     - (mat14[6] * mat14[4] * mat14[2]) - (mat14[7] * mat14[5] * mat14[0]) - (mat14[8] * mat14[3] * mat14[1]); 
+
+    GLfloat fl21 = (mat21[0] * mat21[4] * mat21[8]) + (mat21[1] * mat21[5] * mat21[6]) + (mat21[2] * mat21[3] * mat21[7])
+     - (mat21[6] * mat21[4] * mat21[2]) - (mat21[7] * mat21[5] * mat21[0]) - (mat21[8] * mat21[3] * mat21[1]); 
+    GLfloat fl22 = (mat22[0] * mat22[4] * mat22[8]) + (mat22[1] * mat22[5] * mat22[6]) + (mat22[2] * mat22[3] * mat22[7])
+     - (mat22[6] * mat22[4] * mat22[2]) - (mat22[7] * mat22[5] * mat22[0]) - (mat22[8] * mat22[3] * mat22[1]); 
+    GLfloat fl23 = (mat23[0] * mat23[4] * mat23[8]) + (mat23[1] * mat23[5] * mat23[6]) + (mat23[2] * mat23[3] * mat23[7])
+     - (mat23[6] * mat23[4] * mat23[2]) - (mat23[7] * mat23[5] * mat23[0]) - (mat23[8] * mat23[3] * mat23[1]); 
+    GLfloat fl24 = (mat24[0] * mat24[4] * mat24[8]) + (mat24[1] * mat24[5] * mat24[6]) + (mat24[2] * mat24[3] * mat24[7])
+     - (mat24[6] * mat24[4] * mat24[2]) - (mat24[7] * mat24[5] * mat24[0]) - (mat24[8] * mat24[3] * mat24[1]); 
+
+    GLfloat fl31 = (mat31[0] * mat31[4] * mat31[8]) + (mat31[1] * mat31[5] * mat31[6]) + (mat31[2] * mat31[3] * mat31[7])
+     - (mat31[6] * mat31[4] * mat31[2]) - (mat31[7] * mat31[5] * mat31[0]) - (mat31[8] * mat31[3] * mat31[1]); 
+    GLfloat fl32 = (mat32[0] * mat32[4] * mat32[8]) + (mat32[1] * mat32[5] * mat32[6]) + (mat32[2] * mat32[3] * mat32[7])
+     - (mat32[6] * mat32[4] * mat32[2]) - (mat32[7] * mat32[5] * mat32[0]) - (mat32[8] * mat32[3] * mat32[1]); 
+    GLfloat fl33 = (mat33[0] * mat33[4] * mat33[8]) + (mat33[1] * mat33[5] * mat33[6]) + (mat33[2] * mat33[3] * mat33[7])
+     - (mat33[6] * mat33[4] * mat33[2]) - (mat33[7] * mat33[5] * mat33[0]) - (mat33[8] * mat33[3] * mat33[1]); 
+    GLfloat fl34 = (mat34[0] * mat34[4] * mat34[8]) + (mat34[1] * mat34[5] * mat34[6]) + (mat34[2] * mat34[3] * mat34[7])
+     - (mat34[6] * mat34[4] * mat34[2]) - (mat34[7] * mat34[5] * mat34[0]) - (mat34[8] * mat34[3] * mat34[1]); 
+
+    GLfloat fl41 = (mat41[0] * mat41[4] * mat41[8]) + (mat41[1] * mat41[5] * mat41[6]) + (mat41[2] * mat41[3] * mat41[7])
+     - (mat41[6] * mat41[4] * mat41[2]) - (mat41[7] * mat41[5] * mat41[0]) - (mat41[8] * mat41[3] * mat41[1]); 
+    GLfloat fl42 = (mat42[0] * mat42[4] * mat42[8]) + (mat42[1] * mat42[5] * mat42[6]) + (mat42[2] * mat42[3] * mat42[7])
+     - (mat42[6] * mat42[4] * mat42[2]) - (mat42[7] * mat42[5] * mat42[0]) - (mat42[8] * mat42[3] * mat42[1]); 
+    GLfloat fl43 = (mat43[0] * mat43[4] * mat43[8]) + (mat43[1] * mat43[5] * mat43[6]) + (mat43[2] * mat43[3] * mat43[7])
+     - (mat43[6] * mat43[4] * mat43[2]) - (mat43[7] * mat43[5] * mat43[0]) - (mat43[8] * mat43[3] * mat43[1]); 
+    GLfloat fl44 = (mat44[0] * mat44[4] * mat44[8]) + (mat44[1] * mat44[5] * mat44[6]) + (mat44[2] * mat44[3] * mat44[7])
+     - (mat44[6] * mat44[4] * mat44[2]) - (mat44[7] * mat44[5] * mat44[0]) - (mat44[8] * mat44[3] * mat44[1]);
+
+    vector4 vecx = {fl11, fl21, fl31, fl41};
+    vector4 vecy = {fl12, fl22, fl32, fl42};
+    vector4 vecz = {fl13, fl23, fl33, fl43};
+    vector4 vecw = {fl14, fl24, fl34, fl44}; 
+
+    minor->x = vecx;
+    minor->y = vecy;
+    minor->z = vecz;
+    minor->w = vecw;
 
     return 0;
 }
 
 //Flips signs of a matrix, affects original matrix
 ERROR_NUM cofactor(mat4x4* matrix) {
+
+    if(matrix == NULL) return MATLIB_POINTER_ERROR;
+
+    matrix->y.x *= -1; matrix->w.x *= -1;
+    matrix->x.y *= -1; matrix->z.y *= -1;
+    matrix->y.z *= -1; matrix->w.z *= -1;
+    matrix->x.w *= -1; matrix->z.w *= -1;
+
     return 0;
 }
 

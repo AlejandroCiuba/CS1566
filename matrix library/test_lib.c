@@ -192,6 +192,39 @@ int main() {
 
     print_matrix_ptr(ident);
 
+    //TESTING INVERSE
+    printf("\nTESTING INVERSE\n");
+    
+    mat4x4 start = {{-4,0,0,0}, {-1,2,0,0}, {-4,4,4,0}, {-1,-9,-1,1}};
+    print_matrix(start);
+    printf("\n");
+
+    mat4x4* min = zero_matrix();
+    minor(&start, min);
+
+    print_matrix_ptr(min);
+    printf("\n");
+
+    cofactor(min);
+
+    print_matrix_ptr(min);
+    printf("\n");
+
+    mat4x4* inv = zero_matrix();
+
+    inverse(&start, inv);
+
+    print_matrix_ptr(inv);
+
+    mat4x4* test = zero_matrix();
+    matxmat(&start, inv, test);
+
+    print_matrix_ptr(test);
+
+    free(test);
+    free(inv);
+    free(min);
+
     printf("Successful run\n");
 
     return 0;

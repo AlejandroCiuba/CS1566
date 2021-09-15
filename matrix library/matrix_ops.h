@@ -9,10 +9,17 @@
 
 #include "matrix_def.h"
 
+//Rather than importing stdbool.h, I'll just make my own
+
+typedef enum {false, true} bool;
+
 //============== VECTOR AND MATRIX MATH FUNCTIONS ==============
 ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args);
 
 //============== VECTOR MATH FUNCTIONS ==============
+//Tells if two vectors are equal
+bool vector_equal(vector4* vec1, vector4* vec2);
+
 //Add any number of vectors at once
 ERROR_NUM vector_add(vector4* vectors[], int count, vector4* result);
 
@@ -31,6 +38,9 @@ ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result);
 ERROR_NUM vector_cross();
 
 //============== MATRIX MATH FUNCTIONS ==============
+//Tells if two matrices are equal
+bool matrix_equal(mat4x4* mat1, mat4x4* mat2);
+
 //Add any number of matrices at once
 ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result);
 
@@ -50,7 +60,7 @@ ERROR_NUM transpose(mat4x4* matrix);
 ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result);
 
 //Inverse of a matrix
-ERROR_NUM inverse();
+ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse);
 
 //Returns the identity matrix
 ERROR_NUM identity(mat4x4* identity);
