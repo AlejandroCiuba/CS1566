@@ -5,13 +5,13 @@
 CC = gcc
 CCFLAGS = -Wall
 LDFLAGS = -lm
-OBJFILES = test.o matrix_utility.o matrix_ops
-TARGET = test
+OBJFILES = test.o matrix_library/matrix_utility.o matrix_library/matrix_ops
+TARGET= test
 
 all: $(TARGET)
 
 $(TARGET): $(OBJFILES)
-	$(CC) $(CCFLAGS) -o $(OBJFILES) $(LDFLAGS)
+	$(CC) $(CCFLAGS) -o $(TARGET) $(OBJFILES) $(LDFLAGS)
 
 clean:
 	rm -f $(OBJFILES) $(TARGET) *~
