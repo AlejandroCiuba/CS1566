@@ -88,5 +88,82 @@ int main() {
     free(v1dot);
     free(v2);
 
+    //===================== PART 5 =====================
+
+    mat4x4 mat1 = {{1,-5,9,13},{2,6,-10,14},{3,7,11,15},{4,8,12,-16}};
+    mat4x4 mat1copy = mat1;
+
+    printf("\nMatrix 1\n");
+    print_matrix(mat1);
+
+    scalar(&mat1, 3.0, 1);
+    printf("\nMatrix 1 Scaled By 3.0\n");
+    print_matrix(mat1);
+
+    mat4x4 mat2 = {{4,8,12,16},{3,7,11,15},{2,6,10,14},{1,5,9,13}};
+
+    printf("\nMatrix 2\n");
+    print_matrix(mat2);
+
+    printf("\nMatrix 1 Added With Matrix 2\n");
+
+    mat4x4* addmat[] = {&mat1copy, &mat2};
+    mat4x4 resadd = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    matrix_add(addmat, 2, &resadd);
+
+    print_matrix(resadd);
+
+    printf("\nMatrix 1 Subtract With Matrix 2\n");
+
+    mat4x4 ressub = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    matrix_sub(addmat, 2, &ressub);
+
+    print_matrix(ressub);
+
+    //===================== PART 6 =====================
+
+    printf("\n Transpose Of Matrix 1\n");
+
+    mat4x4 copy2 = mat1copy;
+
+    transpose(&copy2);
+
+    print_matrix(copy2);
+
+    printf("\nMatrix 1 Multiplied By Matrix 2\n");
+
+    mat4x4 resmult = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+
+    matxmat(&mat1copy, &mat2, &resmult);
+
+    print_matrix(resmult);
+
+    vector4 v = {1,2,3,4};
+
+    printf("\nMatrix 1 Scaled By Vector 1\n");
+
+    vector4 resvec = {0,0,0,0};
+    matxvec(&mat1copy, &v, &resvec);
+
+    print_vector(resvec);
+
+    //===================== PART 7 =====================
+
+    printf("\nInverse Of Matrix 1\n");
+
+    mat4x4 inv = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+
+    inverse(&mat1copy, &inv);
+
+    print_matrix(inv);
+
+    printf("\nTesting Against Matrix 1\n");
+
+    mat4x4 restest = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+
+    matxmat(&mat1copy, &inv, &restest);
+
+    print_matrix(restest);
+
     return 0;
 }

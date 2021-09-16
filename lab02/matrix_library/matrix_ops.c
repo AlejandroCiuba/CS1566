@@ -300,14 +300,6 @@ ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse) {
 
     scalar(&min, det_inv, 1);
 
-    mat4x4 test = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-    matxmat(matrix, &min, &test);
-
-    mat4x4 ident = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-    identity(&ident);
-
-    if(matrix_equal(&ident, &test) != true) return MATLIB_MATRIX_ERROR;
-
     *inverse = min; 
 
     return 0;
@@ -354,7 +346,7 @@ ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
     //NO W IN ROW
     det_mat mat41 = {mat.y.x, mat.z.x, mat.w.x, mat.y.y, mat.z.y, mat.w.y, mat.y.z, mat.z.z, mat.w.z};
     det_mat mat42 = {mat.x.x, mat.z.x, mat.w.x, mat.x.y, mat.z.y, mat.w.y, mat.x.z, mat.z.z, mat.w.z};
-    det_mat mat43 = {mat.x.x, mat.y.x, mat.w.x, mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.x};
+    det_mat mat43 = {mat.x.x, mat.y.x, mat.w.x, mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.z};
     det_mat mat44 = {mat.x.x, mat.y.x, mat.z.x, mat.x.y, mat.y.y, mat.z.y, mat.x.z, mat.y.z, mat.z.z};
 
     //Put them in an array
@@ -383,7 +375,7 @@ ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
     GLfloat fl33 = (mat33[0] * mat33[4] * mat33[8]) + (mat33[1] * mat33[5] * mat33[6]) + (mat33[2] * mat33[3] * mat33[7])
      - (mat33[6] * mat33[4] * mat33[2]) - (mat33[7] * mat33[5] * mat33[0]) - (mat33[8] * mat33[3] * mat33[1]); 
     GLfloat fl34 = (mat34[0] * mat34[4] * mat34[8]) + (mat34[1] * mat34[5] * mat34[6]) + (mat34[2] * mat34[3] * mat34[7])
-     - (mat34[6] * mat34[4] * mat34[2]) - (mat34[7] * mat34[5] * mat34[0]) - (mat34[8] * mat34[3] * mat34[1]); 
+     - (mat34[6] * mat34[4] * mat34[2]) - (mat34[7] * mat34[5] * mat34[0]) - (mat34[8] * mat34[3] * mat34[1]);
 
     GLfloat fl41 = (mat41[0] * mat41[4] * mat41[8]) + (mat41[1] * mat41[5] * mat41[6]) + (mat41[2] * mat41[3] * mat41[7])
      - (mat41[6] * mat41[4] * mat41[2]) - (mat41[7] * mat41[5] * mat41[0]) - (mat41[8] * mat41[3] * mat41[1]); 
