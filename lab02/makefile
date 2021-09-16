@@ -5,14 +5,11 @@
 CC = gcc
 CCFLAGS = -Wall
 LDFLAGS = -lm
-OBJFILES = test.o matrix_library/matrix_utility.o matrix_library/matrix_ops
+OBJFILES = test.o matrix_library/matrix_utility.o matrix_library/matrix_ops.o
 TARGET= test
 MAKE = make
 
-all: subdirectory $(TARGET)
-
-subdirectory:
-	$(MAKE) -C matrix_library
+all: $(TARGET)
 
 $(TARGET): $(OBJFILES)
 	$(CC) $(CCFLAGS) -o $(TARGET) $(OBJFILES) $(LDFLAGS)
