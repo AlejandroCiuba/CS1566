@@ -5,7 +5,7 @@
  */
 
 #include "matrix_ops.h"
-#include "math.h"
+#include <math.h>
 #include <stddef.h> //Needed here, but NOT in header file
 
 //============== VECTOR AND MATRIX MATH FUNCTIONS ==============
