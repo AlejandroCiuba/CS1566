@@ -1,8 +1,5 @@
 /**
  * definitions for the matrix_utility.h functions
- * ERROR_NUM to return -2 to signify pointer problem
- * with matrix pointers and return -3 to signify
- * memory allocation problems
  * 
  * Created by Alejandro Ciuba
  */
@@ -137,4 +134,23 @@ ERROR_NUM fill_vector(vector4* vec, const GLfloat flt) {
     if(vec == NULL) return MATLIB_POINTER_ERROR;
     vec->x = vec->y = vec->z = vec->w = flt;
     return 0;
+}
+
+//Tells if two vectors are equal
+bool vector_equal(vector4* vec1, vector4* vec2) {
+
+    if((vec1 == NULL && vec2 != NULL)|| (vec2 == NULL && vec1 != NULL)) return false;
+    else if(vec1 == NULL && vec2 == NULL) return true;
+    else if(vec1 == vec2) return true;
+    else return vec1->x == vec2->x && vec1->y == vec2->y && vec1->z == vec2->z && vec1->w == vec2->w;
+}
+
+//Tells if two matrices are equal
+bool matrix_equal(mat4x4* mat1, mat4x4* mat2) {
+    
+    if((mat1 == NULL && mat2 != NULL) || (mat2 == NULL && mat1 != NULL)) return false;
+    else if(mat1 == NULL && mat2 == NULL) return true;
+    else if(mat1 == mat2) return true;
+    else return vector_equal(&(mat1->x), &(mat2->x)) && vector_equal(&(mat1->y), &(mat2->y)) 
+    && vector_equal(&(mat1->z), &(mat2->z)) && vector_equal(&(mat1->w), &(mat2->w));
 }

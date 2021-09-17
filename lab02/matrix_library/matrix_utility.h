@@ -48,4 +48,10 @@ ERROR_NUM fill_matrix(mat4x4* mat, const GLfloat flt);
 
 ERROR_NUM fill_vector(vector4* vec, const GLfloat flt);
 
+//Tells if two vectors are equal
+bool vector_equal(vector4* vec1, vector4* vec2);
+
+//Tells if two matrices are equal
+bool matrix_equal(mat4x4* mat1, mat4x4* mat2);
+
 #endif
