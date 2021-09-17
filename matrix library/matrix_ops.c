@@ -5,7 +5,7 @@
  */
 
 #include "matrix_ops.h"
-#include "math.h"
+#include <math.h>
 #include <stddef.h> //Needed here, but NOT in header file
 
 //============== VECTOR AND MATRIX MATH FUNCTIONS ==============
@@ -28,14 +28,6 @@ ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args) {
 }
 
 //============== VECTOR MATH FUNCTIONS ==============
-//Tells if two vectors are equal
-bool vector_equal(vector4* vec1, vector4* vec2) {
-
-    if((vec1 == NULL && vec2 != NULL)|| (vec2 == NULL && vec1 != NULL)) return false;
-    else if(vec1 == NULL && vec2 == NULL) return true;
-    else if(vec1 == vec2) return true;
-    else return vec1->x == vec2->x && vec1->y == vec2->y && vec1->z == vec2->z && vec1->w == vec2->w;
-}
 
 //Add any number of vectors at once
 ERROR_NUM vector_add(vector4* vectors[], int count, vector4* result) {
@@ -121,15 +113,6 @@ ERROR_NUM vector_cross(const vector4* vec1, const vector4* vec2, vector4* result
 }
 
 //============== MATRIX MATH FUNCTIONS ==============
-//Tells if two matrices are equal
-bool matrix_equal(mat4x4* mat1, mat4x4* mat2) {
-    
-    if((mat1 == NULL && mat2 != NULL) || (mat2 == NULL && mat1 != NULL)) return false;
-    else if(mat1 == NULL && mat2 == NULL) return true;
-    else if(mat1 == mat2) return true;
-    else return vector_equal(&(mat1->x), &(mat2->x)) && vector_equal(&(mat1->y), &(mat2->y)) 
-    && vector_equal(&(mat1->z), &(mat2->z)) && vector_equal(&(mat1->w), &(mat2->w));
-}
 
 //Add any number of matrices at once
 ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result) {
@@ -295,18 +278,10 @@ ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse) {
 
     GLfloat det_inv = 1 / ((matrix->x.x * min.x.x) - (matrix->x.y * min.x.y) + (matrix->x.z * min.x.z) - (matrix->x.w * min.x.w));
 
-    if(cofactor(&min) == MATLIB_POINTER_ERROR) return MATLIB_POINTER_ERROR;
-    if(transpose(&min) == MATLIB_POINTER_ERROR) return MATLIB_POINTER_ERROR;
+    cofactor(&min);
+    transpose(&min);
 
     scalar(&min, det_inv, 1);
-
-    mat4x4 test = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-    matxmat(matrix, &min, &test);
-
-    mat4x4 ident = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
-    identity(&ident);
-
-    if(matrix_equal(&ident, &test) != true) return MATLIB_MATRIX_ERROR;
 
     *inverse = min; 
 
@@ -318,7 +293,10 @@ ERROR_NUM identity(mat4x4* identity) {
 
     if(identity == NULL) return MATLIB_POINTER_ERROR;
 
-    for(char i = 0; i < 16; i++) *(((GLfloat*) identity) + i) = (i % 5 == 0)? 1 : 0;
+    identity->x.x = 1; identity->y.x = 0; identity->z.x = 0; identity->w.x = 0;
+    identity->x.y = 0; identity->y.y = 1; identity->z.y = 0; identity->w.y = 0;
+    identity->x.z = 0; identity->y.z = 0; identity->z.z = 1; identity->w.z = 0;
+    identity->x.w = 0; identity->y.w = 0; identity->z.w = 0; identity->w.w = 1;
 
     return 0;
 }
@@ -354,7 +332,7 @@ ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
     //NO W IN ROW
     det_mat mat41 = {mat.y.x, mat.z.x, mat.w.x, mat.y.y, mat.z.y, mat.w.y, mat.y.z, mat.z.z, mat.w.z};
     det_mat mat42 = {mat.x.x, mat.z.x, mat.w.x, mat.x.y, mat.z.y, mat.w.y, mat.x.z, mat.z.z, mat.w.z};
-    det_mat mat43 = {mat.x.x, mat.y.x, mat.w.x, mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.x};
+    det_mat mat43 = {mat.x.x, mat.y.x, mat.w.x, mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.z};
     det_mat mat44 = {mat.x.x, mat.y.x, mat.z.x, mat.x.y, mat.y.y, mat.z.y, mat.x.z, mat.y.z, mat.z.z};
 
     //Put them in an array
@@ -383,7 +361,7 @@ ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
     GLfloat fl33 = (mat33[0] * mat33[4] * mat33[8]) + (mat33[1] * mat33[5] * mat33[6]) + (mat33[2] * mat33[3] * mat33[7])
      - (mat33[6] * mat33[4] * mat33[2]) - (mat33[7] * mat33[5] * mat33[0]) - (mat33[8] * mat33[3] * mat33[1]); 
     GLfloat fl34 = (mat34[0] * mat34[4] * mat34[8]) + (mat34[1] * mat34[5] * mat34[6]) + (mat34[2] * mat34[3] * mat34[7])
-     - (mat34[6] * mat34[4] * mat34[2]) - (mat34[7] * mat34[5] * mat34[0]) - (mat34[8] * mat34[3] * mat34[1]); 
+     - (mat34[6] * mat34[4] * mat34[2]) - (mat34[7] * mat34[5] * mat34[0]) - (mat34[8] * mat34[3] * mat34[1]);
 
     GLfloat fl41 = (mat41[0] * mat41[4] * mat41[8]) + (mat41[1] * mat41[5] * mat41[6]) + (mat41[2] * mat41[3] * mat41[7])
      - (mat41[6] * mat41[4] * mat41[2]) - (mat41[7] * mat41[5] * mat41[0]) - (mat41[8] * mat41[3] * mat41[1]); 
@@ -422,5 +400,31 @@ ERROR_NUM cofactor(mat4x4* matrix) {
 
 //Calculates the determinant of a matrix
 ERROR_NUM determinant(mat4x4* matrix, GLfloat* result) {
+
+    if(matrix == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+
+    mat4x4 mat = *matrix;
+
+    typedef GLfloat det_mat[9];
+
+    //ROWxCOL for det_mat but COLxROW for mat
+    //NO X IN ROW
+    det_mat mat11 = {mat.y.y, mat.z.y, mat.w.y, mat.y.z, mat.z.z, mat.w.z, mat.y.w, mat.z.w, mat.w.w};
+    det_mat mat12 = {mat.x.y, mat.z.y, mat.w.y, mat.x.z, mat.z.z, mat.w.z, mat.x.w, mat.z.w, mat.w.w};
+    det_mat mat13 = {mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.z, mat.x.w, mat.y.w, mat.w.w};
+    det_mat mat14 = {mat.x.y, mat.y.y, mat.z.y, mat.x.z, mat.y.z, mat.z.z, mat.x.w, mat.y.w, mat.z.w};
+
+    //Put them in an array
+    GLfloat fl11 = (mat11[0] * mat11[4] * mat11[8]) + (mat11[1] * mat11[5] * mat11[6]) + (mat11[2] * mat11[3] * mat11[7])
+     - (mat11[6] * mat11[4] * mat11[2]) - (mat11[7] * mat11[5] * mat11[0]) - (mat11[8] * mat11[3] * mat11[1]); 
+    GLfloat fl12 = (mat12[0] * mat12[4] * mat12[8]) + (mat12[1] * mat12[5] * mat12[6]) + (mat12[2] * mat12[3] * mat12[7])
+     - (mat12[6] * mat12[4] * mat12[2]) - (mat12[7] * mat12[5] * mat12[0]) - (mat12[8] * mat12[3] * mat12[1]); 
+    GLfloat fl13 = (mat13[0] * mat13[4] * mat13[8]) + (mat13[1] * mat13[5] * mat13[6]) + (mat13[2] * mat13[3] * mat13[7])
+     - (mat13[6] * mat13[4] * mat13[2]) - (mat13[7] * mat13[5] * mat13[0]) - (mat13[8] * mat13[3] * mat13[1]); 
+    GLfloat fl14 = (mat14[0] * mat14[4] * mat14[8]) + (mat14[1] * mat14[5] * mat14[6]) + (mat14[2] * mat14[3] * mat14[7])
+     - (mat14[6] * mat14[4] * mat14[2]) - (mat14[7] * mat14[5] * mat14[0]) - (mat14[8] * mat14[3] * mat14[1]); 
+
+    *result = (mat.x.x * fl11) - (mat.y.x * fl12) + (mat.z.x * fl13) - (mat.w.x * fl14);
+
     return 0;
 }

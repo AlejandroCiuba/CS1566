@@ -17,6 +17,10 @@ typedef char ERROR_NUM;
 #define MATLIB_NAN_ERROR -5
 #define MATLIB_ALLOC_ERROR -6
 
+//Rather than importing stdbool.h, I'll just make my own
+
+typedef enum {false, true} bool;
+
 //Defines datatype for OpenGL
 typedef float GLfloat;
 

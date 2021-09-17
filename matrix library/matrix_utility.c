@@ -1,8 +1,5 @@
 /**
  * definitions for the matrix_utility.h functions
- * ERROR_NUM to return -2 to signify pointer problem
- * with matrix pointers and return -3 to signify
- * memory allocation problems
  * 
  * Created by Alejandro Ciuba
  */
@@ -12,12 +9,12 @@
 #include <stdlib.h>
 
 //Prints the given vector
-void print_vector(const vector4 vec) {printf("[x : %f, y : %f, z : %f, w : %f]\n", vec.x, vec.y, vec.z, vec.w);}
+void print_vector(const vector4 vec) {printf("[x : %.4f, y : %.4f, z : %.4f, w : %.4f]\n", vec.x, vec.y, vec.z, vec.w);}
 
 //Prints the given 4x4 matrix
 void print_matrix(const mat4x4 mat) {
 
-    printf("| x : %f, %f, %f, %f |\n| y : %f, %f, %f, %f |\n| z : %f, %f, %f, %f |\n| w : %f, %f, %f, %f |\n", 
+    printf("| x : %.4f, %.4f, %.4f, %.4f |\n| y : %.4f, %.4f, %.4f, %.4f |\n| z : %.4f, %.4f, %.4f, %.4f |\n| w : %.4f, %.4f, %.4f, %.4f |\n", 
             mat.x.x, mat.y.x, mat.z.x, mat.w.x, 
             mat.x.y, mat.y.y, mat.z.y, mat.w.y, 
             mat.x.z, mat.y.z, mat.z.z, mat.w.z, 
@@ -25,7 +22,7 @@ void print_matrix(const mat4x4 mat) {
 }
 
 //Prints the given GLfloat 
-void print_GLfloat(const GLfloat flt) {printf("GLfloat : %f\n", flt);}
+void print_GLfloat(const GLfloat flt) {printf("GLfloat : %.4f\n", flt);}
 
 //Pointer versions of debugging statements
 ERROR_NUM print_vector_ptr(const vector4* vec) {
@@ -137,4 +134,23 @@ ERROR_NUM fill_vector(vector4* vec, const GLfloat flt) {
     if(vec == NULL) return MATLIB_POINTER_ERROR;
     vec->x = vec->y = vec->z = vec->w = flt;
     return 0;
+}
+
+//Tells if two vectors are equal
+bool vector_equal(vector4* vec1, vector4* vec2) {
+
+    if((vec1 == NULL && vec2 != NULL)|| (vec2 == NULL && vec1 != NULL)) return false;
+    else if(vec1 == NULL && vec2 == NULL) return true;
+    else if(vec1 == vec2) return true;
+    else return vec1->x == vec2->x && vec1->y == vec2->y && vec1->z == vec2->z && vec1->w == vec2->w;
+}
+
+//Tells if two matrices are equal
+bool matrix_equal(mat4x4* mat1, mat4x4* mat2) {
+    
+    if((mat1 == NULL && mat2 != NULL) || (mat2 == NULL && mat1 != NULL)) return false;
+    else if(mat1 == NULL && mat2 == NULL) return true;
+    else if(mat1 == mat2) return true;
+    else return vector_equal(&(mat1->x), &(mat2->x)) && vector_equal(&(mat1->y), &(mat2->y)) 
+    && vector_equal(&(mat1->z), &(mat2->z)) && vector_equal(&(mat1->w), &(mat2->w));
 }
