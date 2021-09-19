@@ -10,6 +10,8 @@
 #include <GL/freeglut_ext.h>
 #include <stdio.h>
 
+#include <time.h>
+
 #include "../matrix library/initShader.h"
 #include "../matrix library/matrix_def.h"
 #include "../matrix library/matrix_utility.h"
@@ -19,17 +21,47 @@
 
 vector4 vertices[6] =
 {{-.5,.5,0,1},{-1,0,0,1},{0,0,0,1},
-{.5,.5,0,1},{0,0,0,1},{1,.5,0,1}};
+{.5,.5,0,1},{0,0,0,1},{1,0,0,1}};
 
 vector4 colors[6] =
-{{1.0, 0.0, 0.0, 1.0},	// red   (for top)
- {0.0, 1.0, 0.0, 1.0},	// green (for bottom left)
- {0.0, 0.0, 1.0, 1.0},	// blue  (for bottom right)
- {1.0, 0.0, 0.0, 1.0},	// blue  (for bottom right)
- {0.0, 1.0, 0.0, 1.0},	// blue  (for bottom right)
- {0.0, 0.0, 1.0, 1.0}};	// blue  (for bottom right)
+{{1.0, 0.0, 0.0, 1.0},
+{1.0, 0.0, 0.0, 1.0},
+{1.0, 0.0, 0.0, 1.0},
+{1.0, 0.0, 0.0, 1.0},
+{1.0, 0.0, 0.0, 1.0},
+{1.0, 0.0, 0.0, 1.0}};
 
 int num_vertices = 6;
+
+//===================== STUDENT-IMPLEMENTED FUNCTIONS =====================
+void random_colors(vector4* colors, const int num_vertices) {
+    
+    if(colors == NULL || num_vertices <= 0) return;
+
+    //Seed it
+    srand(time(NULL));
+
+    for(int i = 0; i < num_vertices / 3; i++) {
+
+        GLfloat red = (GLfloat) ((rand() % 10) + 1) / 10;
+        GLfloat green = (GLfloat) ((rand() % 10) + 1) / 10;
+        GLfloat blue = (GLfloat) ((rand() % 10) + 1) / 10;
+        
+        colors[i * 3].x = red;
+        colors[i * 3].y = green;
+        colors[i * 3].z = blue;
+
+        colors[i * 3 + 1].x = red;
+        colors[i * 3 + 1].y = green;
+        colors[i * 3 + 1].z = blue;
+        
+        colors[i * 3 + 2].x = red;
+        colors[i * 3 + 2].y = green;
+        colors[i * 3 + 2].z = blue;
+    }
+
+    print_vector(colors[0]);
+}
 
 void init(void)
 {
@@ -85,7 +117,10 @@ void reshape(int width, int height)
 }
 
 int main(int argc, char **argv)
-{
+{   
+    //Assign random colors
+    random_colors(colors, num_vertices);
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
