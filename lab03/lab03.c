@@ -176,8 +176,8 @@ void cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 
     //Make "cone" part
     for(int i = 0; i < triangles; i++) {
 
-        vertices[i * 3 + base_vertices] = tip;
-        vertices[i * 3 + base_vertices + 1] = vertices[i * 3 + 1];
+        vertices[i * 3 + base_vertices] = vertices[i * 3];
+        vertices[i * 3 + base_vertices + 1] = tip;
         vertices[i * 3 + base_vertices + 2] = vertices[i * 3 + 2];
     }
 }
