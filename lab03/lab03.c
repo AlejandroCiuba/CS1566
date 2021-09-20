@@ -71,7 +71,7 @@ void random_colors(vector4* colors, const int num_vertices) {
 }
 
 //Assumes triangle-based implementation
-void circle(vector4* vertices, int count, GLfloat radius) {
+void circle(vector4* vertices, int count, GLfloat radius, char align) {
 
     if(vertices == NULL || count == 0 || count % 3 != 0) return;
 
@@ -82,23 +82,76 @@ void circle(vector4* vertices, int count, GLfloat radius) {
     GLfloat deg_per_triangle = (GLfloat) 360 / num_of_triangles;
 
     print_GLfloat(deg_per_triangle);
+    switch(align) {
 
-    for(int i = 0; i < num_of_triangles; i++) {
+        case 'z':
 
-        vertices[i * 3].x = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
-        vertices[i * 3].y = (GLfloat) (radius *sin((deg_per_triangle * (i + 1)) * M_PI / 180));
-        vertices[i * 3].z = 0;
-        vertices[i * 3].w = 1.0;
+            for(int i = 0; i < num_of_triangles; i++) {
 
-        vertices[i * 3 + 1].x = 0;
-        vertices[i * 3 + 1].y = 0;
-        vertices[i * 3 + 1].z = 0;
-        vertices[i * 3 + 1].w = 1.0;
+                vertices[i * 3].x = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].z = 0;
+                vertices[i * 3].w = 1.0;
 
-        vertices[i * 3 + 2].x = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180));
-        vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180));
-        vertices[i * 3 + 2].z = 0;
-        vertices[i * 3 + 2].w = 1.0;
+                vertices[i * 3 + 1].x = 0;
+                vertices[i * 3 + 1].y = 0;
+                vertices[i * 3 + 1].z = 0;
+                vertices[i * 3 + 1].w = 1.0;
+
+                vertices[i * 3 + 2].x = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180));
+                vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180));
+                vertices[i * 3 + 2].z = 0;
+                vertices[i * 3 + 2].w = 1.0;
+            }
+
+            break;
+        
+        case 'y':
+
+            for(int i = 0; i < num_of_triangles; i++) {
+
+                vertices[i * 3].x = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].y = 0;
+                vertices[i * 3].z = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].w = 1;
+
+                vertices[i * 3 + 1].x = 0;
+                vertices[i * 3 + 1].y = 0;
+                vertices[i * 3 + 1].z = 0;
+                vertices[i * 3 + 1].w = 1.0;
+
+                vertices[i * 3 + 2].x = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180));
+                vertices[i * 3 + 2].y = 0;
+                vertices[i * 3 + 2].z = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180));
+                vertices[i * 3 + 2].w = 1;
+            }
+
+            break;
+        
+        case 'x':
+
+        for(int i = 0; i < num_of_triangles; i++) {
+
+                vertices[i * 3].x = 0;
+                vertices[i * 3].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].z = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].w = 1;
+
+                vertices[i * 3 + 1].x = 0;
+                vertices[i * 3 + 1].y = 0;
+                vertices[i * 3 + 1].z = 0;
+                vertices[i * 3 + 1].w = 1.0;
+
+                vertices[i * 3 + 2].x = 0;
+                vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3 + 2].z = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180));
+                vertices[i * 3 + 2].w = 1;
+            }
+
+            break;
+
+        default:
+            return;
     }
 }
 
@@ -160,7 +213,7 @@ void reshape(int width, int height)
 int main(int argc, char **argv)
 {   
     //Assign points
-    circle(vertices, num_vertices, .5);
+    circle(vertices, num_vertices, .5, 'z');
 
     //Assign random colors
     random_colors(colors, num_vertices);
