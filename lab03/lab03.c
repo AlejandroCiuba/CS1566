@@ -32,10 +32,10 @@ vector4 colors[6] =
 {1.0, 0.0, 0.0, 1.0},
 {1.0, 0.0, 0.0, 1.0}};*/
 
-vector4 vertices[30];
-vector4 colors[30];
+vector4 vertices[300];
+vector4 colors[300];
 
-int num_vertices = 30;
+int num_vertices = 300;
 
 //===================== STUDENT-IMPLEMENTED FUNCTIONS =====================
 void random_colors(vector4* colors, const int num_vertices) {
@@ -71,7 +71,7 @@ void random_colors(vector4* colors, const int num_vertices) {
 }
 
 //Assumes triangle-based implementation
-void circle(vector4* vertices, int count, GLfloat radius, char align) {
+void circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align) {
 
     if(vertices == NULL || count == 0 || count % 3 != 0) return;
 
@@ -88,19 +88,19 @@ void circle(vector4* vertices, int count, GLfloat radius, char align) {
 
             for(int i = 0; i < num_of_triangles; i++) {
 
-                vertices[i * 3].x = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
-                vertices[i * 3].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
-                vertices[i * 3].z = 0;
+                vertices[i * 3].x = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.x);
+                vertices[i * 3].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
+                vertices[i * 3].z = origin.z;
                 vertices[i * 3].w = 1.0;
 
-                vertices[i * 3 + 1].x = 0;
-                vertices[i * 3 + 1].y = 0;
-                vertices[i * 3 + 1].z = 0;
+                vertices[i * 3 + 1].x = origin.x;
+                vertices[i * 3 + 1].y = origin.y;
+                vertices[i * 3 + 1].z = origin.z;
                 vertices[i * 3 + 1].w = 1.0;
 
-                vertices[i * 3 + 2].x = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180));
-                vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180));
-                vertices[i * 3 + 2].z = 0;
+                vertices[i * 3 + 2].x = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180) + origin.x);
+                vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180) + origin.y);
+                vertices[i * 3 + 2].z = origin.z;
                 vertices[i * 3 + 2].w = 1.0;
             }
 
@@ -110,19 +110,19 @@ void circle(vector4* vertices, int count, GLfloat radius, char align) {
 
             for(int i = 0; i < num_of_triangles; i++) {
 
-                vertices[i * 3].x = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
-                vertices[i * 3].y = 0;
-                vertices[i * 3].z = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].x = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.x);
+                vertices[i * 3].y = origin.y;
+                vertices[i * 3].z = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.z);
                 vertices[i * 3].w = 1;
 
-                vertices[i * 3 + 1].x = 0;
-                vertices[i * 3 + 1].y = 0;
-                vertices[i * 3 + 1].z = 0;
+                vertices[i * 3 + 1].x = origin.x;
+                vertices[i * 3 + 1].y = origin.y;
+                vertices[i * 3 + 1].z = origin.z;
                 vertices[i * 3 + 1].w = 1.0;
 
-                vertices[i * 3 + 2].x = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180));
-                vertices[i * 3 + 2].y = 0;
-                vertices[i * 3 + 2].z = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180));
+                vertices[i * 3 + 2].x = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180) + origin.x);
+                vertices[i * 3 + 2].y = origin.y;
+                vertices[i * 3 + 2].z = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180) + origin.z);
                 vertices[i * 3 + 2].w = 1;
             }
 
@@ -132,19 +132,19 @@ void circle(vector4* vertices, int count, GLfloat radius, char align) {
 
         for(int i = 0; i < num_of_triangles; i++) {
 
-                vertices[i * 3].x = 0;
-                vertices[i * 3].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
-                vertices[i * 3].z = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+                vertices[i * 3].x = origin.x;
+                vertices[i * 3].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
+                vertices[i * 3].z = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.z);
                 vertices[i * 3].w = 1;
 
-                vertices[i * 3 + 1].x = 0;
-                vertices[i * 3 + 1].y = 0;
-                vertices[i * 3 + 1].z = 0;
+                vertices[i * 3 + 1].x = origin.x;
+                vertices[i * 3 + 1].y = origin.y;
+                vertices[i * 3 + 1].z = origin.z;
                 vertices[i * 3 + 1].w = 1.0;
 
-                vertices[i * 3 + 2].x = 0;
-                vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
-                vertices[i * 3 + 2].z = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180));
+                vertices[i * 3 + 2].x = origin.x;
+                vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
+                vertices[i * 3 + 2].z = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180) + origin.z);
                 vertices[i * 3 + 2].w = 1;
             }
 
@@ -152,6 +152,33 @@ void circle(vector4* vertices, int count, GLfloat radius, char align) {
 
         default:
             return;
+    }
+}
+
+void cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 tip, char align) {
+
+    if(vertices == NULL || count <= 0 || count % 3 != 0) return;
+
+    int base_vertices = count / 2;
+    vector4 base_origin = {tip.x,tip.y,tip.z,1};
+
+    if(align == 'y')
+        base_origin.y = tip.y - height;
+    else if(align == 'x')
+        base_origin.x = tip.x - height;
+    else if(align =='z')
+        base_origin.z = tip.z - height;
+
+    //Make base 
+    circle(vertices, base_vertices, radius, base_origin, align);
+
+    int triangles = base_vertices / 3;
+    //Make "cone" part
+    for(int i = 0; i < triangles; i++) {
+
+        vertices[i * 3 + base_vertices] = tip;
+        vertices[i * 3 + base_vertices + 1] = vertices[i * 3 + 1];
+        vertices[i * 3 + base_vertices + 2] = vertices[i * 3 + 2];
     }
 }
 
@@ -212,8 +239,17 @@ void reshape(int width, int height)
 
 int main(int argc, char **argv)
 {   
+    /*//Assign origin
+    vector4 origin = {0,0,0,1.0};
     //Assign points
-    circle(vertices, num_vertices, .5, 'z');
+    circle(vertices, num_vertices, .75, origin, 'z');*/
+
+    //Assign tip and height
+    vector4 tip = {0,1,0,1};
+    GLfloat height = 1;
+
+    //Create cone location vertex array
+    cone(vertices, num_vertices, .5, height, tip, 'y');
 
     //Assign random colors
     random_colors(colors, num_vertices);
