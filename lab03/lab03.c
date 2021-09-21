@@ -185,14 +185,17 @@ void cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 
 //===================== TEMPLATE =====================
 
 void init(void)
-{
+{   
+    //Start Shader Program
     GLuint program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
 
+    //The Attributes We Pass-In Will Be Associated With This Array
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
+    //Set Aside GPU Memory, Name It GL_ARRAY_BUFFER, Pass-In Vertex Attibutes
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -200,14 +203,17 @@ void init(void)
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(colors), colors);
 
+    //Get vPosition To Point To Where The Beginning Of The Position Attribute Vertex Array Is
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vPosition);
     glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
+    //Do The Same With The Beginning Of The Color Attribute Vertex Array
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
     glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) sizeof(vertices));
 
+    //Enablle Hidden Surface Removal, Background Color, And Depth-Range
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDepthRange(1,0);
@@ -215,12 +221,16 @@ void init(void)
 
 void display(void)
 {
+    //Clear The Buffer Each New Canvas
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //Front Of Polygons Will Have Color-Fill, Back Only Lines
+    //Draw Triangles (3 Vertices Per Triangle), Stop After num_vertices Vertices
     glPolygonMode(GL_FRONT, GL_FILL);
     glPolygonMode(GL_BACK, GL_LINE);
     glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
+    //Swap The Drawing Buffer And The Displayed Buffer
     glutSwapBuffers();
 }
 
@@ -254,16 +264,28 @@ int main(int argc, char **argv)
     //Assign random colors
     random_colors(colors, num_vertices);
 
+    //Initializes OpenGL Utility Library
     glutInit(&argc, argv);
+    //Color Type, Double Buffer (Draw & Image), Enable Hidden Surface Removal
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
     glutCreateWindow("Template");
+
+    //Initialize OpenGL Main Library Entry Points
     glewInit();
+
+    //User-Made, Defines Vertex Attributes, Uploads Them To GPU Memory, Set-Up Shader Programs
     init();
+
+    //Calls The Passed-In Function Every Time Something In Display Is Changed
     glutDisplayFunc(display);
+
+    //User-Events Triggered When Keyboard Buttons Are Pressed
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
+
+    //Starts The Event-Based Loop
     glutMainLoop();
 
     return 0;

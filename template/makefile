@@ -4,13 +4,17 @@ LIBS      = -lXi -lXmu -lglut -lGLEW -lGLU -lm -lGL
 OBJDIR   = ../matrix\ library
 OBJS     = $(OBJDIR)/initShader.o $(OBJDIR)/matrix_ops.o $(OBJDIR)/matrix_utility.o
 
-all: $(OBJDIR) template
+all: matrix template
 
+.PHONY: template
 template: template.c $(OBJS)
 	$(CC) -o template template.c $(OBJS) $(CFLAGS) $(LIBS)
 
-$(OBJDIR)/%.o: %.c %.h
-	$(CC) -c @< -o $@ $(CFLAGS)
+matrix:
+	$(MAKE) -C $(OBJDIR)
 
 clean:
-	rm -f $(OBJDIR)/$(OBJS) ../template/template *~
+	rm -f template *~ 
+
+clean_all: clean
+	$(MAKE) clean -C $(OBJDIR) 
