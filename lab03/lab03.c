@@ -32,15 +32,15 @@ vector4 colors[6] =
 {1.0, 0.0, 0.0, 1.0},
 {1.0, 0.0, 0.0, 1.0}};*/
 
-vector4 vertices[300];
-vector4 colors[300];
-
 int num_vertices = 300;
 
+vector4* vertices;
+vector4* colors;
+
 //===================== STUDENT-IMPLEMENTED FUNCTIONS =====================
-void random_colors(vector4* colors, const int num_vertices) {
+ERROR_NUM random_colors(vector4* colors, const int num_vertices) {
     
-    if(colors == NULL || num_vertices <= 0) return;
+    if(colors == NULL || num_vertices <= 0) return MATLIB_POINTER_ERROR;
 
     //Seed it
     srand(time(NULL));
@@ -68,12 +68,14 @@ void random_colors(vector4* colors, const int num_vertices) {
     }
 
     print_vector(colors[0]);
+
+    return 0;
 }
 
 //Assumes triangle-based implementation
-void circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align) {
+ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align) {
 
-    if(vertices == NULL || count == 0 || count % 3 != 0) return;
+    if(vertices == NULL || count == 0 || count % 3 != 0) return MATLIB_POINTER_ERROR;
 
     //Calculate how many triangles there will be based on the count
     int num_of_triangles = count / 3;
@@ -151,13 +153,15 @@ void circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char a
             break;
 
         default:
-            return;
+            return MATLIB_VECTOR_ERROR;
     }
+
+    return 0;
 }
 
-void cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 tip, char align) {
+ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 tip, char align) {
 
-    if(vertices == NULL || count <= 0 || count % 3 != 0) return;
+    if(vertices == NULL || count <= 0 || count % 3 != 0) return MATLIB_POINTER_ERROR;
 
     int base_vertices = count / 2;
     vector4 base_origin = {tip.x,tip.y,tip.z,1};
@@ -168,9 +172,11 @@ void cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 
         base_origin.x = tip.x - height;
     else if(align =='z')
         base_origin.z = tip.z - height;
+    else
+        return MATLIB_VECTOR_ERROR;
 
     //Make base 
-    circle(vertices, base_vertices, radius, base_origin, align);
+    if(circle(vertices, base_vertices, radius, base_origin, align) != 0) return MATLIB_VECTOR_ERROR;
 
     int triangles = base_vertices / 3;
     //Make "cone" part
@@ -180,6 +186,8 @@ void cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 
         vertices[i * 3 + base_vertices + 1] = tip;
         vertices[i * 3 + base_vertices + 2] = vertices[i * 3 + 2];
     }
+
+    return 0;
 }
 
 //===================== TEMPLATE =====================
@@ -199,9 +207,9 @@ void init(void)
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) + sizeof(colors), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(colors), colors);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, colors);
 
     //Get vPosition To Point To Where The Beginning Of The Position Attribute Vertex Array Is
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
@@ -211,7 +219,7 @@ void init(void)
     //Do The Same With The Beginning Of The Color Attribute Vertex Array
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
-    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) sizeof(vertices));
+    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
 
     //Enablle Hidden Surface Removal, Background Color, And Depth-Range
     glEnable(GL_DEPTH_TEST);
@@ -253,19 +261,32 @@ int main(int argc, char **argv)
     vector4 origin = {0,0,0,1.0};
     //Assign points
     circle(vertices, num_vertices, .75, origin, 'z');*/
+    if(argc != 1) {
+        num_vertices = atoi(argv[1]);
+        if(num_vertices % 3 != 0 || num_vertices < 9) {printf("Not enought vertices\n"); return -1;}
+    }
+
+    vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
+    colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
+
+    if(colors == NULL || vertices == NULL) return -1;
 
     //Assign tip and height
     vector4 tip = {0,1,0,1};
     GLfloat height = 1;
 
     //Create cone location vertex array
-    cone(vertices, num_vertices, .5, height, tip, 'y');
+    if(cone(vertices, num_vertices, .5, height, tip, 'y') != 0) return -1;
 
     //Assign random colors
-    random_colors(colors, num_vertices);
+    if(random_colors(colors, num_vertices) != 0) return -1;
 
     //Initializes OpenGL Utility Library
-    glutInit(&argc, argv);
+    //Pass fake args so I can use the command line >:)
+    char* fake_argc[] = {"my program", NULL};
+    int fake_argv = 0;
+    glutInit(&fake_argv, fake_argc);
+
     //Color Type, Double Buffer (Draw & Image), Enable Hidden Surface Removal
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
@@ -287,6 +308,10 @@ int main(int argc, char **argv)
 
     //Starts The Event-Based Loop
     glutMainLoop();
+
+    printf("\nEXIT\n");
+    free(vertices);
+    free(colors);
 
     return 0;
 }
