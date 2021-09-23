@@ -6,7 +6,7 @@ CC = gcc
 CCFLAGS = -Wall
 LDFLAGS = -lm
 OBJFILES = test.o matrix_library/matrix_utility.o matrix_library/matrix_ops.o
-TARGET= test
+TARGET = test
 
 all: $(TARGET)
 
