@@ -155,7 +155,7 @@ ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, c
                 vertices[i * 3 + 1].w = 1.0;
 
                 vertices[i * 3 + 2].x = origin.x;
-                vertices[i * 3 + 2].y = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
+                vertices[i * 3 + 2].y = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180) + origin.y);
                 vertices[i * 3 + 2].z = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180) + origin.z);
                 vertices[i * 3 + 2].w = 1;
             }
@@ -197,6 +197,23 @@ ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vec
         vertices[i * 3 + base_vertices + 1] = tip;
         vertices[i * 3 + base_vertices + 2] = vertices[i * 3 + 2];
     }
+
+    return 0;
+}
+
+//Assumes 6 vertices
+ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin, char align) {
+
+    if(vertices == NULL || height == 0 || width == 0) return MATLIB_POINTER_ERROR;
+
+
+    //Vertex 1-4
+    vertices[0] = (vector4) {origin.x - (width / 2), origin.y - (height / 2), origin.z, 1};
+    vertices[1] = (vector4) {origin.x + (width / 2), origin.y - (height / 2), origin.z, 1};
+    vertices[2] = (vector4) {origin.x + (width / 2), origin.y + (height / 2), origin.z, 1};
+    vertices[3] = (vector4) {origin.x - (width / 2), origin.y - (height / 2), origin.z, 1};
+    vertices[4] = (vector4) {origin.x + (width / 2), origin.y + (height / 2), origin.z, 1};
+    vertices[5] = (vector4) {origin.x - (width / 2), origin.y + (height / 2), origin.z, 1};
 
     return 0;
 }

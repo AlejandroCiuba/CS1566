@@ -27,4 +27,7 @@ ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, c
 
 ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 tip, char align);
 
+//Assumes 6 vertices
+ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin, char align);
+
 #endif

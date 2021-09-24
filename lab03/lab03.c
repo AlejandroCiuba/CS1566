@@ -127,15 +127,15 @@ int main(int argc, char **argv)
     if(colors == NULL || vertices == NULL) return -1;
 
     //Assign tip and height
-    vector4 tip = {0,.5,-.5,1};
+    vector4 tip = {0,.5,0,1};
     GLfloat height = 1;
 
     //Create cone location vertex array
     if(cone(vertices, num_vertices, .5, height, tip, align) != 0) return -1;
 
     //Assign random colors to the first half of triangles (the circle)
-    if(random_colors(colors, num_vertices / 2) != 0) return -1;
-    if(const_color(colors + (num_vertices / 2), num_vertices / 2, RED) != 0) return -1;
+    if(random_colors(colors, num_vertices) != 0) return -1;
+    //if(const_color(colors + (num_vertices / 2), num_vertices / 2, RED) != 0) return -1;
 
     //Initializes OpenGL Utility Library
     //Pass fake args so I can use the command line >:)
