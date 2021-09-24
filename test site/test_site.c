@@ -78,7 +78,7 @@ void reshape(int width, int height)
 
 int main(int argc, char **argv)
 {
-    vertices = (vector4*) malloc(sizeof(vector4) * 6);
+    /*vertices = (vector4*) malloc(sizeof(vector4) * 6);
     colors = (vector4*) malloc(sizeof(vector4) * 6);
     colors[0] = RED; colors[1] = GREEN; colors[2] = BLUE; 
     colors[3] = RED; colors[4] = BLUE; colors[5] = GREEN;
@@ -86,7 +86,15 @@ int main(int argc, char **argv)
     num_vertices = 6;
     vector4 origin = {0,0,0,1};
 
-    rectangle(vertices, .5, .5, origin, 'z');
+    rectangle(vertices, .5, .5, origin, 'z');*/
+
+    vertices = (vector4*) malloc(sizeof(vector4) * 300);
+    colors = (vector4*) malloc(sizeof(vector4) * 300);
+    num_vertices = 300;
+    vector4 origin = {0,0,0,1};
+
+    flat_taurus(vertices, 300, .5, 1, origin);
+    random_colors(colors, 300);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

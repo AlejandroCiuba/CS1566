@@ -217,3 +217,51 @@ ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 or
 
     return 0;
 }
+
+ERROR_NUM flat_taurus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin) {
+
+    if(vertices == NULL || outer == 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
+
+    int triangles = count / 3;
+    int outward = triangles / 2;
+    int deg_per_triangle = 360 / outward;
+
+
+    for(int i = 0; i < triangles / 2; i += 3) {
+
+        vertices[i].x = (GLfloat) (inner * cos((deg_per_triangle * i) * M_PI / 180));
+        vertices[i].y = (GLfloat) (inner * sin((deg_per_triangle * i) * M_PI / 180));
+        vertices[i].z = 0;
+        vertices[i].w = 1;
+
+        vertices[i + 1].x = (GLfloat) (outer * cos((deg_per_triangle * i) * M_PI / 180));
+        vertices[i + 1].y = (GLfloat) (outer * sin((deg_per_triangle * i) * M_PI / 180));
+        vertices[i + 1].z = 0;
+        vertices[i + 1].w = 1;
+
+        vertices[i + 2].x = (GLfloat) (outer * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 2].y = (GLfloat) (outer * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 2].z = 0;
+        vertices[i + 2].w = 1;
+    }
+
+    for(int i = triangles / 2; i < triangles; i += 3) {
+
+        vertices[i].x = (GLfloat) (inner * cos((deg_per_triangle * i) * M_PI / 180));
+        vertices[i].y = (GLfloat) (inner * sin((deg_per_triangle * i) * M_PI / 180));
+        vertices[i].z = 0;
+        vertices[i].w = 1;
+
+        vertices[i + 1].x = (GLfloat) (outer * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 1].y = (GLfloat) (outer * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 1].z = 0;
+        vertices[i + 1].w = 1;
+
+        vertices[i + 2].x = (GLfloat) (inner * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 2].y = (GLfloat) (inner * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 2].z = 0;
+        vertices[i + 2].w = 1;
+    }
+
+    return 0;
+}
