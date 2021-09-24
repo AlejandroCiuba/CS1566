@@ -109,9 +109,16 @@ int main(int argc, char **argv)
     vector4 origin = {0,0,0,1.0};
     //Assign points
     circle(vertices, num_vertices, .75, origin, 'z');*/
-    if(argc != 1) {
+
+    char align = 'y';
+
+    if(argc == 2) {
         num_vertices = atoi(argv[1]);
-        if(num_vertices % 3 != 0 || num_vertices < 9) {printf("Not enought vertices\n"); return -1;}
+        if((num_vertices % 3 != 0  && num_vertices % 2 != 0) || num_vertices < 9) {printf("Not enought vertices\n"); return -1;}
+    }
+    if(argc == 3) {
+        align = argv[2][0];
+        if(align != 'x' && align != 'y' && align != 'z') {printf("Non-existent axis\n"); return -1;}
     }
 
     vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
@@ -120,14 +127,15 @@ int main(int argc, char **argv)
     if(colors == NULL || vertices == NULL) return -1;
 
     //Assign tip and height
-    vector4 tip = {0,.5,0,1};
+    vector4 tip = {0,.5,-.5,1};
     GLfloat height = 1;
 
     //Create cone location vertex array
-    if(cone(vertices, num_vertices, .5, height, tip, 'y') != 0) return -1;
+    if(cone(vertices, num_vertices, .5, height, tip, align) != 0) return -1;
 
-    //Assign random colors
-    if(random_colors(colors, num_vertices) != 0) return -1;
+    //Assign random colors to the first half of triangles (the circle)
+    if(random_colors(colors, num_vertices / 2) != 0) return -1;
+    if(const_color(colors + (num_vertices / 2), num_vertices / 2, RED) != 0) return -1;
 
     //Initializes OpenGL Utility Library
     //Pass fake args so I can use the command line >:)

@@ -11,6 +11,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
+
+//Define extern RGB here
+vector4 RED = {1,0,0,1}; vector4 GREEN = {0,1,0,1}; vector4 BLUE = {0,0,1,1};
 
 ERROR_NUM random_colors(vector4* colors, const int num_vertices) {
     
@@ -24,6 +28,38 @@ ERROR_NUM random_colors(vector4* colors, const int num_vertices) {
         GLfloat red = (GLfloat) ((rand() % 10) + 1) / 10;
         GLfloat green = (GLfloat) ((rand() % 10) + 1) / 10;
         GLfloat blue = (GLfloat) ((rand() % 10) + 1) / 10;
+
+        colors[i * 3].x = red;
+        colors[i * 3].y = green;
+        colors[i * 3].z = blue;
+        colors[i * 3].w = 1.0;
+
+        colors[i * 3 + 1].x = red;
+        colors[i * 3 + 1].y = green;
+        colors[i * 3 + 1].z = blue;
+        colors[i * 3 + 1].w = 1.0;
+        
+        colors[i * 3 + 2].x = red;
+        colors[i * 3 + 2].y = green;
+        colors[i * 3 + 2].z = blue;
+        colors[i * 3 + 2].w = 1.0;
+    }
+
+    print_vector(colors[0]);
+
+    return 0;
+}
+
+//Assigns one color to a series of faces
+ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color) {
+
+    if(colors == NULL || num_vertices <= 0) return MATLIB_POINTER_ERROR;
+
+    for(int i = 0; i < num_vertices / 3; i++) {
+
+        GLfloat red = face_color.x;
+        GLfloat green = face_color.y;
+        GLfloat blue = face_color.z;
 
         colors[i * 3].x = red;
         colors[i * 3].y = green;
@@ -109,8 +145,8 @@ ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, c
         for(int i = 0; i < num_of_triangles; i++) {
 
                 vertices[i * 3].x = origin.x;
-                vertices[i * 3].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
-                vertices[i * 3].z = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.z);
+                vertices[i * 3].y = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
+                vertices[i * 3].z = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.z);
                 vertices[i * 3].w = 1;
 
                 vertices[i * 3 + 1].x = origin.x;
@@ -119,8 +155,8 @@ ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, c
                 vertices[i * 3 + 1].w = 1.0;
 
                 vertices[i * 3 + 2].x = origin.x;
-                vertices[i * 3 + 2].y = (GLfloat) (radius * sin((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
-                vertices[i * 3 + 2].z = (GLfloat) (radius * cos((deg_per_triangle * i) * M_PI / 180) + origin.z);
+                vertices[i * 3 + 2].y = (GLfloat) (radius * cos((deg_per_triangle * (i + 1)) * M_PI / 180) + origin.y);
+                vertices[i * 3 + 2].z = (GLfloat) (radius * sin((deg_per_triangle * i) * M_PI / 180) + origin.z);
                 vertices[i * 3 + 2].w = 1;
             }
 
