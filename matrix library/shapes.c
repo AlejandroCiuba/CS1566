@@ -227,38 +227,38 @@ ERROR_NUM flat_taurus(vector4* vertices, int count, GLfloat inner, GLfloat outer
     int deg_per_triangle = 360 / outward;
 
 
-    for(int i = 0; i < triangles / 2; i += 3) {
+    for(int i = 0, tri = 0; i < count / 2; i += 3, tri++) {
 
-        vertices[i].x = (GLfloat) (inner * cos((deg_per_triangle * i) * M_PI / 180));
-        vertices[i].y = (GLfloat) (inner * sin((deg_per_triangle * i) * M_PI / 180));
+        vertices[i].x = (GLfloat) (inner * cos((deg_per_triangle * tri) * M_PI / 180));
+        vertices[i].y = (GLfloat) (inner * sin((deg_per_triangle * tri) * M_PI / 180));
         vertices[i].z = 0;
         vertices[i].w = 1;
-
-        vertices[i + 1].x = (GLfloat) (outer * cos((deg_per_triangle * i) * M_PI / 180));
-        vertices[i + 1].y = (GLfloat) (outer * sin((deg_per_triangle * i) * M_PI / 180));
+        
+        vertices[i + 1].x = (GLfloat) (outer * cos((deg_per_triangle * tri) * M_PI / 180));
+        vertices[i + 1].y = (GLfloat) (outer * sin((deg_per_triangle * tri) * M_PI / 180));
         vertices[i + 1].z = 0;
         vertices[i + 1].w = 1;
 
-        vertices[i + 2].x = (GLfloat) (outer * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
-        vertices[i + 2].y = (GLfloat) (outer * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 2].x = (GLfloat) (outer * cos((deg_per_triangle * (tri + 1)) * M_PI / 180));
+        vertices[i + 2].y = (GLfloat) (outer * sin((deg_per_triangle * (tri + 1)) * M_PI / 180));
         vertices[i + 2].z = 0;
         vertices[i + 2].w = 1;
     }
 
-    for(int i = triangles / 2; i < triangles; i += 3) {
+    for(int i = count / 2, tri = 0; i < count; i += 3, tri++) {
 
-        vertices[i].x = (GLfloat) (inner * cos((deg_per_triangle * i) * M_PI / 180));
-        vertices[i].y = (GLfloat) (inner * sin((deg_per_triangle * i) * M_PI / 180));
+        vertices[i].x = (GLfloat) (inner * cos((deg_per_triangle * tri) * M_PI / 180));
+        vertices[i].y = (GLfloat) (inner * sin((deg_per_triangle * tri) * M_PI / 180));
         vertices[i].z = 0;
         vertices[i].w = 1;
 
-        vertices[i + 1].x = (GLfloat) (outer * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
-        vertices[i + 1].y = (GLfloat) (outer * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 1].x = (GLfloat) (outer * cos((deg_per_triangle * (tri + 1)) * M_PI / 180));
+        vertices[i + 1].y = (GLfloat) (outer * sin((deg_per_triangle * (tri + 1)) * M_PI / 180));
         vertices[i + 1].z = 0;
         vertices[i + 1].w = 1;
 
-        vertices[i + 2].x = (GLfloat) (inner * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
-        vertices[i + 2].y = (GLfloat) (inner * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+        vertices[i + 2].x = (GLfloat) (inner * cos((deg_per_triangle * (tri + 1)) * M_PI / 180));
+        vertices[i + 2].y = (GLfloat) (inner * sin((deg_per_triangle * (tri + 1)) * M_PI / 180));
         vertices[i + 2].z = 0;
         vertices[i + 2].w = 1;
     }
