@@ -87,14 +87,14 @@ int main(int argc, char **argv)
     vector4 origin = {0,0,0,1};
 
     rectangle(vertices, .5, .5, origin, 'z');*/
+    num_vertices = 30;
 
-    vertices = (vector4*) malloc(sizeof(vector4) * 300);
-    colors = (vector4*) malloc(sizeof(vector4) * 300);
-    num_vertices = 300;
+    vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
+    colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
     vector4 origin = {0,0,0,1};
 
-    flat_taurus(vertices, 300, .5, 1, origin);
-    random_colors(colors, 300);
+    flat_taurus(vertices, num_vertices, .5, 1, origin);
+    random_colors(colors, num_vertices);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
