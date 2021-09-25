@@ -114,6 +114,7 @@ int main(int argc, char **argv)
 
     if(argc == 2) {
         num_vertices = atoi(argv[1]);
+        num_vertices -= (num_vertices % 6);
         if((num_vertices % 3 != 0  && num_vertices % 2 != 0) || num_vertices < 9) {printf("Not enought vertices\n"); return -1;}
     }
     if(argc == 3) {
