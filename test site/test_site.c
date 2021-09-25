@@ -91,7 +91,8 @@ int main(int argc, char **argv)
     vector4 origin = {0,0,0,1};
 
     rectangle(vertices, .5, .5, origin, 'z');*/
-    num_vertices = 30000;
+    
+    if(argc == 2) num_vertices = (atoi(argv[1])) - (atoi(argv[1]) % 6);
 
     vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
     colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
