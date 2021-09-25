@@ -65,8 +65,12 @@ void display(void)
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
-    if(key == 'q')
+    if(key == 'q') {
     	glutLeaveMainLoop();
+        free(vertices);
+        free(colors);
+        printf("\nSuccessful Run\n");
+    }
 
     //glutPostRedisplay();
 }
@@ -87,13 +91,13 @@ int main(int argc, char **argv)
     vector4 origin = {0,0,0,1};
 
     rectangle(vertices, .5, .5, origin, 'z');*/
-    num_vertices = 30;
+    num_vertices = 30000;
 
     vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
     colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
     vector4 origin = {0,0,0,1};
 
-    flat_taurus(vertices, num_vertices, .5, 1, origin);
+    flat_taurus(vertices, num_vertices, .10, 1, origin);
     random_colors(colors, num_vertices);
 
     glutInit(&argc, argv);
@@ -107,11 +111,6 @@ int main(int argc, char **argv)
     glutKeyboardFunc(keyboard);
     glutReshapeFunc(reshape);
     glutMainLoop();
-
-    free(vertices);
-    free(colors);
-
-    printf("\nSuccessful Run\n");
 
     return 0;
 }

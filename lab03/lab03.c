@@ -92,8 +92,12 @@ void display(void)
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
-    if(key == 'q')
+    if(key == 'q') {
     	glutLeaveMainLoop();
+        free(vertices);
+        free(colors);
+        printf("\nEXIT\n");
+    }   
 
     //glutPostRedisplay();
 }
@@ -115,7 +119,6 @@ int main(int argc, char **argv)
     if(argc == 2) {
         num_vertices = atoi(argv[1]);
         num_vertices -= (num_vertices % 6);
-        if((num_vertices % 3 != 0  && num_vertices % 2 != 0) || num_vertices < 9) {printf("Not enought vertices\n"); return -1;}
     }
     if(argc == 3) {
         align = argv[2][0];
@@ -165,10 +168,6 @@ int main(int argc, char **argv)
 
     //Starts The Event-Based Loop
     glutMainLoop();
-
-    printf("\nEXIT\n");
-    free(vertices);
-    free(colors);
 
     return 0;
 }
