@@ -41,4 +41,25 @@ ERROR_NUM rotate(GLfloat degree, char align, mat4x4* affine) {
     else if(align != 'x' && align != 'y' && align != 'z') return MATLIB_MATRIX_ERROR;
     
     GLfloat rads = (GLfloat) degree / 180 * M_PI;
+
+    if(align == 'z') {
+        affine->x = (vector4) {cos(rads), sin(rads), 0, 0};
+        affine->y = (vector4) {-1 * sin(rads), cos(rads), 0, 0};
+        affine->z = (vector4) {0,0,1,0};
+        affine->w = (vector4) {0,0,0,1};
+    }
+    else if(align == 'x') {
+        affine->x = (vector4) {1,0,0,0};
+        affine->y = (vector4) {0, cos(rads), sin(rads), 0};
+        affine->z = (vector4) {0, -1 * sin(rads), cos(rads), 0};
+        affine->w = (vector4) {0,0,0,1};
+    }
+    else {
+        affine->x = (vector4) {cos(rads), 0, -1 * sin(rads), 0};
+        affine->y = (vector4) {0,1,0,0};
+        affine->z = (vector4) {sin(rads), 0, cos(rads), 0};
+        affine->w = (vector4) {0,0,0,1};
+    }
+
+    return 0;
 }
