@@ -2,7 +2,7 @@ CC       = gcc
 CFLAGS   = -O3 -Wall 
 LIBS      = -lXi -lXmu -lglut -lGLEW -lGLU -lm -lGL
 OBJDIR   = ../matrix\ library
-OBJS     = $(OBJDIR)/initShader.o $(OBJDIR)/matrix_ops.o $(OBJDIR)/matrix_utility.o $(OBJDIR)/matrix_shapes.o $(OBJDIR)/shapes.o
+OBJS     = $(OBJDIR)/initShader.o $(OBJDIR)/matrix_ops.o $(OBJDIR)/matrix_utility.o $(OBJDIR)/affine.o $(OBJDIR)/shapes.o
 
 all: matrix lab04
 

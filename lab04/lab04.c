@@ -9,12 +9,14 @@
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "../matrix library/initShader.h"
 #include "../matrix library/matrix_def.h"
 #include "../matrix library/matrix_utility.h"
 #include "../matrix library/matrix_ops.h"
-#include "../matrix library/matrix_shapes.h"
+#include "../matrix library/affine.h"
 #include "../matrix library/shapes.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
@@ -59,6 +61,8 @@ void init(void)
     glDepthRange(1,0);
 }
 
+void wipeout() {free(vertices); free(colors);}
+
 void display(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -76,8 +80,12 @@ void display(void)
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
-    if(key == 'q')
+    if(key == 'q') {
+
     	glutLeaveMainLoop();
+        wipeout();
+        printf("\nEXIT SUCCESSFUL\n");
+    }
 
     //glutPostRedisplay();
 }
@@ -88,26 +96,78 @@ void reshape(int width, int height)
 }
 
 //idle global variables
-bool isGoingRight = true;
-GLfloat x_value = .05;
+affine size = {1,1,1};
+bool grow = true;
+
+GLfloat rot = 0;
 
 void idle() {
 
-    x_value += .1;
+    if(grow) {
 
-    //Change scaling
-    rotate(x_value, 'y', &ctm);
+        size.x += .02;
+        size.y += .02;
+        size.z += .02;
+        if(size.x >= 1)
+            grow = 0;
+    }
+    else {
+
+        size.x -= .02;
+        size.y -= .02;
+        size.z -= .02;
+        if(size.x <= .25)
+            grow = 1;
+    }
+
+    rot += .5;
+
+    //Create matrices for growing and shrinking
+    mat4x4 growth;
+    zero_matrix(&growth);
+    scal(size, &growth);
+
+    mat4x4 roy;
+    zero_matrix(&roy);
+    rotate(rot, 'y', &roy);
+
+    mat4x4 roz;
+    zero_matrix(&roz);
+    rotate(rot, 'z', &roz);
+
+    mat4x4 i;
+    zero_matrix(&i);
+
+    //Multiply
+    matxmat(&growth, &roy, &i);
+    matxmat(&i, &roz, &ctm);
+    
+    //Create matrices for scaling and rotation
     glutPostRedisplay();
 }
 
 int main(int argc, char **argv)
 {
+    if(argc >= 2) 
+        num_vertices = atof(argv[1]);
+
     //Initialize and establish cone
     vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
     colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
 
     //Establish points
-    if(cone(vertices, num_vertices, .5, 1, (vector4) {0,1,0,1}, 'y') != 0) return -1;
+    if(argc == 3)
+        if(atoi(argv[2]) == 0) {if(cone(vertices, num_vertices, .5, 1, (vector4) {0,1,0,1}, 'y') != 0) return -1;}
+        else if(atoi(argv[2]) == 1) {if(circle(vertices, num_vertices, .5, (vector4) {0,0,0,1}, 'z') != 0) return -1;}
+        else if(atoi(argv[2]) == 2) {if(flat_taurus(vertices, num_vertices, .1, .5, (vector4) {0,0,0,1}) != 0) return -1;}
+        else {
+            printf("\nSHAPE NOT RECOGNIZED\n");
+            wipeout();
+            return -1;
+        }
+    else
+        if(cone(vertices, num_vertices, .5, 1, (vector4) {0,1,0,1}, 'y') != 0) return -1;
+
     if(random_colors(colors, num_vertices) != 0) return -1;
 
     glutInit(&argc, argv);

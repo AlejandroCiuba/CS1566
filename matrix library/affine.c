@@ -6,7 +6,7 @@
  * @author Alejandro Ciuba
  */
 
-#include "matrix_shapes.h"
+#include "affine.h"
 #include "matrix_ops.h"
 #include <stddef.h>
 #include <math.h>
@@ -63,3 +63,7 @@ ERROR_NUM rotate(GLfloat degree, char align, mat4x4* affine) {
 
     return 0;
 }
+
+ERROR_NUM trans(affine loc, mat4x4* affine) {return translate(loc.x, loc.y, loc.z, affine);}
+
+ERROR_NUM scal(affine size, mat4x4* affine) {return scaling(size.x, size.y, size.z, affine);}
