@@ -218,7 +218,7 @@ ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 or
     return 0;
 }
 
-ERROR_NUM flat_taurus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin) {
+ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin) {
 
     if(vertices == NULL || outer == 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
 

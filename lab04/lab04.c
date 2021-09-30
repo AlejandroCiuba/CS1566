@@ -159,7 +159,7 @@ int main(int argc, char **argv)
     if(argc == 3)
         if(atoi(argv[2]) == 0) {if(cone(vertices, num_vertices, .5, 1, (vector4) {0,1,0,1}, 'y') != 0) return -1;}
         else if(atoi(argv[2]) == 1) {if(circle(vertices, num_vertices, .5, (vector4) {0,0,0,1}, 'z') != 0) return -1;}
-        else if(atoi(argv[2]) == 2) {if(flat_taurus(vertices, num_vertices, .1, .5, (vector4) {0,0,0,1}) != 0) return -1;}
+        else if(atoi(argv[2]) == 2) {if(flat_torus(vertices, num_vertices, .1, .5, (vector4) {0,0,0,1}) != 0) return -1;}
         else {
             printf("\nSHAPE NOT RECOGNIZED\n");
             wipeout();

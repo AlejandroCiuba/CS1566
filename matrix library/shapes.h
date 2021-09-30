@@ -30,6 +30,6 @@ ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vec
 //Assumes 6 vertices
 ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin, char align);
 
-ERROR_NUM flat_taurus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin);
+ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin);
 
 #endif
