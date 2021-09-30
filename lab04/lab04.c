@@ -15,29 +15,17 @@
 #include "../matrix library/matrix_utility.h"
 #include "../matrix library/matrix_ops.h"
 #include "../matrix library/matrix_shapes.h"
+#include "../matrix library/shapes.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
 GLuint ctm_location;
 mat4x4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
-vector4 vertices[6] =
-{{ 0.0,  0.5,  0.0, 1.0},	// top
- {-0.5, -0.5,  0.0, 1.0},	// bottom left
- { 0.5, -0.5,  0.0, 1.0},	// bottom right
- { 0.5,  0.8, -0.5, 1.0},	// top
- { 0.9,  0.0, -0.5, 1.0},	// bottom right
- { 0.1,  0.0, -0.5, 1.0}};	// bottom left
+vector4* vertices;
+vector4* colors;
 
-vector4 colors[6] =
-{{1.0, 0.0, 0.0, 1.0},	// red   (for top)
- {0.0, 1.0, 0.0, 1.0},	// green (for bottom left)
- {0.0, 0.0, 1.0, 1.0},	// blue  (for bottom right)
- {0.0, 1.0, 0.0, 1.0},	// blue  (for bottom right)
- {0.0, 1.0, 0.0, 1.0},	// blue  (for bottom right)
- {0.0, 1.0, 0.0, 1.0}};	// blue  (for bottom right)
-
-int num_vertices = 6;
+int num_vertices = 300;
 
 void init(void)
 {
@@ -51,9 +39,9 @@ void init(void)
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) + sizeof(colors), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(colors), colors);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, colors);
 
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vPosition);
@@ -61,7 +49,7 @@ void init(void)
 
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
-    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) sizeof(vertices));
+    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
 
     //Locate and use transformation matrix ctm
     ctm_location = glGetUniformLocation(program, "ctm");
@@ -99,22 +87,35 @@ void reshape(int width, int height)
     glViewport(0, 0, 512, 512);
 }
 
+//idle global variables
+bool isGoingRight = true;
+GLfloat x_value = .05;
+
+void idle() {
+
+    x_value += .1;
+
+    //Change scaling
+    rotate(x_value, 'y', &ctm);
+    glutPostRedisplay();
+}
+
 int main(int argc, char **argv)
 {
-    //Initialize ctm matrix to rotate
-    //if(rotate(40, 'z', &ctm) != 0) return -1;
+    //Initialize and establish cone
+    vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
+    colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
 
-    //Initialize ctm matrix to scale
-    //if(scaling(2, 1, 1, &ctm) != 0) return -1;
-
-    //Initialize ctm matrix to translate
-    //if(translate(.5, .5, 0, &ctm) != 0)  return -1;
+    //Establish points
+    if(cone(vertices, num_vertices, .5, 1, (vector4) {0,1,0,1}, 'y') != 0) return -1;
+    if(random_colors(colors, num_vertices) != 0) return -1;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
-    glutCreateWindow("Template");
+    glutCreateWindow("lab04");
+    glutIdleFunc(idle); //Does this constantly
     glewInit();
     init();
     glutDisplayFunc(display);

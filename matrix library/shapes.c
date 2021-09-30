@@ -194,8 +194,8 @@ ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vec
     for(int i = 0; i < triangles; i++) {
 
         vertices[i * 3 + base_vertices] = vertices[i * 3];
-        vertices[i * 3 + base_vertices + 1] = tip;
-        vertices[i * 3 + base_vertices + 2] = vertices[i * 3 + 2];
+        vertices[i * 3 + base_vertices + 1] = vertices[i * 3 + 2];
+        vertices[i * 3 + base_vertices + 2] = tip;
     }
 
     return 0;
