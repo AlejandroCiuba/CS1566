@@ -3,7 +3,7 @@
 CC = gcc
 CCFLAGS = -O3 -Wall
 
-all: initShader matrix_utility matrix_ops affine shapes
+all: initShader matrix_utility matrix_ops affine shapes file_reader
 
 initShader: initShader.c
 	$(CC) $(CCFLAGS) -c initShader.c
@@ -20,9 +20,13 @@ affine: affine.c
 shapes: shapes.c
 	$(CC) $(CCFLAGS) -c shapes.c
 
+file_reader: file_reader.c
+	$(CC) $(CCFLAGS) -c file_reader.c
+
 clean:
 	rm shapes.o
 	rm matrix_ops.o 
 	rm matrix_utility.o 
 	rm affine.o
 	rm initShader.o
+	rm file_reader.o
