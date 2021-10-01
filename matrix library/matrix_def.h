@@ -16,6 +16,7 @@ typedef char ERROR_NUM;
 #define MATLIB_MATRIX_ERROR -4
 #define MATLIB_NAN_ERROR -5
 #define MATLIB_ALLOC_ERROR -6
+#define MATLIB_FILE_ERROR -7
 
 //Rather than importing stdbool.h, I'll just make my own
 typedef enum {false, true} bool;
