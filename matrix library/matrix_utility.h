@@ -13,13 +13,13 @@
 #include "matrix_def.h"
 
 //Prints the given vector
-void print_vector(const vector4 vec);
+void print_vector(vector4 vec);
 
 //Prints the given 4x4 matrix
-void print_matrix(const mat4x4 mat);
+void print_matrix(mat4x4 mat);
 
 //Prints the given GLfloat 
-void print_GLfloat(const GLfloat flt);
+void print_GLfloat(GLfloat flt);
 
 //Pointer versions of print debugging functions
 

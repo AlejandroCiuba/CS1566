@@ -9,10 +9,10 @@
 #include <stdlib.h>
 
 //Prints the given vector
-void print_vector(const vector4 vec) {printf("[x : %.4f, y : %.4f, z : %.4f, w : %.4f]\n", vec.x, vec.y, vec.z, vec.w);}
+void print_vector(vector4 vec) {printf("[x : %.4f, y : %.4f, z : %.4f, w : %.4f]\n", vec.x, vec.y, vec.z, vec.w);}
 
 //Prints the given 4x4 matrix
-void print_matrix(const mat4x4 mat) {
+void print_matrix(mat4x4 mat) {
 
     printf("| x : %.4f, %.4f, %.4f, %.4f |\n| y : %.4f, %.4f, %.4f, %.4f |\n| z : %.4f, %.4f, %.4f, %.4f |\n| w : %.4f, %.4f, %.4f, %.4f |\n", 
             mat.x.x, mat.y.x, mat.z.x, mat.w.x, 
@@ -22,7 +22,7 @@ void print_matrix(const mat4x4 mat) {
 }
 
 //Prints the given GLfloat 
-void print_GLfloat(const GLfloat flt) {printf("GLfloat : %.4f\n", flt);}
+void print_GLfloat(GLfloat flt) {printf("GLfloat : %.4f\n", flt);}
 
 //Pointer versions of debugging statements
 ERROR_NUM print_vector_ptr(const vector4* vec) {

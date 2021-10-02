@@ -17,12 +17,15 @@
 #include "../matrix library/matrix_ops.h"
 #include "../matrix library/shapes.h"
 #include "../matrix library/affine.h"
+#include "../matrix library/file_reader.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
-vector4* vertices;
+mat4x4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+GLuint ctm_location; 
 
-vector4* colors;
+vector4* vertices = NULL;
+vector4* colors = NULL;
 
 int num_vertices = 300;
 
@@ -50,6 +53,9 @@ void init(void)
     glEnableVertexAttribArray(vColor);
     glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
 
+    //Locate and use transformation matrix ctm
+    ctm_location = glGetUniformLocation(program, "ctm");
+
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDepthRange(1,0);
@@ -68,8 +74,13 @@ void display(void)
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
-    if(key == 'q')
+    if(key == 'q') {
+
     	glutLeaveMainLoop();
+        free_va(vertices);
+        free_va(colors);
+        printf("\nEXIT SUCCESSFUL\n");
+    }
 
     //glutPostRedisplay();
 }
@@ -82,17 +93,20 @@ void reshape(int width, int height)
 int main(int argc, char **argv)
 {
 
-    vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
-    colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
-
-    cone(vertices, num_vertices, .5, 1, (vector4) {0,0,0,1}, 'y');
+    FILE* fp = fopen("files/bunny.txt", "r");
+    load_va(fp, vertices, &num_vertices);
     random_colors(colors, num_vertices);
+    printf("%d\n",  num_vertices);
+    fclose(fp);
+
+    scal((affine){.0166, .0166, .0166}, &ctm);
+    if(vertices == NULL) printf("\nWHAT\n");
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
-    glutCreateWindow("Template");
+    glutCreateWindow("Project 1");
     glewInit();
     init();
     glutDisplayFunc(display);
