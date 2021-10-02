@@ -176,6 +176,7 @@ int main(int argc, char **argv)
     glutInitWindowPosition(100,100);
     glutCreateWindow("lab04");
     glutIdleFunc(idle); //Does this constantly
+    
     glewInit();
     init();
     glutDisplayFunc(display);

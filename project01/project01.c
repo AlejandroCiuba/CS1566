@@ -67,6 +67,10 @@ void display(void)
 
     glPolygonMode(GL_FRONT, GL_FILL);
     glPolygonMode(GL_BACK, GL_LINE);
+
+    //Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
+    glUniformMatrix4fv(ctm_location, 1, GL_FALSE, (GLfloat *) &ctm);
+
     glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
     glutSwapBuffers();
@@ -75,12 +79,13 @@ void display(void)
 void keyboard(unsigned char key, int mousex, int mousey)
 {
     if(key == 'q') {
-
     	glutLeaveMainLoop();
         free(vertices);
         free(colors);
         printf("\nEXIT SUCCESSFUL\n");
     }
+
+    if(key == 'd') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
 
     //glutPostRedisplay();
 }
@@ -94,7 +99,7 @@ int main(int argc, char **argv)
 {
 
     //Load file
-    FILE* fp = fopen("files/cube.txt", "r");
+    FILE* fp = fopen("files/bunny.txt", "r");
     if(load_count(fp, &num_vertices) != 0) return -1;
     if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
     fclose(fp);
@@ -103,15 +108,19 @@ int main(int argc, char **argv)
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     printf("%d\n",  num_vertices);
     
-
-    scaling(.9, .9, .9, &ctm);
+    //Move to origin
+    //Scale to fit OpenGL Canonical View
+    mat4x4 move, shrink;
+    scaling(.01, .01, .01, &shrink);
+    translate(0, 0, 0, &move);
+    matxmat(&move, &shrink, &ctm);
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
     glutCreateWindow("Project 1");
-    
+
     glewInit();
     init();
     glutDisplayFunc(display);

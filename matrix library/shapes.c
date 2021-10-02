@@ -45,8 +45,6 @@ ERROR_NUM random_colors(vector4* colors, const int num_vertices) {
         colors[i * 3 + 2].w = 1.0;
     }
 
-    print_vector(colors[0]);
-
     return 0;
 }
 
