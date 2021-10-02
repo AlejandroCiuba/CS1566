@@ -24,8 +24,8 @@
 mat4x4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location; 
 
-vector4* vertices = NULL;
-vector4* colors = NULL;
+vector4* vertices;
+vector4* colors;
 
 int num_vertices = 300;
 
@@ -77,8 +77,8 @@ void keyboard(unsigned char key, int mousex, int mousey)
     if(key == 'q') {
 
     	glutLeaveMainLoop();
-        free_va(vertices);
-        free_va(colors);
+        free(vertices);
+        free(colors);
         printf("\nEXIT SUCCESSFUL\n");
     }
 
@@ -93,20 +93,25 @@ void reshape(int width, int height)
 int main(int argc, char **argv)
 {
 
-    FILE* fp = fopen("files/bunny.txt", "r");
-    load_va(fp, vertices, &num_vertices);
-    random_colors(colors, num_vertices);
-    printf("%d\n",  num_vertices);
+    //Load file
+    FILE* fp = fopen("files/cube.txt", "r");
+    if(load_count(fp, &num_vertices) != 0) return -1;
+    if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
     fclose(fp);
 
-    scal((affine){.0166, .0166, .0166}, &ctm);
-    if(vertices == NULL) printf("\nWHAT\n");
+    //Assign color and print statistics
+    random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+    printf("%d\n",  num_vertices);
+    
+
+    scaling(.9, .9, .9, &ctm);
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
     glutCreateWindow("Project 1");
+    
     glewInit();
     init();
     glutDisplayFunc(display);
