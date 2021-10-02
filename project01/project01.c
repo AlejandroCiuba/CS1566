@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 {
 
     //Load file
-    FILE* fp = fopen("files/bunny.txt", "r");
+    /*FILE* fp = fopen("files/bunny.txt", "r");
     if(load_count(fp, &num_vertices) != 0) return -1;
     if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
     fclose(fp);
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     mat4x4 move, shrink;
     scaling(.01, .01, .01, &shrink);
     translate(0, 0, 0, &move);
-    matxmat(&move, &shrink, &ctm);
+    matxmat(&move, &shrink, &ctm);*/
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

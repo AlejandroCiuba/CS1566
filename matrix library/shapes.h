@@ -32,4 +32,6 @@ ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 or
 
 ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin);
 
+ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, vector4 origin);
+
 #endif

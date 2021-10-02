@@ -263,3 +263,8 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
 
     return 0;
 }
+
+ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, vector4 origin) {
+
+    if(vertices == NULL || outer == 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
+}
