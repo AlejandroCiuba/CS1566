@@ -99,7 +99,7 @@ int main(int argc, char **argv)
 {
 
     //Load file
-    /*FILE* fp = fopen("files/bunny.txt", "r");
+    /*FILE* fp = fopen("files/cube.txt", "r");
     if(load_count(fp, &num_vertices) != 0) return -1;
     if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
     fclose(fp);
@@ -107,13 +107,29 @@ int main(int argc, char **argv)
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     printf("%d\n",  num_vertices);
-    
+
+    //Get the center of mass
+    vector4 cm = {0,0,0,0};
+    com(vertices, num_vertices, &cm);
+    print_vector(cm);
+
     //Move to origin
     //Scale to fit OpenGL Canonical View
     mat4x4 move, shrink;
+    translate(cm.x,cm.y, cm.z, &move);
     scaling(.01, .01, .01, &shrink);
-    translate(0, 0, 0, &move);
     matxmat(&move, &shrink, &ctm);*/
+    num_vertices = 6;
+    vertices = (vector4*) malloc(sizeof(vector4) * num_vertices);
+    colors = (vector4*) malloc(sizeof(vector4) * num_vertices);
+
+    rectangle(vertices, 1, 1, (vector4){0,0,0,1}, 'z');
+    const_color(colors, num_vertices, BLUE);
+
+    //Get the center of mass
+    vector4 cm = {0,0,0,0};
+    com(vertices, num_vertices, &cm);
+    print_vector(cm);
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

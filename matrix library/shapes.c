@@ -75,8 +75,6 @@ ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color)
         colors[i * 3 + 2].w = 1.0;
     }
 
-    print_vector(colors[0]);
-
     return 0;
 }
 
@@ -266,5 +264,6 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
 
 ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, vector4 origin) {
 
-    if(vertices == NULL || outer == 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
+    if(vertices == NULL || radius <= 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
+    return 0;
 }
