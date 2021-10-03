@@ -11,6 +11,8 @@
 #include <stddef.h>
 #include <math.h>
 
+#include <stdio.h>
+
 ERROR_NUM translate(GLfloat x, GLfloat y , GLfloat z, mat4x4* affine) {
 
     if(affine == NULL) return MATLIB_POINTER_ERROR;
@@ -73,17 +75,22 @@ ERROR_NUM com(vector4* vertices, int count, vector4* com) {
 
     if(vertices == NULL || com == NULL) return MATLIB_VECTOR_ERROR;
 
-    //Get the furthest points along the x, y, and z axis from each other
-    com->x = 0; com->y = 0; com->z = 0; com->w = 1;
-    for(int i = 0; i < count; i++)
-        for(int j = i + 1; j < count; j++) {
-            if(vertices[i].x - vertices[j].x > com->x || vertices[j].x - vertices[i].x > com->x) 
-                com->x = (vertices[i].x > vertices[j].x)? vertices[i].x - vertices[j].x : vertices[j].x - vertices[i].x;
-            if(vertices[i].y - vertices[j].y > com->y || vertices[j].y - vertices[i].y > com->y) 
-                com->y = (vertices[i].y > vertices[j].y)? vertices[i].y - vertices[j].y : vertices[j].y - vertices[i].y;
-            if(vertices[i].z - vertices[j].z > com->z || vertices[j].z - vertices[i].z > com->z) 
-                com->z = (vertices[i].z > vertices[j].z)? vertices[i].z - vertices[j].z : vertices[j].z - vertices[i].z;
-        }
+    GLfloat minx = vertices[0].x, miny = vertices[0].y, minz = vertices[0].z, maxx = vertices[0].x, maxy = vertices[0].y, maxz = vertices[0].z;
+    for(int i = 1; i < count; i++) {
+        if(vertices[i].x < minx) minx = vertices[i].x;
+        else if(vertices[i].x > maxx) maxx = vertices[i].x;
+        if(vertices[i].y < miny) miny = vertices[i].y;
+        else if(vertices[i].y > maxy) maxy = vertices[i].y;
+        if(vertices[i].z < minz) minz = vertices[i].z;
+        else if(vertices[i].z > maxz) maxz = vertices[i].z;
+    }
+
+    printf("\n%f, %f, %f, %f, %f, %f\n", minx, miny, minz, maxx, maxy, maxz);
+
+    com->x = maxx - ((maxx - minx) / 2);
+    com->y = maxy - ((maxy - miny) / 2);
+    com->z = maxz - ((maxz - minz) / 2);
+    com->w = 1;
 
     return 0;
 }
