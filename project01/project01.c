@@ -10,6 +10,7 @@
 #include <GL/freeglut_ext.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../matrix library/initShader.h"
 #include "../matrix library/matrix_def.h"
@@ -95,34 +96,58 @@ void reshape(int width, int height)
     glViewport(0, 0, 512, 512);
 }
 
+void menu(char* dec) {
+
+    printf("\n===================== PROJECT 1 =====================\n");
+    printf("\nWould you like to view a file (1) or a computer-generated object(2)? ");
+    int ui = 0;
+    if(scanf("%d", &ui) == EOF) return;
+
+    while(ui != 2 && ui != 1){printf("\nINVALID OPTION!!!\n"); if(scanf("%d", &ui) == EOF) return;}
+
+    if(ui == 1) {
+        printf("\nType the name of the file, located in \"files\": ");
+        if(scanf("%s", dec) == EOF) return;
+    }
+    else strcpy(dec, "2\0");
+}
+
 int main(int argc, char **argv)
 {
 
-    //Load file
-    FILE* fp = fopen("files/cube.txt", "r");
-    if(load_count(fp, &num_vertices) != 0) return -1;
-    if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
-    fclose(fp);
+    //Get user decision
+    char dec[18];
+    menu(dec);
+    printf("%s", dec);
+
+    if(atoi(dec) != 2) { 
+
+        //Load file
+        FILE* fp = fopen(strcat((char[24]) {"files/"}, dec), "r");
+        if(load_count(fp, &num_vertices) != 0) return -1;
+        if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
+        fclose(fp);
+
+        //Get the center of mass
+        vector4 cm = {0,0,0,0};
+        com(vertices, num_vertices, &cm);
+        print_vector(cm);
+
+        //Move to origin
+        //Scale to fit OpenGL Canonical View
+        mat4x4 base_or, shrink, move;
+        
+        rotate(-90, 'x', &base_or);
+        scaling(.01, .01, .01, &shrink);
+        translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
+        mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &ctm);
+        print_matrix(ctm);
+    }
+    else cone(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .25, .75, (vector4) {0,.75,0,1}, 'y');
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     printf("%d\n",  num_vertices);
-
-    //Get the center of mass
-    vector4 cm = {0,0,0,0};
-    com(vertices, num_vertices, &cm);
-    print_vector(cm);
-
-    //Move to origin
-    //Scale to fit OpenGL Canonical View
-    mat4x4 base_or, shrink, move;
-    
-    rotate(-90, 'x', &base_or);
-    scaling(.01, .01, .01, &shrink);
-    translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
-    mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &ctm);
-    print_matrix(ctm);
-    
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
