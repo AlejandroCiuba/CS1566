@@ -428,3 +428,27 @@ ERROR_NUM determinant(mat4x4* matrix, GLfloat* result) {
 
     return 0;
 }
+
+//Multiply any number of matrices in a certain order
+ERROR_NUM mat_mult(mat4x4* matrices, int count, mat4x4* result) {
+
+    if(matrices == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+    if(count == 1) return 0;
+
+    mat4x4 store1 = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    mat4x4 store2 = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    matxmat(matrices, matrices + 1, &store1);
+
+    if(count == 2) {*result = store1; return 0;}
+
+    for(int i = 2; i < count; i++) {
+        if(i % 2 == 0)
+            matxmat(&store1, matrices + i, &store2);
+        else
+            matxmat(&store2, matrices + i, &store1);
+    }
+
+    *result = ((count - 1) % 2 == 0)? store2 : store1;
+
+    return 0;
+}

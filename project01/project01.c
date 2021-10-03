@@ -115,13 +115,14 @@ int main(int argc, char **argv)
 
     //Move to origin
     //Scale to fit OpenGL Canonical View
-    mat4x4 shrink, move, base_or, store;
-    zero_matrix(&store);
-    translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
-    scaling(.01, .01, .01, &shrink);
+    mat4x4 base_or, shrink, move;
+    
     rotate(-90, 'x', &base_or);
-    matxmat(&base_or, &shrink, &store);
-    matxmat(&store, &move, &ctm);
+    scaling(.01, .01, .01, &shrink);
+    translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
+    mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &ctm);
+    print_matrix(ctm);
+    
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

@@ -65,4 +65,8 @@ ERROR_NUM cofactor(mat4x4* matrix);
 
 //Calculates the determinant of a matrix
 ERROR_NUM determinant(mat4x4* matrix, GLfloat* result);
+
+//Multiply any number of matrices in a certain order
+ERROR_NUM mat_mult(mat4x4* matrices, int count, mat4x4* result);
+
 #endif
