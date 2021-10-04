@@ -6,7 +6,6 @@
  */
 
 #include "shapes.h"
-#include "matrix_utility.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -89,7 +88,6 @@ ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, c
     //Get how many degrees each triangle "bends"
     GLfloat deg_per_triangle = (GLfloat) 360 / num_of_triangles;
 
-    print_GLfloat(deg_per_triangle);
     switch(align) {
 
         case 'z':
