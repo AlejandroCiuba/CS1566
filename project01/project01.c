@@ -28,7 +28,7 @@ GLuint ctm_location;
 vector4* vertices;
 vector4* colors;
 
-int num_vertices = 300;
+int num_vertices = 3000;
 
 FILE* fp = NULL;
 
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &ctm);
         print_matrix(ctm);
     }
-    else band(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1);
+    else torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 5, .25);
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);

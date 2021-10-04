@@ -270,9 +270,22 @@ ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, vector4 origin) {
     return 0;
 }
 
-ERROR_NUM torus(vector4* vertices, int count, GLfloat radius, vector4 origin) {
+ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius) {
 
     if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
+    int verts_per_ring = count / bands;
+    GLfloat deg_per_band = (GLfloat) (360 / bands);
+    vector4 base[verts_per_ring];
+    mat4x4 rot, tran, final;
+
+    for(int i = 0; i < bands; i++) {
+        circle(base, verts_per_ring, .25, (vector4){0,0,0,1}, 'z');
+        trans((affine){radius, 0, 0}, &tran);
+        rotate(radius * sin((deg_per_band * i) * M_PI / 180), 'y', &rot);
+        matxmat(&rot, &tran, &final);
+        matxvar(&final, base, verts_per_ring, vertices + (i * verts_per_ring));
+    }
+
     return 0;
 }
 
