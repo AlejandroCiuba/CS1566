@@ -30,6 +30,8 @@ vector4* colors;
 
 int num_vertices = 300;
 
+FILE* fp = NULL;
+
 void init(void)
 {
     GLuint program = initShader("vshader.glsl", "fshader.glsl");
@@ -83,10 +85,13 @@ void keyboard(unsigned char key, int mousex, int mousey)
     	glutLeaveMainLoop();
         free(vertices);
         free(colors);
+        fclose(fp);
         printf("\nEXIT SUCCESSFUL\n");
     }
 
     if(key == 'd') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
+
+    if(key == 'f') if(view_file(fp) != 0) printf("\nNO FILE TO VIEW!!!\n");
 
     //glutPostRedisplay();
 }
@@ -123,14 +128,14 @@ int main(int argc, char **argv)
     if(atoi(dec) != 2) { 
 
         //Load file
-        FILE* fp = fopen(strcat((char[24]) {"files/"}, dec), "r");
+        fp = fopen(strcat((char[24]) {"files/"}, dec), "r");
         if(load_count(fp, &num_vertices) != 0) return -1;
         if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
-        fclose(fp);
 
         //Get the center of mass
         vector4 cm = {0,0,0,0};
         com(vertices, num_vertices, &cm);
+        printf("\nCENTER OF MASS:");
         print_vector(cm);
 
         //Move to origin
@@ -147,7 +152,7 @@ int main(int argc, char **argv)
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
-    printf("%d\n",  num_vertices);
+    printf("COUNT: %d\n",  num_vertices);
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

@@ -84,9 +84,7 @@ ERROR_NUM com(vector4* vertices, int count, vector4* com) {
         if(vertices[i].z < minz) minz = vertices[i].z;
         else if(vertices[i].z > maxz) maxz = vertices[i].z;
     }
-
-    printf("\n%f, %f, %f, %f, %f, %f\n", minx, miny, minz, maxx, maxy, maxz);
-
+    
     com->x = maxx - ((maxx - minx) / 2);
     com->y = maxy - ((maxy - miny) / 2);
     com->z = maxz - ((maxz - minz) / 2);
