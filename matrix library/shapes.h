@@ -34,4 +34,8 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
 
 ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, vector4 origin);
 
+ERROR_NUM torus(vector4* vertices, int count, GLfloat radius, vector4 origin);
+
+ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length);
+
 #endif

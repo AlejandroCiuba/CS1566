@@ -45,6 +45,9 @@ ERROR_NUM matxmat(mat4x4* matrix1, mat4x4* matrix2, mat4x4* result);
 //Matrix-vector multiplication, 2 ONLY
 ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result);
 
+//Matrix-vector array multiplication
+ERROR_NUM matxvar(mat4x4* matrix, vector4* varray, int varray_count, vector4* result);
+
 //Transpose a matrix
 ERROR_NUM transpose(mat4x4* matrix);
 

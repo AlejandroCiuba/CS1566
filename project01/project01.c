@@ -85,7 +85,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
     	glutLeaveMainLoop();
         free(vertices);
         free(colors);
-        fclose(fp);
+        if(fp != NULL) fclose(fp);
         printf("\nEXIT SUCCESSFUL\n");
     }
 
@@ -123,9 +123,10 @@ int main(int argc, char **argv)
     //Get user decision
     char dec[18];
     menu(dec);
-    printf("%s", dec);
 
     if(atoi(dec) != 2) { 
+
+        printf("\nFILE NAME: %s\n", dec);
 
         //Load file
         fp = fopen(strcat((char[24]) {"files/"}, dec), "r");
@@ -148,7 +149,7 @@ int main(int argc, char **argv)
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &ctm);
         print_matrix(ctm);
     }
-    else cone(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .25, .75, (vector4) {0,.75,0,1}, 'y');
+    else band(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1);
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);

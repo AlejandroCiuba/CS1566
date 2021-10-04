@@ -239,6 +239,21 @@ ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result) {
     return 0;
 }
 
+//Matrix-vector array multiplication
+ERROR_NUM matxvar(mat4x4* matrix, vector4* varray, int varray_count, vector4* result) {
+
+    if(matrix == NULL || varray == NULL || result == NULL || varray_count == 0) return MATLIB_POINTER_ERROR;
+
+    for(int i = 0; i < varray_count; i++) {
+        result[i].x = (matrix->x.x * varray[i].x) + (matrix->y.x * varray[i].y) + (matrix->z.x * varray[i].z) + (matrix->w.x * varray[i].w);
+        result[i].y = (matrix->x.y * varray[i].x) + (matrix->y.y * varray[i].y) + (matrix->z.y * varray[i].z) + (matrix->w.y * varray[i].w);
+        result[i].z = (matrix->x.z * varray[i].x) + (matrix->y.z * varray[i].y) + (matrix->z.z * varray[i].z) + (matrix->w.z * varray[i].w);
+        result[i].w = (matrix->x.w * varray[i].x) + (matrix->y.w * varray[i].y) + (matrix->z.w * varray[i].z) + (matrix->w.w * varray[i].w);
+    }
+
+    return 0;
+}
+
 //Transpose a matrix
 ERROR_NUM transpose(mat4x4* matrix) {
 

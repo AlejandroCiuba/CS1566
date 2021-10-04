@@ -6,6 +6,10 @@
  */
 
 #include "shapes.h"
+#include "affine.h"
+#include "matrix_ops.h"
+
+#include "matrix_utility.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -263,5 +267,50 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
 ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, vector4 origin) {
 
     if(vertices == NULL || radius <= 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
+    return 0;
+}
+
+ERROR_NUM torus(vector4* vertices, int count, GLfloat radius, vector4 origin) {
+
+    if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
+    return 0;
+}
+
+ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
+
+    if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
+    if(count % 6 != 0) count = count - (count % 6);
+
+    int vert_per_ring = count / 2;
+    /*int triangles = count / 3;
+    int rects = count / 6;
+    GLfloat deg_per_rect = (GLfloat) (360 / rects);
+    GLfloat width = sqrt(pow(cos((deg_per_rect * 2) * M_PI / 180) - cos(deg_per_rect * M_PI / 180), 2) 
+    + pow(sin((deg_per_rect * 2) * M_PI / 180) - sin(deg_per_rect * M_PI / 180), 2));
+    mat4x4 rot = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    mat4x4 tran = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    mat4x4 final = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+    vector4 base[6] = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+
+    for(int i = 0; i < rects; i++) {
+        if(rectangle(base, length, width, (vector4){0,0,0,1}, 'y') != 0) return MATLIB_VECTOR_ERROR;
+        rotate(deg_per_rect * i, 'y', &rot);
+        trans((affine){radius * cos((deg_per_rect * i) * M_PI / 180), 0, radius * sin((deg_per_rect * i ) * M_PI / 180)}, &tran);
+        matxmat(&rot, &tran, &final);
+        matxvar(&final, base, 6, vertices + (i * 6));
+    }*/
+
+    circle(vertices, vert_per_ring, radius, (vector4){0,length / 2,0,1}, 'y');
+    circle(&vertices[vert_per_ring], vert_per_ring, radius, (vector4){0,-length / 2,0,1}, 'y');
+
+    vector4 temp = {0,0,0,0};
+
+    for(int i = 1; i < vert_per_ring; i+=3) {
+        vertices[i] = vertices[i + vert_per_ring - 1];
+        temp = vertices[i + vert_per_ring - 1];
+        vertices[i + vert_per_ring - 1] = vertices[i + 1];
+        vertices[i + vert_per_ring] = temp;
+    }
+
     return 0;
 }
