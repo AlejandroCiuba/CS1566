@@ -99,7 +99,7 @@ void reshape(int width, int height)
 affine size = {1,1,1};
 bool grow = true;
 
-GLfloat rot = 0;
+GLfloat ro = 0;
 
 void idle() {
 
@@ -120,27 +120,27 @@ void idle() {
             grow = 1;
     }
 
-    rot += .5;
+    ro += .5;
 
     //Create matrices for growing and shrinking
-    mat4x4 growth;
+    /*mat4x4 growth;
     zero_matrix(&growth);
-    scal(size, &growth);
+    scal(size, &growth);*/
 
     mat4x4 roy;
     zero_matrix(&roy);
-    rotate(rot, 'y', &roy);
+    rotate(ro, 'y', &roy);
 
     mat4x4 roz;
     zero_matrix(&roz);
-    rotate(rot, 'z', &roz);
+    rotate(ro, 'z', &roz);
 
     mat4x4 i;
     zero_matrix(&i);
 
     //Multiply
-    matxmat(&growth, &roy, &i);
-    matxmat(&i, &roz, &ctm);
+    //matxmat(&growth, &roy, &i);
+    matxmat(&roy, &roz, &ctm);
     
     //Create matrices for scaling and rotation
     glutPostRedisplay();
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
         if(atoi(argv[2]) == 0) {if(cone(vertices, num_vertices, .5, 1, (vector4) {0,1,0,1}, 'y') != 0) return -1;}
         else if(atoi(argv[2]) == 1) {if(circle(vertices, num_vertices, .5, (vector4) {0,0,0,1}, 'z') != 0) return -1;}
         else if(atoi(argv[2]) == 2) {if(flat_torus(vertices, num_vertices, .1, .5, (vector4) {0,0,0,1}) != 0) return -1;}
-        else if(atoi(argv[2]) == 3) {if(torus(vertices, num_vertices, 10, .25) != 0) return -1;}
+        else if(atoi(argv[2]) == 3) {if(torus(vertices, num_vertices, 10, .25, .25) != 0) return -1;}
         else {
             printf("\nSHAPE NOT RECOGNIZED\n");
             wipeout();
