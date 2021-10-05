@@ -108,7 +108,7 @@ void menu(char* dec) {
     int ui = 0;
     if(scanf("%d", &ui) == EOF) return;
 
-    while(ui != 2 && ui != 1){printf("\nINVALID OPTION!!!\n"); if(scanf("%d", &ui) == EOF) return;}
+    while(ui != 2 && ui != 1){printf("\nINVALID OPTION!!!"); if(scanf("%d", &ui) == EOF) return;}
 
     if(ui == 1) {
         printf("\nType the name of the file, located in \"files\": ");
@@ -155,7 +155,7 @@ int main(int argc, char **argv)
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     printf("COUNT: %d\n",  num_vertices);
 
-    rotate(45, 'x', &ctm);
+    //rotate(45, 'x', &ctm);
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
