@@ -51,15 +51,15 @@ ERROR_NUM rotate(GLfloat degree, char align, mat4x4* affine) {
         affine->w = (vector4) {0,0,0,1};
     }
     else if(align == 'x') {
-        affine->x = (vector4) {cos(rads), 0, -1 * sin(rads), 0};
-        affine->y = (vector4) {0,1,0,0};
-        affine->z = (vector4) {sin(rads), 0, cos(rads), 0};
-        affine->w = (vector4) {0,0,0,1};
-    }
-    else {
         affine->x = (vector4) {1,0,0,0};
         affine->y = (vector4) {0, cos(rads), sin(rads), 0};
         affine->z = (vector4) {0, -1 * sin(rads), cos(rads), 0};
+        affine->w = (vector4) {0,0,0,1};
+    }
+    else {
+        affine->x = (vector4) {cos(rads), 0, -1 * sin(rads), 0};
+        affine->y = (vector4) {0,1,0,0};
+        affine->z = (vector4) {sin(rads), 0, cos(rads), 0};
         affine->w = (vector4) {0,0,0,1};
     }
 
@@ -69,6 +69,24 @@ ERROR_NUM rotate(GLfloat degree, char align, mat4x4* affine) {
 ERROR_NUM trans(affine loc, mat4x4* affine) {return translate(loc.x, loc.y, loc.z, affine);}
 
 ERROR_NUM scal(affine size, mat4x4* affine) {return scaling(size.x, size.y, size.z, affine);}
+
+//Order indexed [0-3)
+ERROR_NUM rot(affine degrees, int* order, mat4x4* affine) {
+
+    if(affine == NULL) return MATLIB_POINTER_ERROR;
+    if(order == NULL) return MATLIB_POINTER_ERROR;
+
+    mat4x4 xyz[3];
+    xyz[0] = xyz[1] = xyz[2] = (mat4x4) {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+
+    if(degrees.x != 0) rotate(degrees.x, 'x', &xyz[0]);
+    if(degrees.y != 0) rotate(degrees.y, 'y', &xyz[1]);
+    if(degrees.z != 0) rotate(degrees.z, 'z', &xyz[2]);
+
+    mat_mult((mat4x4[3]) {xyz[order[0]], xyz[order[1]], xyz[order[2]]}, 3, affine);
+
+    return 0;
+}
 
 //Gets the center of mass, relative to the shapes current position
 ERROR_NUM com(vector4* vertices, int count, vector4* com) {

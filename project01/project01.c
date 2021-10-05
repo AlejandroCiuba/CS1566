@@ -149,11 +149,13 @@ int main(int argc, char **argv)
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &ctm);
         print_matrix(ctm);
     }
-    else torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 5, .25);
+    else torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25, .25);
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     printf("COUNT: %d\n",  num_vertices);
+
+    rotate(45, 'x', &ctm);
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

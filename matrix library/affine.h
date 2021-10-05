@@ -28,6 +28,9 @@ ERROR_NUM trans(affine loc, mat4x4* affine);
 
 ERROR_NUM scal(affine size, mat4x4* affine);
 
+//Order indexed [0-3)
+ERROR_NUM rot(affine degrees, int* order, mat4x4* affine);
+
 //Gets the center of mass, relative to the shapes current position
 ERROR_NUM com(vector4* vertices, int count, vector4* com);
 
