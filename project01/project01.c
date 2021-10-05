@@ -28,7 +28,7 @@ GLuint ctm_location;
 vector4* vertices;
 vector4* colors;
 
-int num_vertices = 600;
+int num_vertices = 432;
 
 FILE* fp = NULL;
 
@@ -150,7 +150,8 @@ int main(int argc, char **argv)
         print_matrix(ctm);
     }
     else {
-        torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25, .25);
+        //torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25, .25);
+        sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);
         rotate(45, 'x', &ctm);
     }
 
