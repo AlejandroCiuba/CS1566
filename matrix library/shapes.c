@@ -268,20 +268,46 @@ ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
 
     if(vertices == NULL || radius <= 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
 
-    GLfloat deg_vert = (GLfloat) (360 / (hor_band * 2));
-    GLfloat phi = deg_vert * M_PI / 180;
-    int rects_per_band = count / ((hor_band - 1) * 6);
-    GLfloat deg_hor = (GLfloat) (360 / rects_per_band);
-    GLfloat theta = deg_hor * M_PI / 180;
+    int bands = 6;
+    GLfloat theta = 30;
+    GLfloat phi = 30;
 
-    //Generate base
-    vector4 mp = {0,0,radius,1};
+    //Generate the bottom
+    vector4 base = {0,-1,0,1}, point;
+    mat4x4 ro;
+    rotate(-phi * ((bands - 2) / 2), 'z', &ro);
+    matxvec(&ro, &(vector4){1,0,0,1}, &point);
 
-    for(int i = 0; i < rects_per_band / 2; i++) {
-        vertices[i * 3] = mp;
-        vertices[(i + 1) * 3] = (vector4) {radius * cos(theta) * cos(phi), radius * sin(theta), -radius * cos(theta) * sin(phi), 1};
-        vertices[(i + 2) * 3] = (vector4) {radius * cos(theta) * cos(phi * (i + 1)), radius * sin(theta), -radius * cos(theta) * sin(phi * (i + 1)), 1};
+    for(int i = 0; i < 12; i++) {
+
+        vertices[i * 3] = base;
+        rotate(theta * (i + 1), 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 1]);
+        rotate(theta * i, 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 2]);
     }
+
+    vector4 point2;
+    //Generate the middle parts
+    for(int i = 1; i < bands / 2 - 1; i++) {
+
+        rotate(-phi * ((bands - (i + 1)) / 2), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point);
+
+        rotate(-phi * ((bands - (i + 2)) / 2), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
+
+        for(int j = 0; j < 12; j++) {
+
+            rotate(theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point, &vertices[(36 * i) + (j * 3)]);
+            rotate(theta * j, 'y', &ro);
+            matxvec(&ro, &point2, &vertices[(36 * i) + (j * 3) + 1]);
+            rotate(theta * j, 'y', &ro);
+            matxvec(&ro, &point, &vertices[(36 * i) + (j * 3) + 2]);
+        }
+    }
+
     return 0;
 }
 

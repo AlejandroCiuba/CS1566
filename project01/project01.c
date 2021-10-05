@@ -28,7 +28,7 @@ GLuint ctm_location;
 vector4* vertices;
 vector4* colors;
 
-int num_vertices = 432;
+int num_vertices = 360;
 
 FILE* fp = NULL;
 
@@ -152,7 +152,10 @@ int main(int argc, char **argv)
     else {
         //torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25, .25);
         sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);
-        rotate(45, 'x', &ctm);
+        mat4x4 sc, ro;
+        scal((affine){.5,.5,.5}, &sc);
+        rotate(45, 'x', &ro);
+        matxmat(&ro, &sc, &ctm);
     }
 
     //Assign color and print statistics
