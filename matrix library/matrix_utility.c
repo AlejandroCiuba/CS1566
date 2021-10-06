@@ -168,27 +168,27 @@ ERROR_NUM screen_to_world(vector4* screen, vector4* result, int x_screen, int y_
 
     if(screen == NULL || result == NULL) return MATLIB_POINTER_ERROR;
 
-    if(x > 255 && y > 255) {
+    if(screen->x > 255 && screen->y <= 255) {
         result->x = (screen->x - (x_screen / 2)) / (x_screen / 2); 
-        result->y = (screen->y - (y_screen / 2)) / (y_screen / 2);
+        result->y = -(screen->y - (y_screen / 2)) / (y_screen / 2);
         result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
         result->w = 1.0;
     }
-    else if(x <= 255 && y > 255) {
+    else if(screen->x <= 255 && screen->y <= 255) {
         result->x = (screen->x - ((x_screen / 2) - 1)) / ((x_screen / 2) - 1);
-        result->y = (screen->y - (y_screen / 2)) / (y_screen / 2);
+        result->y = -(screen->y - (y_screen / 2)) / (y_screen / 2);
         result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
         result->w = 1.0;
     }
-    else if(x <= 255 && y <= 255) {
+    else if(screen->x <= 255 && screen->y > 255) {
         result->x = (screen->x - ((x_screen / 2) - 1)) / ((x_screen / 2) - 1);
-        result->y = (screen->y - ((y_screen / 2) - 1)) / ((y_screen / 2) - 1);
+        result->y = -(screen->y - ((y_screen / 2) - 1)) / ((y_screen / 2) - 1);
         result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
         result->w = 1.0;
     }
-    else if(x > 255 && y <= 255) {
+    else if(screen->x > 255 && screen->y > 255) {
         result->x = (screen->x - (x_screen / 2)) / (x_screen / 2); 
-        result->y = (screen->y - ((y_screen / 2) - 1)) / ((y_screen / 2) - 1);
+        result->y = -(screen->y - ((y_screen / 2) - 1)) / ((y_screen / 2) - 1);
         result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
         result->w = 1.0;
     }

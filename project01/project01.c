@@ -124,13 +124,29 @@ affine s = {1,1,1};
 
 void mouse(int button, int state, int x, int y) {
 
+    mat4x4 final; identity(&final);
+
+    //===================== SCROLLING SIZE =====================
     mat4x4 sc; identity(&sc);
 
     if(button == 3) s = (affine) {s.x + .02, s.y + .02, s.z + .02};
     else if(button == 4) s = (affine) {s.x - .02, s.y - .02, s.z - .02};
 
+    //Resize management
     scal(s, &sc);
-    copy_matrix(&sc, &ctm);
+    copy_matrix(&sc, &final);
+
+    //===================== ROTATION =====================
+    vector4 screen_points = {x, y, 0, 1};
+    vector4 world_points; zero_vector(&world_points);
+
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        screen_to_world(&screen_points, &world_points, 512, 512);
+        print_vector(world_points);
+    }
+
+    //Put all changes onto ctm
+    copy_matrix(&final, &ctm);
 
     //Redraw
     glutPostRedisplay();
