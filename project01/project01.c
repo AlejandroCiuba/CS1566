@@ -136,20 +136,23 @@ void mouse(int button, int state, int x, int y) {
     scal(s, &sc);
     copy_matrix(&sc, &final);
 
-    //===================== ROTATION =====================
-    vector4 screen_points = {x, y, 0, 1};
-    vector4 world_points; zero_vector(&world_points);
-
-    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        screen_to_world(&screen_points, &world_points, 512, 512);
-        print_vector(world_points);
-    }
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) printf("\nBUTTON PRESSED\n");
 
     //Put all changes onto ctm
     copy_matrix(&final, &ctm);
 
     //Redraw
     glutPostRedisplay();
+}
+
+//===================== ROTATION =====================
+//Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
+void motion(int x, int y) {
+
+    vector4 screen_points = {x, y, 0, 1};
+    vector4 world_points; zero_vector(&world_points);
+    screen_to_world(&screen_points, &world_points, 512, 512);
+    print_vector(world_points);
 }
 
 int main(int argc, char **argv)
@@ -209,6 +212,7 @@ int main(int argc, char **argv)
     glutCreateWindow("Project 1");
 
     glutMouseFunc(mouse);
+    glutMotionFunc(motion);
 
     glewInit();
     init();
