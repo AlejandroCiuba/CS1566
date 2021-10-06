@@ -38,6 +38,8 @@ ERROR_NUM zero_matrix(mat4x4* mat);
 //Copies stuff from one vector to another
 ERROR_NUM copy_vector(const vector4* og, vector4* cpy);
 
+ERROR_NUM copy_matrix(const mat4x4* og, mat4x4* cpy);
+
 //Makes a vector4 into a mat4x4 with the values
 //Copied into every column
 mat4x4* vec_to_mat(const vector4* vec);
