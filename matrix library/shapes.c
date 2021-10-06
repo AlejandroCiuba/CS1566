@@ -300,16 +300,56 @@ ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
         for(int j = 0; j < 12; j++) {
 
             rotate(theta * (j + 1), 'y', &ro);
-            matxvec(&ro, &point, &vertices[(36 * i) + (j * 6)]);
+            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 36]);
             rotate(theta * j, 'y', &ro);
-            matxvec(&ro, &point2, &vertices[(36 * i) + (j * 6) + 1]);
+            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 37]);
             rotate(theta * j, 'y', &ro);
-            matxvec(&ro, &point, &vertices[(36 * i) + (j * 6) + 2]);
+            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 38]);
 
-            vertices[(36 * i) + (j * 6) + 3] = vertices[(36 * i) + (j * 6) + 1];
-            vertices[(36 * i) + (j * 6) + 4] = vertices[(36 * i) + (j * 6)];
+            vertices[(72 * (i - 1)) + (j * 6) + 39] = vertices[(72 * (i - 1)) + (j * 6) + 37];
+            vertices[(72 * (i - 1)) + (j * 6) + 40] = vertices[(72 * (i - 1)) + (j * 6) + 36];
             rotate(theta * (j + 1), 'y', &ro);
-            matxvec(&ro, &point2, &vertices[(36 * i) + (j * 6) + 5]);
+            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 41]);
+        }
+    }
+
+    int offset = count / 2;
+    base = (vector4){0,1,0,1};
+
+    rotate(phi * ((bands - 2) / 2), 'z', &ro);
+    matxvec(&ro, &(vector4){1,0,0,1}, &point);
+
+    for(int i = 0; i < 12; i++) {
+
+        vertices[i * 3 + offset] = base;
+        rotate(-theta * (i + 1), 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 1 + offset]);
+        rotate(-theta * i, 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 2 + offset]);
+    }
+
+    //Generate the middle parts
+    for(int i = 1; i < bands / 2; i++) {
+
+        rotate((int) (phi * ((bands - (i + 1)) / 2)), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point);
+
+        rotate((int) (phi * ((bands - (i + 3)) / 2)), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
+
+        for(int j = 0; j < 12; j++) {
+
+            rotate(-theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 36 + offset]);
+            rotate(-theta * j, 'y', &ro);
+            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 37 + offset]);
+            rotate(-theta * j, 'y', &ro);
+            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 38 + offset]);
+
+            vertices[(72 * (i - 1)) + (j * 6) + 39 + offset] = vertices[(72 * (i - 1)) + (j * 6) + 37 + offset];
+            vertices[(72 * (i - 1)) + (j * 6) + 40 + offset] = vertices[(72 * (i - 1)) + (j * 6) + 36 + offset];
+            rotate(-theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 41 + offset]);
         }
     }
 
