@@ -7,6 +7,7 @@
 #include "matrix_utility.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 //Prints the given vector
 void print_vector(vector4 vec) {printf("[x : %.4f, y : %.4f, z : %.4f, w : %.4f]\n", vec.x, vec.y, vec.z, vec.w);}
@@ -153,4 +154,38 @@ bool matrix_equal(mat4x4* mat1, mat4x4* mat2) {
     else if(mat1 == mat2) return true;
     else return vector_equal(&(mat1->x), &(mat2->x)) && vector_equal(&(mat1->y), &(mat2->y)) 
     && vector_equal(&(mat1->z), &(mat2->z)) && vector_equal(&(mat1->w), &(mat2->w));
+}
+
+//Convert screen coordinates to world coordinates
+ERROR_NUM screen_to_world(vector4* screen, vector4* result, int x_screen, int y_screen) {
+
+    if(screen == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+
+    if(x > 255 && y > 255) {
+        result->x = (screen->x - (x_screen / 2)) / (x_screen / 2); 
+        result->y = (screen->y - (y_screen / 2)) / (y_screen / 2);
+        result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
+        result->w = 1.0;
+    }
+    else if(x <= 255 && y > 255) {
+        result->x = (screen->x - ((x_screen / 2) - 1)) / ((x_screen / 2) - 1);
+        result->y = (screen->y - (y_screen / 2)) / (y_screen / 2);
+        result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
+        result->w = 1.0;
+    }
+    else if(x <= 255 && y <= 255) {
+        result->x = (screen->x - ((x_screen / 2) - 1)) / ((x_screen / 2) - 1);
+        result->y = (screen->y - ((y_screen / 2) - 1)) / ((y_screen / 2) - 1);
+        result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
+        result->w = 1.0;
+    }
+    else if(x > 255 && y <= 255) {
+        result->x = (screen->x - (x_screen / 2)) / (x_screen / 2); 
+        result->y = (screen->y - ((y_screen / 2) - 1)) / ((y_screen / 2) - 1);
+        result->z = sqrt(1 - pow(result->x, 2) - pow(result->y, 2));
+        result->w = 1.0;
+    }
+    else return MATLIB_NAN_ERROR;
+
+    return 0;
 }

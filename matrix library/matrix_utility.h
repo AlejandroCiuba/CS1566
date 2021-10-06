@@ -54,4 +54,7 @@ bool vector_equal(vector4* vec1, vector4* vec2);
 //Tells if two matrices are equal
 bool matrix_equal(mat4x4* mat1, mat4x4* mat2);
 
+//Convert screen coordinates to world coordinates
+ERROR_NUM screen_to_world(vector4* screen, vector4* result, int x_screen, int y_screen);
+
 #endif
