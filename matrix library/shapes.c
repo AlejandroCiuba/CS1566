@@ -289,12 +289,12 @@ ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
 
     vector4 point2;
     //Generate the middle parts
-    for(int i = 1; i < bands / 2 - 1; i++) {
+    for(int i = 1; i < bands / 2; i++) {
 
         rotate(-phi * ((bands - (i + 1)) / 2), 'z', &ro);
         matxvec(&ro, &(vector4){1,0,0,1}, &point);
 
-        rotate(-phi * ((bands - (i + 2)) / 2), 'z', &ro);
+        rotate(-phi * ((bands - (i + 3)) / 2), 'z', &ro);
         matxvec(&ro, &(vector4){1,0,0,1}, &point2);
 
         for(int j = 0; j < 12; j++) {

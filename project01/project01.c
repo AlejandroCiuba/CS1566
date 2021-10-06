@@ -154,7 +154,7 @@ int main(int argc, char **argv)
         sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);
         mat4x4 sc, ro;
         scal((affine){.5,.5,.5}, &sc);
-        rotate(45, 'x', &ro);
+        rotate(-45, 'x', &ro);
         matxmat(&ro, &sc, &ctm);
     }
 
