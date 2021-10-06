@@ -291,20 +291,25 @@ ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
     //Generate the middle parts
     for(int i = 1; i < bands / 2; i++) {
 
-        rotate(-phi * ((bands - (i + 1)) / 2), 'z', &ro);
+        rotate((int) (-phi * ((bands - (i + 1)) / 2)), 'z', &ro);
         matxvec(&ro, &(vector4){1,0,0,1}, &point);
 
-        rotate(-phi * ((bands - (i + 3)) / 2), 'z', &ro);
+        rotate((int) (-phi * ((bands - (i + 3)) / 2)), 'z', &ro);
         matxvec(&ro, &(vector4){1,0,0,1}, &point2);
 
         for(int j = 0; j < 12; j++) {
 
             rotate(theta * (j + 1), 'y', &ro);
-            matxvec(&ro, &point, &vertices[(36 * i) + (j * 3)]);
+            matxvec(&ro, &point, &vertices[(36 * i) + (j * 6)]);
             rotate(theta * j, 'y', &ro);
-            matxvec(&ro, &point2, &vertices[(36 * i) + (j * 3) + 1]);
+            matxvec(&ro, &point2, &vertices[(36 * i) + (j * 6) + 1]);
             rotate(theta * j, 'y', &ro);
-            matxvec(&ro, &point, &vertices[(36 * i) + (j * 3) + 2]);
+            matxvec(&ro, &point, &vertices[(36 * i) + (j * 6) + 2]);
+
+            vertices[(36 * i) + (j * 6) + 3] = vertices[(36 * i) + (j * 6) + 1];
+            vertices[(36 * i) + (j * 6) + 4] = vertices[(36 * i) + (j * 6)];
+            rotate(theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point2, &vertices[(36 * i) + (j * 6) + 5]);
         }
     }
 
