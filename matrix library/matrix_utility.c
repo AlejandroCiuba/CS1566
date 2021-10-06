@@ -99,6 +99,13 @@ ERROR_NUM copy_vector(const vector4* og, vector4* cpy) {
     return 0;
 }
 
+ERROR_NUM copy_matrix(const mat4x4* og, mat4x4* cpy) {
+
+    if(og == NULL || cpy == NULL) return MATLIB_POINTER_ERROR;
+    for(int i = 0; i < 4; i++) copy_vector((vector4*) og + i, (vector4*) cpy + i);
+    return 0;
+}
+
 //Makes a vector4 pointer into a mat4x4 pointer with the values
 //Copied into every column from the original vector4
 //Note: WE DO NOT FREE THE VECTOR HERE

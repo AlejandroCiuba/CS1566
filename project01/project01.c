@@ -101,6 +101,7 @@ void reshape(int width, int height)
     glViewport(0, 0, 512, 512);
 }
 
+//Handles menu
 void menu(char* dec) {
 
     printf("\n===================== PROJECT 1 =====================\n");
@@ -115,6 +116,24 @@ void menu(char* dec) {
         if(scanf("%s", dec) == EOF) return;
     }
     else strcpy(dec, "2\0");
+}
+
+//Handles zoom in and zoom out
+//Global Variables associated with scale
+affine s = {1,1,1};
+
+void mouse(int button, int state, int x, int y) {
+
+    mat4x4 sc; identity(&sc);
+
+    if(button == 3) s = (affine) {s.x + .02, s.y + .02, s.z + .02};
+    else if(button == 4) s = (affine) {s.x - .02, s.y - .02, s.z - .02};
+
+    scal(s, &sc);
+    copy_matrix(&sc, &ctm);
+
+    //Redraw
+    glutPostRedisplay();
 }
 
 int main(int argc, char **argv)
@@ -140,21 +159,27 @@ int main(int argc, char **argv)
 
         //Move to origin
         //Scale to fit OpenGL Canonical View
-        mat4x4 base_or, shrink, move;
+        mat4x4 base_or, shrink, move, final;
+        vector4 base[num_vertices];
+        for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
         
         rotate(-90, 'x', &base_or);
         scaling(.01, .01, .01, &shrink);
         translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
-        mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &ctm);
-        print_matrix(ctm);
+        mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
+        matxvar(&final, base, num_vertices, vertices);
     }
     else {
         //torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25, .25);
         sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);
-        mat4x4 sc, ro;
+        mat4x4 sc, ro, final;
+        vector4 base[num_vertices];
+        for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
+
         scal((affine){.5,.5,.5}, &sc);
         rotate(45, 'x', &ro);
-        matxmat(&ro, &sc, &ctm);
+        matxmat(&ro, &sc, &final);
+        matxvar(&final, base, num_vertices, vertices);
     }
 
     //Assign color and print statistics
@@ -166,6 +191,8 @@ int main(int argc, char **argv)
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
     glutCreateWindow("Project 1");
+
+    glutMouseFunc(mouse);
 
     glewInit();
     init();

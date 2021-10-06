@@ -359,32 +359,15 @@ ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
 ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat inner_radius, GLfloat thickness_radius) {
 
     if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
-    /*int verts_per_ring = count / bands;
-    GLfloat deg_per_band = (GLfloat) (360 / bands);
-    vector4 base[verts_per_ring];
-    mat4x4 rot, tran, final;
-
-    for(int i = 0; i < bands; i++) {
-        circle(base, verts_per_ring, .25, (vector4){0,0,0,1}, 'z');
-        trans((affine){radius, 0, 0}, &tran);
-        rotate(radius * sin((deg_per_band * i) * M_PI / 180), 'y', &rot);
-        matxmat(&rot, &tran, &final);
-        matxvar(&final, base, verts_per_ring, vertices + (i * verts_per_ring));
-    }*/
     int verts_per_band = count / bands / 2;
     GLfloat true_radius = inner_radius + thickness_radius;
     GLfloat deg_per_band = (GLfloat) (360 / bands);
-    mat4x4 rot, ro, tran, final;
+    mat4x4 ro, tran, final;
     vector4 ban[verts_per_band];
 
     //Produce all rings
     for(int i = 0; i < bands * 2; i++) {
-        //band(ban, verts_per_band, thickness_radius, .5);
         circle(ban, verts_per_band, thickness_radius, (vector4){0,0,0,1}, 'z');
-        //rotate(90, 'x', &rot);
-        //rotate(-deg_per_band * i, 'y', &ro);
-        //trans((affine){true_radius * cos((deg_per_band * i) * M_PI / 180), 0, true_radius * sin((deg_per_band * i) * M_PI / 180)}, &tran);
-        //mat_mult((mat4x4[2]){tran, ro}, 2, &final);
         trans((affine){true_radius, 0, 0}, &tran);
         rotate(-deg_per_band * i, 'y', &ro);
         matxmat(&ro, &tran, &final);
@@ -409,25 +392,6 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat inner_radius, G
             }
         }
     }
-
-    /*for(int i = 0; i < bands; i++) {
-        for(int j = 1; j < verts_per_band; j+=3) {
-            if(j % 2 != 0 && i != 0)
-                vertices[(j + (verts_per_band * i)) + (count / 2)] = vertices[((j - 1) + (verts_per_band * (i + 1))) + (count / 2)];
-            else if(i == 0) {
-                vertices[j + (verts_per_band * i) + (count / 2)] = vertices[((j - 1) + (verts_per_band * (bands - 1)))];
-                vector4 temp = vertices[(j - 1) + (verts_per_band * i) + (count / 2)];
-                vertices[(j - 1) + (verts_per_band * i) + (count / 2)] = vertices[j + (verts_per_band * i) + (count / 2)];
-                vertices[j + (verts_per_band * i)] = temp;
-            }
-            else {
-                vertices[j + (verts_per_band * i) + (count / 2)] = vertices[j + (verts_per_band * (i - 1)) + (count / 2)];
-                vector4 temp = vertices[(j - 1) + (verts_per_band * i) + (count / 2)];
-                vertices[(j - 1) + (verts_per_band * i) + (count / 2)] = vertices[j + (verts_per_band * i) + (count / 2)];
-                vertices[j + (verts_per_band * i) + (count / 2)] = temp;
-            }
-        }
-    }*/
 
     for(int i = 0; i < bands; i++) {
         for(int j = 1; j < verts_per_band; j +=3) {
