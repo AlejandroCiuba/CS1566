@@ -29,7 +29,7 @@ ERROR_NUM vector_norm(const vector4* vec);
 //Returns the Dot Product of 2 given vectors
 ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result);
 
-ERROR_NUM vector_cross();
+ERROR_NUM vector_cross(const vector4* vec1, const vector4* vec2, vector4* result);
 
 //============== MATRIX MATH FUNCTIONS ==============
 

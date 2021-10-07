@@ -8,9 +8,11 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <GL/freeglut_ext.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "../matrix library/initShader.h"
 #include "../matrix library/matrix_def.h"
@@ -118,6 +120,15 @@ void menu(char* dec) {
     else strcpy(dec, "2\0");
 }
 
+//===================== ROTATION =====================
+//Calculate z-Axis point
+GLfloat z_treatment(GLfloat x, GLfloat y) {return sqrt(1 - pow(x, 2) - pow(y, 2));}
+GLfloat rad_to_degrees(GLfloat rad) {return rad * 180 / M_PI;}
+
+vector4 world_points_1 = {0,0,0,1}, world_points_2 = {0,0,FP_NAN,1}; //Yes...
+vector4 center = {0,0,0,1};
+//====================================================
+
 //Handles zoom in and zoom out
 //Global Variables associated with scale
 affine s = {1,1,1};
@@ -136,7 +147,7 @@ void mouse(int button, int state, int x, int y) {
     scal(s, &sc);
     copy_matrix(&sc, &final);
 
-    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) printf("\nBUTTON PRESSED\n");
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment);
 
     //Put all changes onto ctm
     copy_matrix(&final, &ctm);
@@ -145,14 +156,52 @@ void mouse(int button, int state, int x, int y) {
     glutPostRedisplay();
 }
 
-//===================== ROTATION =====================
 //Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
 void motion(int x, int y) {
 
     vector4 screen_points = {x, y, 0, 1};
-    vector4 world_points; zero_vector(&world_points);
-    screen_to_world(&screen_points, &world_points, 512, 512);
-    print_vector(world_points);
+    vector4 cross = {0,0,0,1}, cross_perp = {0,0,0,1};
+    GLfloat rad = 0.0f;
+
+    screen_to_world(&screen_points, &world_points_2, 512, 512, z_treatment);
+        
+
+    //If inside sphere of rotation
+    if(!isnan(world_points_1.z) && !isnan(world_points_2.z)) {
+        world_points_1.w = 0.0f;
+        world_points_2.w = 0.0f;
+        vector_norm(&world_points_1);
+        vector_norm(&world_points_2);
+        printf("\nVector Set\n");
+        print_vector(world_points_1);
+        print_vector(world_points_2);
+
+        vector_cross(&world_points_1, &world_points_2, &cross);
+        vector_dot(&world_points_1, &world_points_2, &rad);
+
+        cross_perp = (vector4) {1, 1, (cross.x + cross.y) / -cross.z, 0};
+        vector_norm(&cross_perp);
+    }
+    else printf("\nNAN\n");
+
+    //Put it all together
+    mat4x4 t1, rx1, ry1, rz, ry2, rx2, t2, final;
+    GLfloat rx, ry, deg = rad_to_degrees(rad);
+
+    trans((affine){-center.x, -center.y, -center.z}, &t1); trans((affine){center.x, center.y, center.z}, &t2);
+
+    rx = rad_to_degrees(asin(cross_perp.y / (sqrt(pow(cross_perp.y, 2) + pow(cross_perp.z, 2)))));
+    rotate(rx, 'x', &rx1); rotate(-rx, 'x', &rx2);
+
+    ry = rad_to_degrees(asin(cross.x));
+    rotate(-ry, 'y', &ry1); rotate(ry, 'y', &ry2);
+
+    rotate(deg, 'z', &rz);
+
+    mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final);
+    copy_matrix(&final, &ctm);
+
+    glutPostRedisplay();
 }
 
 int main(int argc, char **argv)
@@ -205,6 +254,9 @@ int main(int argc, char **argv)
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     printf("COUNT: %d\n",  num_vertices);
     
+    //Get center of mass
+    com(vertices, num_vertices, &center);
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
