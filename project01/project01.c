@@ -139,7 +139,7 @@ void mouse(int button, int state, int x, int y) {
         screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment);
         if(!isnan(world_points_1.z)) copy_matrix(&ctm, &ctm_base);
         else printf("\nSTART AT NAN\n");
-    }
+    } else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {identity(&final_rot); copy_matrix(&ctm, &ctm_base);}
 }
 
 //Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
@@ -179,7 +179,7 @@ void motion(int x, int y) {
         rotate(deg, 'z', &rz);
 
         mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);
-    } else {identity(&final_rot); printf("\nNAN\n");}
+    } else {identity(&final_rot); copy_matrix(&ctm, &ctm_base); printf("\nNAN\n");}
 }
 
 void keyboard(unsigned char key, int mousex, int mousey)
