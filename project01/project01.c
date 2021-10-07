@@ -136,8 +136,9 @@ void mouse(int button, int state, int x, int y) {
     copy_matrix(&sc, &final_scal);
 
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment); 
-        copy_matrix(&ctm, &ctm_base);
+        screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment);
+        if(!isnan(world_points_1.z)) copy_matrix(&ctm, &ctm_base);
+        else printf("\nSTART AT NAN\n");
     }
 }
 
@@ -178,7 +179,7 @@ void motion(int x, int y) {
         rotate(deg, 'z', &rz);
 
         mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);
-    } else identity(&final_rot);
+    } else {identity(&final_rot); printf("\nNAN\n");}
 }
 
 void keyboard(unsigned char key, int mousex, int mousey)
@@ -196,6 +197,18 @@ void keyboard(unsigned char key, int mousex, int mousey)
     if(key == 'f') if(view_file(fp) != 0) printf("\nNO FILE TO VIEW!!!\n");
 
     if(key == 'r') {identity(&final_rot); identity(&final_scal); identity(&ctm_base);}
+
+    //===================== SCROLLING SIZE =====================
+    mat4x4 sc; identity(&sc);
+
+    //Optional keyboard input
+    if(key == '+') s = (affine) {s.x + .02, s.y + .02, s.z + .02};
+    else if(key == '-') s = (affine) {s.x - .02, s.y - .02, s.z - .02};
+    else s = (affine) {1,1,1};
+
+    //Resize management
+    scal(s, &sc);
+    copy_matrix(&sc, &final_scal);
 }
 
 void idle() {
