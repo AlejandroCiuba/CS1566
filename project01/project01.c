@@ -112,6 +112,7 @@ vector4 world_points_1 = {0,0,0,1}, world_points_2 = {0,0,FP_NAN,1}; //Yes...
 vector4 center = {0,0,0,1};
 mat4x4 final_rot = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 //====================================================
+mat4x4 ctm_base = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
 //Handles zoom in and zoom out
 //Global Variables associated with scale
@@ -137,7 +138,7 @@ void mouse(int button, int state, int x, int y) {
 void motion(int x, int y) {
 
     vector4 screen_points = {x, y, 0, 1};
-    vector4 cross = {0,0,0,1}, cross_perp = {0,0,0,1};
+    vector4 cross = {0,0,0,1};
     GLfloat rad = 0.0f;
 
     screen_to_world(&screen_points, &world_points_2, 512, 512, z_treatment);
@@ -155,9 +156,6 @@ void motion(int x, int y) {
 
         vector_cross(&world_points_1, &world_points_2, &cross);
         vector_dot(&world_points_1, &world_points_2, &rad);
-
-        cross_perp = (vector4) {1, 1, (cross.x + cross.y) / -cross.z, 0};
-        vector_norm(&cross_perp);
     }
     else {printf("\nNAN\n"); return;}
 
@@ -167,10 +165,10 @@ void motion(int x, int y) {
 
     trans((affine){-center.x, -center.y, -center.z}, &t1); trans((affine){center.x, center.y, center.z}, &t2);
 
-    rx = rad_to_degrees(asin(cross_perp.y / (sqrt(pow(cross_perp.y, 2) + pow(cross_perp.z, 2)))));
+    rx = rad_to_degrees(asin(cross.y / (sqrt(pow(cross.y, 2) + pow(cross.z, 2)))));
     rotate(rx, 'x', &rx1); rotate(-rx, 'x', &rx2);
 
-    ry = rad_to_degrees(asin(cross_perp.x));
+    ry = rad_to_degrees(asin(cross.x));
     rotate(-ry, 'y', &ry1); rotate(ry, 'y', &ry2);
 
     rotate(deg, 'z', &rz);
@@ -197,7 +195,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
     //glutPostRedisplay();
 }
 
-void idle() {mat_mult((mat4x4[2]){final_rot, final_scal}, 2, &ctm); glutPostRedisplay();}
+void idle() {mat_mult((mat4x4[3]){final_rot, final_scal, ctm_base}, 3, &ctm); copy_matrix(&ctm, &ctm_base); glutPostRedisplay();}
 
 int main(int argc, char **argv)
 {
