@@ -81,23 +81,6 @@ void display(void)
     glutSwapBuffers();
 }
 
-void keyboard(unsigned char key, int mousex, int mousey)
-{
-    if(key == 'q') {
-    	glutLeaveMainLoop();
-        free(vertices);
-        free(colors);
-        if(fp != NULL) fclose(fp);
-        printf("\nEXIT SUCCESSFUL\n");
-    }
-
-    if(key == 'd') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
-
-    if(key == 'f') if(view_file(fp) != 0) printf("\nNO FILE TO VIEW!!!\n");
-
-    //glutPostRedisplay();
-}
-
 void reshape(int width, int height)
 {
     glViewport(0, 0, 512, 512);
@@ -127,15 +110,15 @@ GLfloat rad_to_degrees(GLfloat rad) {return rad * 180 / M_PI;}
 
 vector4 world_points_1 = {0,0,0,1}, world_points_2 = {0,0,FP_NAN,1}; //Yes...
 vector4 center = {0,0,0,1};
+mat4x4 final_rot = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 //====================================================
 
 //Handles zoom in and zoom out
 //Global Variables associated with scale
 affine s = {1,1,1};
+mat4x4 final_scal = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
 void mouse(int button, int state, int x, int y) {
-
-    mat4x4 final; identity(&final);
 
     //===================== SCROLLING SIZE =====================
     mat4x4 sc; identity(&sc);
@@ -145,15 +128,9 @@ void mouse(int button, int state, int x, int y) {
 
     //Resize management
     scal(s, &sc);
-    copy_matrix(&sc, &final);
+    copy_matrix(&sc, &final_scal);
 
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment);
-
-    //Put all changes onto ctm
-    copy_matrix(&final, &ctm);
-
-    //Redraw
-    glutPostRedisplay();
 }
 
 //Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
@@ -182,27 +159,45 @@ void motion(int x, int y) {
         cross_perp = (vector4) {1, 1, (cross.x + cross.y) / -cross.z, 0};
         vector_norm(&cross_perp);
     }
-    else printf("\nNAN\n");
+    else {printf("\nNAN\n"); return;}
 
     //Put it all together
-    mat4x4 t1, rx1, ry1, rz, ry2, rx2, t2, final;
-    GLfloat rx, ry, deg = rad_to_degrees(rad);
+    mat4x4 t1, rx1, ry1, rz, ry2, rx2, t2;
+    GLfloat rx, ry, deg = rad_to_degrees(acos(rad));
 
     trans((affine){-center.x, -center.y, -center.z}, &t1); trans((affine){center.x, center.y, center.z}, &t2);
 
     rx = rad_to_degrees(asin(cross_perp.y / (sqrt(pow(cross_perp.y, 2) + pow(cross_perp.z, 2)))));
     rotate(rx, 'x', &rx1); rotate(-rx, 'x', &rx2);
 
-    ry = rad_to_degrees(asin(cross.x));
+    ry = rad_to_degrees(asin(cross_perp.x));
     rotate(-ry, 'y', &ry1); rotate(ry, 'y', &ry2);
 
     rotate(deg, 'z', &rz);
 
-    mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final);
-    copy_matrix(&final, &ctm);
-
-    glutPostRedisplay();
+    mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);
 }
+
+void keyboard(unsigned char key, int mousex, int mousey)
+{
+    if(key == 'q') {
+    	glutLeaveMainLoop();
+        free(vertices);
+        free(colors);
+        if(fp != NULL) fclose(fp);
+        printf("\nEXIT SUCCESSFUL\n");
+    }
+
+    if(key == 'd') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
+
+    if(key == 'f') if(view_file(fp) != 0) printf("\nNO FILE TO VIEW!!!\n");
+
+    if(key == 'r') {identity(&final_rot); identity(&final_scal);}
+
+    //glutPostRedisplay();
+}
+
+void idle() {mat_mult((mat4x4[2]){final_rot, final_scal}, 2, &ctm); glutPostRedisplay();}
 
 int main(int argc, char **argv)
 {
@@ -265,6 +260,7 @@ int main(int argc, char **argv)
 
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
+    glutIdleFunc(idle);
 
     glewInit();
     init();
