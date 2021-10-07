@@ -111,7 +111,10 @@ GLfloat rad_to_degrees(GLfloat rad) {return rad * 180 / M_PI;}
 vector4 world_points_1 = {0,0,0,1}, world_points_2 = {0,0,FP_NAN,1}; //Yes...
 vector4 center = {0,0,0,1};
 mat4x4 final_rot = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+
 //====================================================
+
+//Keep the previous ctm to not reset between every call
 mat4x4 ctm_base = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
 //Handles zoom in and zoom out
@@ -126,12 +129,16 @@ void mouse(int button, int state, int x, int y) {
 
     if(button == 3) s = (affine) {s.x + .02, s.y + .02, s.z + .02};
     else if(button == 4) s = (affine) {s.x - .02, s.y - .02, s.z - .02};
+    else s = (affine) {1,1,1};
 
     //Resize management
     scal(s, &sc);
     copy_matrix(&sc, &final_scal);
 
-    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment);
+    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment); 
+        copy_matrix(&ctm, &ctm_base);
+    }
 }
 
 //Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
@@ -145,35 +152,33 @@ void motion(int x, int y) {
         
 
     //If inside sphere of rotation
-    if(!isnan(world_points_1.z) && !isnan(world_points_2.z)) {
+    if(!(isnan(world_points_1.z) || isnan(world_points_2.z))) {
+
         world_points_1.w = 0.0f;
         world_points_2.w = 0.0f;
         vector_norm(&world_points_1);
         vector_norm(&world_points_2);
-        printf("\nVector Set\n");
-        print_vector(world_points_1);
-        print_vector(world_points_2);
 
         vector_cross(&world_points_1, &world_points_2, &cross);
+        vector_norm(&cross);
         vector_dot(&world_points_1, &world_points_2, &rad);
-    }
-    else {printf("\nNAN\n"); return;}
 
-    //Put it all together
-    mat4x4 t1, rx1, ry1, rz, ry2, rx2, t2;
-    GLfloat rx, ry, deg = rad_to_degrees(acos(rad));
+        //Put it all together
+        mat4x4 t1, rx1, ry1, rz, ry2, rx2, t2;
+        GLfloat rx, ry, deg = rad_to_degrees(acos(rad));
 
-    trans((affine){-center.x, -center.y, -center.z}, &t1); trans((affine){center.x, center.y, center.z}, &t2);
+        trans((affine){-center.x, -center.y, -center.z}, &t1); trans((affine){center.x, center.y, center.z}, &t2);
 
-    rx = rad_to_degrees(asin(cross.y / (sqrt(pow(cross.y, 2) + pow(cross.z, 2)))));
-    rotate(rx, 'x', &rx1); rotate(-rx, 'x', &rx2);
+        rx = rad_to_degrees(asin(cross.y / (sqrt(pow(cross.y, 2) + pow(cross.z, 2)))));
+        rotate(rx, 'x', &rx1); rotate(-rx, 'x', &rx2);
 
-    ry = rad_to_degrees(asin(cross.x));
-    rotate(-ry, 'y', &ry1); rotate(ry, 'y', &ry2);
+        ry = rad_to_degrees(asin(cross.x));
+        rotate(-ry, 'y', &ry1); rotate(ry, 'y', &ry2);
 
-    rotate(deg, 'z', &rz);
+        rotate(deg, 'z', &rz);
 
-    mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);
+        mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);
+    } else identity(&final_rot);
 }
 
 void keyboard(unsigned char key, int mousex, int mousey)
@@ -190,12 +195,13 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
     if(key == 'f') if(view_file(fp) != 0) printf("\nNO FILE TO VIEW!!!\n");
 
-    if(key == 'r') {identity(&final_rot); identity(&final_scal);}
-
-    //glutPostRedisplay();
+    if(key == 'r') {identity(&final_rot); identity(&final_scal); identity(&ctm_base);}
 }
 
-void idle() {mat_mult((mat4x4[3]){final_rot, final_scal, ctm_base}, 3, &ctm); copy_matrix(&ctm, &ctm_base); glutPostRedisplay();}
+void idle() {
+    mat_mult((mat4x4[3]){final_rot, final_scal, ctm_base}, 3, &ctm);
+    glutPostRedisplay();
+}
 
 int main(int argc, char **argv)
 {
@@ -230,18 +236,7 @@ int main(int argc, char **argv)
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
         matxvar(&final, base, num_vertices, vertices);
     }
-    else {
-        //torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25, .25);
-        sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);
-        mat4x4 sc, ro, final;
-        vector4 base[num_vertices];
-        for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
-
-        scal((affine){.5,.5,.5}, &sc);
-        rotate(45, 'x', &ro);
-        matxmat(&ro, &sc, &final);
-        matxvar(&final, base, num_vertices, vertices);
-    }
+    else {sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);}
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
