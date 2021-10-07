@@ -151,7 +151,6 @@ void motion(int x, int y) {
 
     screen_to_world(&screen_points, &world_points_2, 512, 512, z_treatment);
         
-
     //If inside sphere of rotation
     if(!(isnan(world_points_1.z) || isnan(world_points_2.z))) {
 
@@ -204,7 +203,6 @@ void keyboard(unsigned char key, int mousex, int mousey)
     //Optional keyboard input
     if(key == '+') s = (affine) {s.x + .02, s.y + .02, s.z + .02};
     else if(key == '-') s = (affine) {s.x - .02, s.y - .02, s.z - .02};
-    else s = (affine) {1,1,1};
 
     //Resize management
     scal(s, &sc);
