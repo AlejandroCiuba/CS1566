@@ -94,7 +94,7 @@ void menu(char* dec) {
     int ui = 0;
     if(scanf("%d", &ui) == EOF) return;
 
-    while(ui != 2 && ui != 1){printf("\nINVALID OPTION!!!"); if(scanf("%d", &ui) == EOF) return;}
+    while(ui != 2 && ui != 1){printf("\nINVALID OPTION!!! "); if(scanf("%d", &ui) == EOF) return;}
 
     if(ui == 1) {
         printf("\nType the name of the file, located in \"files\": ");
@@ -104,7 +104,7 @@ void menu(char* dec) {
 }
 
 //===================== ROTATION =====================
-//Calculate z-Axis point
+//Calculate z-Axis point and degree
 GLfloat z_treatment(GLfloat x, GLfloat y) {return sqrt(1 - pow(x, 2) - pow(y, 2));}
 GLfloat rad_to_degrees(GLfloat rad) {return rad * 180 / M_PI;}
 
@@ -113,7 +113,6 @@ vector4 center = {0,0,0,1};
 mat4x4 final_rot = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
 //====================================================
-
 //Keep the previous ctm to not reset between every call
 mat4x4 ctm_base = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 
@@ -125,7 +124,7 @@ mat4x4 final_scal = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 void mouse(int button, int state, int x, int y) {
 
     //===================== SCROLLING SIZE =====================
-    mat4x4 sc; identity(&sc);
+    mat4x4 sc = identity;
 
     if(button == 3) s = (affine) {s.x + .02, s.y + .02, s.z + .02};
     else if(button == 4) s = (affine) {s.x - .02, s.y - .02, s.z - .02};
@@ -138,8 +137,11 @@ void mouse(int button, int state, int x, int y) {
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment);
         if(!isnan(world_points_1.z)) copy_matrix(&ctm, &ctm_base);
-        else printf("\nSTART AT NAN\n");
-    } else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {identity(&final_rot); copy_matrix(&ctm, &ctm_base);}
+    }
+    else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+        final_rot = identity;
+        copy_matrix(&ctm, &ctm_base);
+    }
 }
 
 //Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
@@ -163,7 +165,7 @@ void motion(int x, int y) {
         vector_norm(&cross);
         vector_dot(&world_points_1, &world_points_2, &rad);
 
-        //Put it all together
+        /*//Put it all together
         mat4x4 t1, rx1, ry1, rz, ry2, rx2, t2;
         GLfloat rx, ry, deg = rad_to_degrees(acos(rad));
 
@@ -177,8 +179,9 @@ void motion(int x, int y) {
 
         rotate(deg, 'z', &rz);
 
-        mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);
-    } else {identity(&final_rot); copy_matrix(&ctm, &ctm_base); printf("\nNAN\n");}
+        mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);*/
+        rotate_arb(rad_to_degrees(acos(rad)), &cross, &center, &final_rot);
+    } else {final_rot = identity; copy_matrix(&ctm, &ctm_base);}
 }
 
 void keyboard(unsigned char key, int mousex, int mousey)
@@ -195,10 +198,10 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
     if(key == 'f') if(view_file(fp) != 0) printf("\nNO FILE TO VIEW!!!\n");
 
-    if(key == 'r') {identity(&final_rot); identity(&final_scal); identity(&ctm_base);}
+    if(key == 'r') {final_rot = identity; final_scal = identity; ctm_base = identity;}
 
     //===================== SCROLLING SIZE =====================
-    mat4x4 sc; identity(&sc);
+    mat4x4 sc = identity;
 
     //Optional keyboard input
     if(key == '+') s = (affine) {s.x + .02, s.y + .02, s.z + .02};
@@ -230,7 +233,7 @@ int main(int argc, char **argv)
         if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
 
         //Get the center of mass
-        vector4 cm = {0,0,0,0};
+        vector4 cm = {0,0,0,1};
         com(vertices, num_vertices, &cm);
         printf("\nCENTER OF MASS:");
         print_vector(cm);
@@ -241,13 +244,14 @@ int main(int argc, char **argv)
         vector4 base[num_vertices];
         for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
         
-        rotate(-90, 'x', &base_or);
-        scaling(.01, .01, .01, &shrink);
         translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
+        scaling(.01, .01, .01, &shrink);
+        rotate(-90, 'x', &base_or);
+        
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
         matxvar(&final, base, num_vertices, vertices);
     }
-    else {sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);}
+    else sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 10, .25);
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);

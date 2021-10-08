@@ -34,4 +34,7 @@ ERROR_NUM rot(affine degrees, int* order, mat4x4* affine);
 //Gets the center of mass, relative to the shapes current position
 ERROR_NUM com(vector4* vertices, int count, vector4* com);
 
+//Rotate around a given arbitrary vector
+ERROR_NUM rotate_arb(GLfloat degree, vector4* axis, vector4* com, mat4x4* aff);
+
 #endif

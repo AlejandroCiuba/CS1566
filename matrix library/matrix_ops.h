@@ -9,6 +9,9 @@
 
 #include "matrix_def.h"
 
+extern mat4x4 identity, zero_matrix;
+extern vector4 zero_vector;
+
 //============== VECTOR AND MATRIX MATH FUNCTIONS ==============
 ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args);
 
@@ -58,7 +61,7 @@ ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result);
 ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse);
 
 //Returns the identity matrix
-ERROR_NUM identity(mat4x4* identity);
+ERROR_NUM identity_fill(mat4x4* identity);
 
 //Returns a minor matrix for a given matrix
 ERROR_NUM minor(mat4x4* matrix, mat4x4* minor);

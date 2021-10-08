@@ -47,7 +47,7 @@ ERROR_NUM print_GLfloat_ptr(const GLfloat* flt) {
 }
 
 //Returns a pointer to a 0 vector4
-ERROR_NUM zero_vector(vector4* vec) {
+ERROR_NUM zero_vector_fill(vector4* vec) {
     if(vec == NULL) return MATLIB_POINTER_ERROR;
 
     vec->x = 0;
@@ -59,7 +59,7 @@ ERROR_NUM zero_vector(vector4* vec) {
 }
 
 //Returns a pointer to a 0 matrix
-ERROR_NUM zero_matrix(mat4x4* mat) {
+ERROR_NUM zero_matrix_fill(mat4x4* mat) {
 
     if(mat == NULL) return MATLIB_POINTER_ERROR;
     

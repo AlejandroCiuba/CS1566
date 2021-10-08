@@ -8,6 +8,10 @@
 #include <math.h>
 #include <stddef.h> //Needed here, but NOT in header file
 
+mat4x4 identity = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+mat4x4 zero_matrix = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
+vector4 zero_vector = {0,0,0,0};
+
 //============== VECTOR AND MATRIX MATH FUNCTIONS ==============
 
 //for args, 0 = vector, 1 = matrix4x4
@@ -304,7 +308,7 @@ ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse) {
 }
 
 //Returns the identity matrix
-ERROR_NUM identity(mat4x4* identity) {
+ERROR_NUM identity_fill(mat4x4* identity) {
 
     if(identity == NULL) return MATLIB_POINTER_ERROR;
 

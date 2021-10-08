@@ -110,3 +110,28 @@ ERROR_NUM com(vector4* vertices, int count, vector4* com) {
 
     return 0;
 }
+
+//Rotate around a given arbitrary vector
+ERROR_NUM rotate_arb(GLfloat degree, vector4* axis, vector4* com, mat4x4* aff) {
+
+    if(axis == NULL || aff == NULL) return MATLIB_POINTER_ERROR;
+
+    //Put it all together
+    mat4x4 t1, rx1, ry1, rz, ry2, rx2, t2;
+    GLfloat rx, ry;
+
+    trans((affine){-com->x, -com->y, -com->z}, &t1); trans((affine){com->x, com->y, com->z}, &t2);
+
+    rx = (asin(axis->y / (sqrt(pow(axis->y, 2) + pow(axis->z, 2))))) * 180 / M_PI;
+    rotate(rx, 'x', &rx1); rotate(-rx, 'x', &rx2);
+
+    ry = (asin(axis->x)) * 180 / M_PI;
+
+    rotate(-ry, 'y', &ry1); rotate(ry, 'y', &ry2);
+
+    rotate(degree, 'z', &rz);
+
+    mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, aff);
+
+    return 0;
+}
