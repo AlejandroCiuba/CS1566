@@ -180,6 +180,13 @@ void motion(int x, int y) {
         rotate(deg, 'z', &rz);
 
         mat_mult((mat4x4[7]) {t2, rx2, ry2, rz, ry1, rx1, t1}, 7, &final_rot);*/
+        /*if(world_points_1.x >= 0 && world_points_1.y >= 0) {
+            if(world_points_1.x > world_points_2.x && world_points_1.y < world_points_2.y)
+                rotate_arb(rad_to_degrees(acos(rad)), &cross, &center, &final_rot);
+            else
+                rotate_arb(rad_to_degrees(-acos(rad)), &cross, &center, &final_rot);
+        }
+        else if(world_points_1.x < 0 && world_points_1.y >= 0)*/
         rotate_arb(rad_to_degrees(acos(rad)), &cross, &center, &final_rot);
     } else {final_rot = identity; copy_matrix(&ctm, &ctm_base);}
 }

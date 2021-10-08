@@ -122,12 +122,20 @@ ERROR_NUM rotate_arb(GLfloat degree, vector4* axis, vector4* com, mat4x4* aff) {
 
     trans((affine){-com->x, -com->y, -com->z}, &t1); trans((affine){com->x, com->y, com->z}, &t2);
 
-    rx = (asin(axis->y / (sqrt(pow(axis->y, 2) + pow(axis->z, 2))))) * 180 / M_PI;
+    /*rx = (asin(axis->y / (sqrt(pow(axis->y, 2) + pow(axis->z, 2))))) * 180 / M_PI;
     rotate(rx, 'x', &rx1); rotate(-rx, 'x', &rx2);
 
     ry = (asin(axis->x)) * 180 / M_PI;
 
     rotate(-ry, 'y', &ry1); rotate(ry, 'y', &ry2);
+
+    rotate(degree, 'z', &rz);*/
+
+    rx1 = (mat4x4){{1,0,0,0},{0,axis->z / sqrt(pow(axis->y, 2) + pow(axis->z, 2)), axis->y / sqrt(pow(axis->y, 2) + pow(axis->z, 2)),0},{0,-axis->y / sqrt(pow(axis->y, 2) + pow(axis->z, 2)),axis->z / sqrt(pow(axis->y, 2) + pow(axis->z, 2)),0},{0,0,0,1}};
+    transpose_sep(&rx1, &rx2);
+
+    ry1 = (mat4x4){{sqrt(pow(axis->y, 2) + pow(axis->z, 2)), 0, axis->x, 0},{0,1,0,0},{-axis->x,0,sqrt(pow(axis->y, 2) + pow(axis->z, 2)),0},{0,0,0,1}};
+    transpose_sep(&ry1, &ry2);
 
     rotate(degree, 'z', &rz);
 
