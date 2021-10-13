@@ -436,16 +436,15 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius) {
 
     //calculate the number of rectangles per band
     int rects = count / (6 * (bands - 1));
-    GLfloat theta = (GLfloat) (360 / rects);
-    GLfloat phi = (GLfloat) (90 / (bands / 2));
+    GLfloat theta = (GLfloat) (360.00 / rects); //Bruh this bug
+    GLfloat phi = (GLfloat) (90.00 / (bands / 2));
     
     //Generate the bottom
     vector4 base = {0,-1,0,1}, point;
     mat4x4 ro;
     rotate(-phi * ((bands - 2) / 2), 'z', &ro);
     matxvec(&ro, &(vector4){1,0,0,1}, &point);
-    int m = 0;
-
+    
     for(int i = 0; i < rects; i++) {
 
         vertices[i * 3] = base;
@@ -453,8 +452,6 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius) {
         matxvec(&ro, &point, &vertices[(i * 3) + 1]);
         rotate(theta * i, 'y', &ro);
         matxvec(&ro, &point, &vertices[(i * 3) + 2]);
-
-        m += 3;
     }
 
     vector4 point2;
@@ -481,10 +478,9 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius) {
             rotate(theta * (j + 1), 'y', &ro);
             matxvec(&ro, &point2, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 5)]);
 
-            m += 6;
         }
     }
-    printf("%d\n", m);
+
     int offset = count / 2;
     base = (vector4){0,1,0,1};
 
