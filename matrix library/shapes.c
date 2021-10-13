@@ -9,8 +9,6 @@
 #include "affine.h"
 #include "matrix_ops.h"
 
-#include "matrix_utility.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -264,7 +262,8 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
     return 0;
 }
 
-ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
+//Depricated
+/*ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
 
     if(vertices == NULL || radius <= 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
 
@@ -354,7 +353,7 @@ ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
     }
 
     return 0;
-}
+}*/
 
 ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat inner_radius, GLfloat thickness_radius) {
 
@@ -425,6 +424,105 @@ ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
         temp = vertices[i + vert_per_ring - 1];
         vertices[i + vert_per_ring - 1] = vertices[i + 1];
         vertices[i + vert_per_ring] = temp;
+    }
+
+    return 0;
+}
+
+ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius) {
+
+    if(vertices == NULL || count == 0 || bands % 2 != 0) return MATLIB_POINTER_ERROR;
+    count -= (count % (6 * (bands - 1)));
+
+    //calculate the number of rectangles per band
+    int rects = count / (6 * (bands - 1));
+    GLfloat theta = (GLfloat) (360 / rects);
+    GLfloat phi = (GLfloat) (90 / (bands / 2));
+    
+    //Generate the bottom
+    vector4 base = {0,-1,0,1}, point;
+    mat4x4 ro;
+    rotate(-phi * ((bands - 2) / 2), 'z', &ro);
+    matxvec(&ro, &(vector4){1,0,0,1}, &point);
+    int m = 0;
+
+    for(int i = 0; i < rects; i++) {
+
+        vertices[i * 3] = base;
+        rotate(theta * (i + 1), 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 1]);
+        rotate(theta * i, 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 2]);
+
+        m += 3;
+    }
+
+    vector4 point2;
+    //Generate the middle parts
+    for(int i = 1; i < bands / 2; i++) {
+
+        rotate(-phi * ((int)(bands / 2) - i), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point);
+
+        rotate(-phi * ((int)(bands / 2) - (i + 1)), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
+
+        for(int j = 0; j < rects; j++) {
+
+            rotate(theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3)]);
+            rotate(theta * j, 'y', &ro);
+            matxvec(&ro, &point2, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 1)]);
+            rotate(theta * j, 'y', &ro);
+            matxvec(&ro, &point, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 2)]);
+
+            vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 3)] = vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 1)];
+            vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 4)] = vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3)];
+            rotate(theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point2, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 5)]);
+
+            m += 6;
+        }
+    }
+    printf("%d\n", m);
+    int offset = count / 2;
+    base = (vector4){0,1,0,1};
+
+    rotate(phi * ((bands - 2) / 2), 'z', &ro);
+    matxvec(&ro, &(vector4){1,0,0,1}, &point);
+
+    for(int i = 0; i < rects; i++) {
+
+        vertices[i * 3 + offset] = base;
+        rotate(-theta * (i + 1), 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 1 + offset]);
+        rotate(-theta * i, 'y', &ro);
+        matxvec(&ro, &point, &vertices[(i * 3) + 2 + offset]);
+    }
+
+    //Generate the middle parts
+    for(int i = 1; i < bands / 2; i++) {
+
+        rotate(phi * ((int)(bands / 2) - i), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point);
+
+        rotate(phi * ((int)(bands / 2) - (i + 1)), 'z', &ro);
+        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
+
+        for(int j = 0; j < rects; j++) {
+
+            rotate(-theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3) + offset]);
+            rotate(-theta * j, 'y', &ro);
+            matxvec(&ro, &point2, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 1) + offset]);
+            rotate(-theta * j, 'y', &ro);
+            matxvec(&ro, &point, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 2) + offset]);
+
+            vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 3) + offset] = vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 1) + offset];
+            vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 4) + offset] = vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3) + offset];
+            rotate(-theta * (j + 1), 'y', &ro);
+            matxvec(&ro, &point2, &vertices[((rects * 6) * (i - 1)) + (j * 6) + (rects * 3 + 5) + offset]);
+        }
     }
 
     return 0;
