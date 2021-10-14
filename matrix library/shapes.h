@@ -16,11 +16,6 @@ extern color RED;
 extern color GREEN;
 extern color BLUE;
 
-typedef struct vector2 {
-    GLfloat x;
-    GLfloat y;
-} vector2;
-
 typedef unsigned char shape;
 
 #define RECTANGLE 0
@@ -29,7 +24,6 @@ typedef unsigned char shape;
 #define CONE 3
 #define BAND 4
 #define SPHERE 5
-#define CUSTOM 6
 
 //Assigns a color per shape (assumes triangle based implementation)
 ERROR_NUM random_colors(vector4* colors, const int num_vertices);
@@ -37,7 +31,7 @@ ERROR_NUM random_colors(vector4* colors, const int num_vertices);
 //Assigns one color to a series of faces
 ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color);
 
-ERROR_NUM texturize(vector2* texcoords, const int count, shape type, void custom(vector2*, int));
+ERROR_NUM texturize(vector2* texcoords, const int count, shape type);
 
 //Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align);

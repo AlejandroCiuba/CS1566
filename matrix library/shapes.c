@@ -79,16 +79,34 @@ ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color)
     return 0;
 }
 
-ERROR_NUM texturize(vector2* texcoords, const int count, shape type, void custom(vector2*, int)) {
+ERROR_NUM texturize(vector2* texcoords, const int count, shape type) {
     
     if(texcoords == NULL || count == 0) return MATLIB_POINTER_ERROR;
-    else if(type == CUSTOM && custom == NULL) return MATLIB_POINTER_ERROR;
 
     switch(type) {
 
         case RECTANGLE:
+            texcoords[0] = (vector2) {0.0, 1.0};
+            texcoords[1] = (vector2) {1.0, 1.0};
+            texcoords[2] = (vector2) {1.0, 0.0};
+            texcoords[3] = (vector2) {0.0, 1.0};
+            texcoords[4] = (vector2) {1.0, 0.0};
+            texcoords[5] = (vector2) {0.0, 0.0};
             break;
+        case CIRCLE:
+            break;
+        case FLAT_TORUS:
+            break;
+        case CONE:
+            break;
+        case BAND:
+            break;
+        case SPHERE:
+            break;
+        default:
+            return MATLIB_NAN_ERROR;
     }
+    
     return 0;
 }
 
@@ -395,22 +413,22 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius) {
 ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat band_radius) {
 
     if(vertices == NULL || count == 0) return MATLIB_POINTER_ERROR;
+    count -= (count % (6 * bands));
 
-    GLfloat theta = 30;
+    GLfloat theta = 360.00 / bands;
     GLfloat band_center = radius - band_radius;
-    int rects_per_band = 12;
+    int rects_per_band = count / (6 * bands);
 
     mat4x4 ro1, ro2, tran, final;
-    vector4 base;
 
     //Make the bands
     for(int i = 0; i < bands; i++) {
-        band(vertices + (72 * i), 72, band_radius, .25);
+        band(vertices + (rects_per_band * 6 * i), rects_per_band * 6, band_radius, .25);
         rotate(90, 'x', &ro1);
         trans((affine){band_center, 0, 0}, &tran);
         rotate(-theta * i, 'y', &ro2);
         mat_mult((mat4x4[3]){ro2, tran, ro1}, 3, &final);
-        matxvar(&final, vertices + (72 * i), 72, vertices + (72 * i));
+        matxvar(&final, vertices + (rects_per_band * 6 * i), rects_per_band * 6, vertices + (rects_per_band * 6 * i));
     }
 
     return 0;

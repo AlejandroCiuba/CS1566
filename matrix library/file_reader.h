@@ -12,6 +12,15 @@
 #include <stdio.h>
 #include "matrix_def.h"
 
+typedef unsigned char file_type;
+
+#define VA_FORMAT 0
+#define MA_FORMAT 1
+#define BASIC_PLY_FORMAT 2
+#define RAW_IMAGE 3
+
+ERROR_NUM load_raw(FILE* fp, GLubyte texels[][][], int width, int height);
+
 ERROR_NUM load_count(FILE* fp, int* count);
 
 ERROR_NUM load_va(FILE* fp, vector4* vertices, int count);

@@ -8,13 +8,10 @@
 #include <time.h>
 #include "../matrix library/initShader.h"
 #include "../matrix library/matrix_def.h"
+#include "../matrix library/shapes.h"
+#include "../matrix library/file_reader.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
-
-typedef struct vector2 {
-    GLfloat x;
-    GLfloat y;
-} vec2;
 
 // Vertices of a square
 vector4 vertices[6] =
@@ -37,7 +34,7 @@ vector4 colors[6] =
 
 int num_vertices = 6;
 
-vec2 tex_coords[6] = {{0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}};
+vector2 tex_coords[6]; //= {{0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}};
 
 void init(void)
 {   
@@ -48,7 +45,7 @@ void init(void)
 
     //Reads the image and puts the RGB into their respective texel
     FILE *fp = fopen("Ollie_Dup.raw", "r");
-    fread(my_texels, width * height * 3, 1, fp);
+    load_raw(fp, my_texels, width, height);
     fclose(fp);
 
     GLuint program = initShader("vshader.glsl", "fshader.glsl");
@@ -120,6 +117,8 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
 int main(int argc, char **argv)
 {
+    texturize(tex_coords, 6, RECTANGLE);
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);

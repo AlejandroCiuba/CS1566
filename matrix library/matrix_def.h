@@ -11,6 +11,7 @@
 
 //Error handling type and constants
 typedef char ERROR_NUM;
+
 #define MATLIB_POINTER_ERROR -2
 #define MATLIB_VECTOR_ERROR -3
 #define MATLIB_MATRIX_ERROR -4
@@ -24,6 +25,12 @@ typedef enum {false, true} bool;
 
 //Defines datatype for OpenGL
 typedef float GLfloat;
+typedef unsigned char GLubyte;
+
+typedef struct vector2 {
+    GLfloat x;
+    GLfloat y;
+} vector2;
 
 //Defines base Column Vector needed for OpenGL functions
 typedef struct vector4 {

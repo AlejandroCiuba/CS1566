@@ -6,6 +6,13 @@
 
 #include "file_reader.h"
 
+ERROR_NUM load_raw(FILE* fp, GLubyte texels[][][], int width, int height) {
+
+    if(fp == NULL) return MATLIB_FILE_ERROR;
+    fread(vertices, width * height * 3, 1, fp);
+    return 0;
+}
+
 ERROR_NUM load_count(FILE* fp, int* count) {
 
     if(fp == NULL) return MATLIB_FILE_ERROR;
