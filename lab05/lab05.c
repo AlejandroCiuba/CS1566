@@ -41,11 +41,11 @@ vec2 tex_coords[6] = {{0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}
 
 void init(void)
 {
-    int width = 320;
-    int height = 320;
+    int width = 512;
+    int height = 512;
     GLubyte my_texels[width][height][3];
 
-    FILE *fp = fopen("texture01.raw", "r");
+    FILE *fp = fopen("Ollie_Dup.raw", "r");
     fread(my_texels, width * height * 3, 1, fp);
     fclose(fp);
 
@@ -92,7 +92,7 @@ void init(void)
     glUniform1i(texture_location, 0);
 
     printf("texture_location: %i\n", texture_location);
-
+    
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 1.0);

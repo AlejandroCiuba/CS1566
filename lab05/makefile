@@ -9,7 +9,7 @@ OBJS     = $(OBJDIR)/initShader.o
 
 all: matrix lab05
 
-lab05: lab05
+lab05: lab05 $(OBJS)
 	$(CC) -o lab05 lab05.c $(OBJS) $(CFLAGS) $(LIBS)
 
 matrix:
