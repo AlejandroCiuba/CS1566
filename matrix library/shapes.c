@@ -79,6 +79,19 @@ ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color)
     return 0;
 }
 
+ERROR_NUM texturize(vector2* texcoords, const int count, shape type, void custom(vector2*, int)) {
+    
+    if(texcoords == NULL || count == NULL) return MATLIB_POINTER_ERROR;
+    else if(type == CUSTOM && custom == NULL) return MATLIB_POINTER_ERROR;
+
+    switch(type) {
+
+        case RECTANGLE:
+            break;
+    }
+    return 0;
+}
+
 //Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align) {
 
@@ -198,7 +211,7 @@ ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vec
 }
 
 //Assumes 6 vertices
-ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin, char align) {
+ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin) {
 
     if(vertices == NULL || height == 0 || width == 0) return MATLIB_POINTER_ERROR;
 
@@ -261,99 +274,6 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
 
     return 0;
 }
-
-//Depricated
-/*ERROR_NUM sphere(vector4* vertices, int count, int hor_band, GLfloat radius) {
-
-    if(vertices == NULL || radius <= 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
-
-    int bands = 6;
-    GLfloat theta = 30;
-    GLfloat phi = 30;
-
-    //Generate the bottom
-    vector4 base = {0,-1,0,1}, point;
-    mat4x4 ro;
-    rotate(-phi * ((bands - 2) / 2), 'z', &ro);
-    matxvec(&ro, &(vector4){1,0,0,1}, &point);
-
-    for(int i = 0; i < 12; i++) {
-
-        vertices[i * 3] = base;
-        rotate(theta * (i + 1), 'y', &ro);
-        matxvec(&ro, &point, &vertices[(i * 3) + 1]);
-        rotate(theta * i, 'y', &ro);
-        matxvec(&ro, &point, &vertices[(i * 3) + 2]);
-    }
-
-    vector4 point2;
-    //Generate the middle parts
-    for(int i = 1; i < bands / 2; i++) {
-
-        rotate((int) (-phi * ((bands - (i + 1)) / 2)), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point);
-
-        rotate((int) (-phi * ((bands - (i + 3)) / 2)), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
-
-        for(int j = 0; j < 12; j++) {
-
-            rotate(theta * (j + 1), 'y', &ro);
-            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 36]);
-            rotate(theta * j, 'y', &ro);
-            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 37]);
-            rotate(theta * j, 'y', &ro);
-            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 38]);
-
-            vertices[(72 * (i - 1)) + (j * 6) + 39] = vertices[(72 * (i - 1)) + (j * 6) + 37];
-            vertices[(72 * (i - 1)) + (j * 6) + 40] = vertices[(72 * (i - 1)) + (j * 6) + 36];
-            rotate(theta * (j + 1), 'y', &ro);
-            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 41]);
-        }
-    }
-
-    int offset = count / 2;
-    base = (vector4){0,1,0,1};
-
-    rotate(phi * ((bands - 2) / 2), 'z', &ro);
-    matxvec(&ro, &(vector4){1,0,0,1}, &point);
-
-    for(int i = 0; i < 12; i++) {
-
-        vertices[i * 3 + offset] = base;
-        rotate(-theta * (i + 1), 'y', &ro);
-        matxvec(&ro, &point, &vertices[(i * 3) + 1 + offset]);
-        rotate(-theta * i, 'y', &ro);
-        matxvec(&ro, &point, &vertices[(i * 3) + 2 + offset]);
-    }
-
-    //Generate the middle parts
-    for(int i = 1; i < bands / 2; i++) {
-
-        rotate((int) (phi * ((bands - (i + 1)) / 2)), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point);
-
-        rotate((int) (phi * ((bands - (i + 3)) / 2)), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
-
-        for(int j = 0; j < 12; j++) {
-
-            rotate(-theta * (j + 1), 'y', &ro);
-            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 36 + offset]);
-            rotate(-theta * j, 'y', &ro);
-            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 37 + offset]);
-            rotate(-theta * j, 'y', &ro);
-            matxvec(&ro, &point, &vertices[(72 * (i - 1)) + (j * 6) + 38 + offset]);
-
-            vertices[(72 * (i - 1)) + (j * 6) + 39 + offset] = vertices[(72 * (i - 1)) + (j * 6) + 37 + offset];
-            vertices[(72 * (i - 1)) + (j * 6) + 40 + offset] = vertices[(72 * (i - 1)) + (j * 6) + 36 + offset];
-            rotate(-theta * (j + 1), 'y', &ro);
-            matxvec(&ro, &point2, &vertices[(72 * (i - 1)) + (j * 6) + 41 + offset]);
-        }
-    }
-
-    return 0;
-}*/
 
 ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
 

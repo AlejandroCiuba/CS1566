@@ -40,11 +40,13 @@ int num_vertices = 6;
 vec2 tex_coords[6] = {{0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}};
 
 void init(void)
-{
+{   
+    //Stores the texels of the image
     int width = 512;
     int height = 512;
     GLubyte my_texels[width][height][3];
 
+    //Reads the image and puts the RGB into their respective texel
     FILE *fp = fopen("Ollie_Dup.raw", "r");
     fread(my_texels, width * height * 3, 1, fp);
     fclose(fp);
@@ -52,6 +54,7 @@ void init(void)
     GLuint program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
 
+    //Puts texel array onto graphics pipeline
     GLuint mytex[1];
     glGenTextures(1, mytex);
     glBindTexture(GL_TEXTURE_2D, mytex[0]);
@@ -61,6 +64,7 @@ void init(void)
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
+    //idk...
     int param;
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &param);
 
@@ -84,10 +88,12 @@ void init(void)
     glEnableVertexAttribArray(vColor);
     glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) 0 + sizeof(vertices));
 
+    //Assigns the attribute array vTexCoord to the last chunk of the array (tex_coords)
     GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
     glEnableVertexAttribArray(vTexCoord);
     glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) 0 + (sizeof(vertices) + sizeof(colors)));
 
+    //Location of texture, like location of ctm
     GLuint texture_location = glGetUniformLocation(program, "texture");
     glUniform1i(texture_location, 0);
 
