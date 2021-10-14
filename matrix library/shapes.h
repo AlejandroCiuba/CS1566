@@ -53,4 +53,6 @@ ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length);
 
 ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius);
 
+ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat band_radius);
+
 #endif

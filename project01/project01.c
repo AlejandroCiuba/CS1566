@@ -237,6 +237,7 @@ int main(int argc, char **argv)
         matxvar(&final, base, num_vertices, vertices);
     }
     else //sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
+        torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 12, .5, .25);
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);

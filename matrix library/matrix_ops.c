@@ -96,6 +96,21 @@ ERROR_NUM vector_norm(const vector4* vec) {
     return 0;
 }
 
+//Normalize the given vector separately
+ERROR_NUM vector_norm_sep(const vector4* vec, vector4* result) {
+
+    if(vec == NULL) return MATLIB_POINTER_ERROR;
+    GLfloat mag = 0.0f;
+
+    vector_mag(vec, &mag);
+
+    if(mag == 0.0f) return MATLIB_NAN_ERROR;
+    *result = (vector4) {vec->x, vec->y, vec->z, vec->w};
+    scalar(result, 1 / mag, 0);
+
+    return 0;
+}
+
 //Returns the Dot Product of 2 given vectors
 ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result) {
 
@@ -235,10 +250,12 @@ ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result) {
 
     if(matrix == NULL || vector == NULL || result == NULL) return MATLIB_POINTER_ERROR;
 
-    result->x = (matrix->x.x * vector->x) + (matrix->y.x * vector->y) + (matrix->z.x * vector->z) + (matrix->w.x * vector->w);
-    result->y = (matrix->x.y * vector->x) + (matrix->y.y * vector->y) + (matrix->z.y * vector->z) + (matrix->w.y * vector->w);
-    result->z = (matrix->x.z * vector->x) + (matrix->y.z * vector->y) + (matrix->z.z * vector->z) + (matrix->w.z * vector->w);
-    result->w = (matrix->x.w * vector->x) + (matrix->y.w * vector->y) + (matrix->z.w * vector->z) + (matrix->w.w * vector->w);
+    GLfloat x = vector->x, y = vector->y, z = vector->z, w = vector->w;
+
+    result->x = (matrix->x.x * x) + (matrix->y.x * y) + (matrix->z.x * z) + (matrix->w.x * w);
+    result->y = (matrix->x.y * x) + (matrix->y.y * y) + (matrix->z.y * z) + (matrix->w.y * w);
+    result->z = (matrix->x.z * x) + (matrix->y.z * y) + (matrix->z.z * z) + (matrix->w.z * w);
+    result->w = (matrix->x.w * x) + (matrix->y.w * y) + (matrix->z.w * z) + (matrix->w.w * w);
 
     return 0;
 }
@@ -248,11 +265,16 @@ ERROR_NUM matxvar(mat4x4* matrix, vector4* varray, int varray_count, vector4* re
 
     if(matrix == NULL || varray == NULL || result == NULL || varray_count == 0) return MATLIB_POINTER_ERROR;
 
+    GLfloat x = 0, y = 0, z = 0, w = 0;
+
     for(int i = 0; i < varray_count; i++) {
-        result[i].x = (matrix->x.x * varray[i].x) + (matrix->y.x * varray[i].y) + (matrix->z.x * varray[i].z) + (matrix->w.x * varray[i].w);
-        result[i].y = (matrix->x.y * varray[i].x) + (matrix->y.y * varray[i].y) + (matrix->z.y * varray[i].z) + (matrix->w.y * varray[i].w);
-        result[i].z = (matrix->x.z * varray[i].x) + (matrix->y.z * varray[i].y) + (matrix->z.z * varray[i].z) + (matrix->w.z * varray[i].w);
-        result[i].w = (matrix->x.w * varray[i].x) + (matrix->y.w * varray[i].y) + (matrix->z.w * varray[i].z) + (matrix->w.w * varray[i].w);
+
+        x = varray[i].x, y = varray[i].y, z = varray[i].z, w = varray[i].w;
+
+        result[i].x = (matrix->x.x * x) + (matrix->y.x * y) + (matrix->z.x * z) + (matrix->w.x * w);
+        result[i].y = (matrix->x.y * x) + (matrix->y.y * y) + (matrix->z.y * z) + (matrix->w.y * w);
+        result[i].z = (matrix->x.z * x) + (matrix->y.z * y) + (matrix->z.z * z) + (matrix->w.z * w);
+        result[i].w = (matrix->x.w * x) + (matrix->y.w * y) + (matrix->z.w * z) + (matrix->w.w * w);
     }
 
     return 0;
