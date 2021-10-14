@@ -30,7 +30,7 @@ GLuint ctm_location;
 vector4* vertices;
 vector4* colors;
 
-int num_vertices = 3600;
+int num_vertices = 864;
 
 FILE* fp = NULL;
 
@@ -236,7 +236,7 @@ int main(int argc, char **argv)
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
         matxvar(&final, base, num_vertices, vertices);
     }
-    else sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
+    else //sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
 
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);

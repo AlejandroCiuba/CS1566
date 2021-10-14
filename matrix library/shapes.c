@@ -355,58 +355,6 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
     return 0;
 }*/
 
-ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat inner_radius, GLfloat thickness_radius) {
-
-    if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
-    int verts_per_band = count / bands / 2;
-    GLfloat true_radius = inner_radius + thickness_radius;
-    GLfloat deg_per_band = (GLfloat) (360 / bands);
-    mat4x4 ro, tran, final;
-    vector4 ban[verts_per_band];
-
-    //Produce all rings
-    for(int i = 0; i < bands * 2; i++) {
-        circle(ban, verts_per_band, thickness_radius, (vector4){0,0,0,1}, 'z');
-        trans((affine){true_radius, 0, 0}, &tran);
-        rotate(-deg_per_band * i, 'y', &ro);
-        matxmat(&ro, &tran, &final);
-        matxvar(&final, ban, verts_per_band, vertices + (i * verts_per_band));
-    }
-
-    for(int i = 0; i < bands; i++) {
-        for(int j = 1; j < verts_per_band; j+=3) {
-            if(j % 2 == 0)
-                vertices[j + (verts_per_band * i)] = vertices[((j - 1) + (verts_per_band * (i + 1))) % (count / 2)];
-            else if(i == 0) {
-                vertices[j + (verts_per_band * i)] = vertices[((j - 1) + (verts_per_band * (bands - 1)))];
-                vector4 temp = vertices[(j - 1) + (verts_per_band * i)];
-                vertices[(j - 1) + (verts_per_band * i)] = vertices[j + (verts_per_band * i)];
-                vertices[j + (verts_per_band * i)] = temp;
-            }
-            else {
-                vertices[j + (verts_per_band * i)] = vertices[j + (verts_per_band * (i - 1))];
-                vector4 temp = vertices[(j - 1) + (verts_per_band * i)];
-                vertices[(j - 1) + (verts_per_band * i)] = vertices[j + (verts_per_band * i)];
-                vertices[j + (verts_per_band * i)] = temp;
-            }
-        }
-    }
-
-    for(int i = 0; i < bands; i++) {
-        for(int j = 1; j < verts_per_band; j +=3) {
-            if(j % 2 != 0)
-                vertices[j + (verts_per_band * i) + count / 2] = vertices[((j + 1) + (verts_per_band * (i + 1)) + count / 2) % (count / 2)];
-            else {
-                vertices[j + (verts_per_band * i) + (count / 2)] = vertices[j + (verts_per_band * (i - 1)) + (count / 2)];
-                vector4 temp = vertices[(j + 1) + (verts_per_band * i) + (count / 2)];
-                vertices[(j + 1) + (verts_per_band * i) + (count / 2)] = vertices[j + (verts_per_band * i) + (count / 2)];
-                vertices[j + (verts_per_band * i) + (count / 2)] = temp;
-            }
-        }
-    }
-    return 0;
-}
-
 ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
 
     if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
