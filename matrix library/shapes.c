@@ -426,9 +426,9 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat
     GLfloat band_center = radius - band_radius;
     int rects_per_band = count / (6 * bands);
 
-    mat4x4 ro1, ro2, tran, final;
+    mat4x4 ro2, tran, final;
 
-    //Make the bands
+    /*//Make the bands
     for(int i = 0; i < bands; i++) {
         band(vertices + (rects_per_band * 6 * i), rects_per_band * 6, band_radius, .25);
         rotate(90, 'x', &ro1);
@@ -436,6 +436,22 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat
         rotate(-theta * i, 'y', &ro2);
         mat_mult((mat4x4[3]){ro2, tran, ro1}, 3, &final);
         matxvar(&final, vertices + (rects_per_band * 6 * i), rects_per_band * 6, vertices + (rects_per_band * 6 * i));
+    }*/
+
+    for(int i = 0; i < bands; i++) {
+        circle(vertices + (rects_per_band * 6 * i), rects_per_band * 3, band_radius, (vector4){0,0,0,1}, 'z');
+        circle(vertices + (rects_per_band * 6 * i + (rects_per_band * 3)), rects_per_band * 3, band_radius, (vector4){0,0,0,1}, 'z');
+        trans((affine){band_center, 0, 0}, &tran);
+        rotate(-theta * i, 'y', &ro2);
+        mat_mult((mat4x4[2]){ro2, tran}, 2, &final);
+        matxvar(&final, vertices + (rects_per_band * 6 * i), rects_per_band * 6, vertices + (rects_per_band * 6 * i));
+    }
+
+    //Take the middle point of every other circle to the next middle point
+    for(int i = 0; i < bands; i++) {
+        for(int j = 0; j < rects_per_band; j++) {
+            vertices[i * j * 6 * rects_per_band / 2 + 1] = vertices[i * j * 6 * rects_per_band / 2];
+        }
     }
 
     return 0;
