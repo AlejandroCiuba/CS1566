@@ -450,7 +450,7 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat
     //Take the middle point of every other circle to the next middle point
     for(int i = 0; i < bands; i++) {
         for(int j = 0; j < rects_per_band; j++) {
-            vertices[i * j * 6 * rects_per_band / 2 + 1] = vertices[i * j * 6 * rects_per_band / 2];
+            vertices[i * j * 6 + rects_per_band / 2 + 1] = vertices[((i + 1) % bands) * j * 6];
         }
     }
 
