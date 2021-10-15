@@ -13,7 +13,7 @@
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
-// Vertices of a square
+/*// Vertices of a square
 vector4 vertices[6] =
 {{-0.5, -0.5,  0.0, 1.0},	// bottom left
  { 0.5, -0.5,  0.0, 1.0},	// bottom right
@@ -34,14 +34,20 @@ vector4 colors[6] =
 
 int num_vertices = 6;
 
-vector2 tex_coords[6]; //= {{0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}};
+vector2 tex_coords[6]; //= {{0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}, {0.0, 1.0}, {1.0, 0.0}, {0.0, 0.0}};*/
+
+vector4* vertices;
+vector4* colors;
+vector2* tc;
+
+int num_vertices = 6;
 
 void init(void)
 {   
     //Stores the texels of the image
     int width = 512;
     int height = 512;
-    GLubyte my_texels[width][height][3];
+    GLubyte my_texels[512][512][3];
 
     //Reads the image and puts the RGB into their respective texel
     FILE *fp = fopen("Ollie_Dup.raw", "r");
@@ -72,10 +78,10 @@ void init(void)
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) + sizeof(colors) + sizeof(tex_coords), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(colors), colors);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices) + sizeof(colors), sizeof(tex_coords), tex_coords);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices + sizeof(vector2) * num_vertices, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, colors);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, sizeof(vector2) * num_vertices, tc);
 
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vPosition);
@@ -83,12 +89,12 @@ void init(void)
 
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
-    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) 0 + sizeof(vertices));
+    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices + 0));
 
     //Assigns the attribute array vTexCoord to the last chunk of the array (tex_coords)
     GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
     glEnableVertexAttribArray(vTexCoord);
-    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) 0 + (sizeof(vertices) + sizeof(colors)));
+    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * num_vertices + 0));
 
     //Location of texture, like location of ctm
     GLuint texture_location = glGetUniformLocation(program, "texture");
@@ -111,13 +117,15 @@ void display(void)
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
-    if(key == 'q')
+    if(key == 'q') 
 	exit(0);
 }
 
 int main(int argc, char **argv)
 {
-    texturize(tex_coords, 6, RECTANGLE);
+    rectangle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), 1,1,(vector4){0,0,0,1});
+    //circle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, (vector4){0,0,0,1}, 'z');
+    texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, RECTANGLE);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

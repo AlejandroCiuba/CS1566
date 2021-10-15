@@ -93,7 +93,14 @@ ERROR_NUM texturize(vector2* texcoords, const int count, shape type) {
             texcoords[4] = (vector2) {1.0, 0.0};
             texcoords[5] = (vector2) {0.0, 0.0};
             break;
-        case CIRCLE:
+        case CIRCLE:;//bruh
+            int tri = count / 3;
+            GLfloat deg = 360.00 / tri;
+            for(int i = 0; i < tri; i++) {
+                texcoords[i * 3] = (vector2) {cos(-deg * (i + 1) * M_PI / 180) + .5, sin(-deg * (i + 1) * M_PI / 180) + .5};
+                texcoords[i * 3 + 1] = (vector2) {.5, .5};
+                texcoords[i * 3 + 2] = (vector2) {cos(-deg * i * M_PI / 180) + .5, sin(-deg * i * M_PI / 180)+ .5};
+            }
             break;
         case FLAT_TORUS:
             break;

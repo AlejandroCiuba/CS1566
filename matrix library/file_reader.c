@@ -6,10 +6,10 @@
 
 #include "file_reader.h"
 
-ERROR_NUM load_raw(FILE* fp, GLubyte texels[][][], int width, int height) {
+ERROR_NUM load_raw(FILE* fp, void* texels, int width, int height) {
 
-    if(fp == NULL) return MATLIB_FILE_ERROR;
-    fread(vertices, width * height * 3, 1, fp);
+    if(fp == NULL || texels == NULL) return MATLIB_FILE_ERROR;
+    if(fread(texels, width * height * 3, 1, fp) != EOF) return MATLIB_FILE_FORMAT_ERROR;
     return 0;
 }
 
@@ -46,6 +46,13 @@ ERROR_NUM load_ma(FILE* fp, mat4x4* matrices, int count) {
     }
 
 
+    return 0;
+}
+
+ERROR_NUM save_raw(FILE* fp, void* texels, int width, int height) {
+
+    if(fp == NULL || texels == NULL) return MATLIB_FILE_ERROR;
+    if(fwrite(texels, width * height * 3, 1, fp) != EOF) return MATLIB_FILE_FORMAT_ERROR;
     return 0;
 }
 
