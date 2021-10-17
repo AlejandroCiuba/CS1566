@@ -6,10 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "../matrix library/initShader.h"
-#include "../matrix library/matrix_def.h"
-#include "../matrix library/shapes.h"
-#include "../matrix library/file_reader.h"
+#include "../Catorce/matrix_library/initShader.h"
+#include "../Catorce/matrix_library/matrix_def.h"
+#include "../Catorce/shapes_library/shapes.h"
+#include "../Catorce/other/file_reader.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
@@ -40,7 +40,7 @@ vector4* vertices;
 vector4* colors;
 vector2* tc;
 
-int num_vertices = 150;
+int num_vertices = 360;
 
 void init(void)
 {   
@@ -124,6 +124,8 @@ void keyboard(unsigned char key, int mousex, int mousey)
 int main(int argc, char **argv)
 {
     rectangle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), 1,1,(vector4){0,0,0,1});
+    //flat_torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .75, 1);
+    //cone(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1, (vector4){0,1,0,1}, 'y');
     texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, RECTANGLE);
 
     glutInit(&argc, argv);

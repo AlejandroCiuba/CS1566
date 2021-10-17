@@ -7,7 +7,7 @@
 
 #include "shapes.h"
 #include "affine.h"
-#include "matrix_ops.h"
+#include "../matrix_library/matrix_ops.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -93,18 +93,44 @@ ERROR_NUM texturize(vector2* texcoords, const int count, shape type) {
             texcoords[4] = (vector2) {1.0, 0.0};
             texcoords[5] = (vector2) {0.0, 0.0};
             break;
-        case CIRCLE:;//bruh
+        case FLAT_TORUS:;//bruh II
             int tri = count / 3;
-            GLfloat deg = 360.00 / tri;
+            int outward = tri / 2;
+            GLfloat deg = 360.00 / outward;
+
+            for(int i = 0; i < outward; i ++) {
+
+                texcoords[i * 3].x = (GLfloat) (.75 * cos((-deg * i) * M_PI / 180));
+                texcoords[i * 3].y = (GLfloat) (.75 * sin((-deg * i) * M_PI / 180));
+                
+                texcoords[i * 3 + 1].x = (GLfloat) (cos((-deg * i) * M_PI / 180));
+                texcoords[i * 3 + 1].y = (GLfloat) (sin((-deg * i) * M_PI / 180));
+
+                texcoords[i * 3 + 2].x = (GLfloat) (cos((-deg * (i + 1)) * M_PI / 180));
+                texcoords[i * 3 + 2].y = (GLfloat) (sin((-deg * (i + 1)) * M_PI / 180));
+            }
+
+            for(int i = 0; i < outward; i++) {
+
+                texcoords[i * 3 + outward * 3].x = texcoords[i * 3].x;//(GLfloat) (inner * cos((deg_per_triangle * i) * M_PI / 180));
+                texcoords[i * 3 + outward * 3].y = texcoords[i * 3].y;//(GLfloat) (inner * sin((deg_per_triangle * i) * M_PI / 180));
+
+                texcoords[i * 3 + 1 + outward * 3].x = texcoords[i * 3 + 2].x;//(GLfloat) (outer * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
+                texcoords[i * 3 + 1 + outward * 3].y = texcoords[i * 3 + 2].y;//(GLfloat) (outer * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
+
+                texcoords[i * 3 + 2 + outward * 3].x = (GLfloat) (.75 * cos((-deg * (i + 1)) * M_PI / 180));
+                texcoords[i * 3 + 2 + outward * 3].y = (GLfloat) (.75 * sin((-deg * (i + 1)) * M_PI / 180));
+            }
+            break;
+        case CONE:
+        case CIRCLE:;//bruh
+            tri = count / 3;
+            deg = 360.00 / tri;
             for(int i = 0; i < tri; i++) {
                 texcoords[i * 3] = (vector2) {cos(-deg * (i + 1) * M_PI / 180) + .5, sin(-deg * (i + 1) * M_PI / 180) + .5};
                 texcoords[i * 3 + 1] = (vector2) {.5, .5};
                 texcoords[i * 3 + 2] = (vector2) {cos(-deg * i * M_PI / 180) + .5, sin(-deg * i * M_PI / 180)+ .5};
             }
-            break;
-        case FLAT_TORUS:
-            break;
-        case CONE:
             break;
         case BAND:
             break;
@@ -120,7 +146,8 @@ ERROR_NUM texturize(vector2* texcoords, const int count, shape type) {
 //Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align) {
 
-    if(vertices == NULL || count == 0 || count % 3 != 0) return MATLIB_POINTER_ERROR;
+    if(vertices == NULL || count == 0) return MATLIB_POINTER_ERROR;
+    count -= (count % 3);
 
     //Calculate how many triangles there will be based on the count
     int num_of_triangles = count / 3;
@@ -205,7 +232,8 @@ ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, c
 
 ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 tip, char align) {
 
-    if(vertices == NULL || count <= 0 || count % 3 != 0) return MATLIB_POINTER_ERROR;
+    if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
+    count -= (count % 6);
 
     int base_vertices = count / 2;
     vector4 base_origin = {tip.x,tip.y,tip.z,1};
@@ -252,13 +280,14 @@ ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 or
     return 0;
 }
 
-ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin) {
+ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer) {
 
-    if(vertices == NULL || outer == 0 || count % 3 != 0 || count % 2 != 0) return MATLIB_POINTER_ERROR;
+    if(vertices == NULL || outer == 0) return MATLIB_POINTER_ERROR;
+    count -= (count % 6);
 
     int triangles = count / 3;
     int outward = triangles / 2;
-    GLfloat deg_per_triangle = (GLfloat) 360 / outward;
+    GLfloat deg_per_triangle = 360.00 / outward;
 
 
     for(int i = 0; i < outward; i ++) {
@@ -303,7 +332,7 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer,
 ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
 
     if(vertices == NULL || count <= 0) return MATLIB_POINTER_ERROR;
-    if(count % 6 != 0) count = count - (count % 6);
+    count = count - (count % 6);
 
     int vert_per_ring = count / 2;
 
@@ -426,9 +455,9 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat
     GLfloat band_center = radius - band_radius;
     int rects_per_band = count / (6 * bands);
 
-    mat4x4 ro2, tran, final;
+    mat4x4 ro1, ro2, tran, final;
 
-    /*//Make the bands
+    //Make the bands
     for(int i = 0; i < bands; i++) {
         band(vertices + (rects_per_band * 6 * i), rects_per_band * 6, band_radius, .25);
         rotate(90, 'x', &ro1);
@@ -436,22 +465,6 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat
         rotate(-theta * i, 'y', &ro2);
         mat_mult((mat4x4[3]){ro2, tran, ro1}, 3, &final);
         matxvar(&final, vertices + (rects_per_band * 6 * i), rects_per_band * 6, vertices + (rects_per_band * 6 * i));
-    }*/
-
-    for(int i = 0; i < bands; i++) {
-        circle(vertices + (rects_per_band * 6 * i), rects_per_band * 3, band_radius, (vector4){0,0,0,1}, 'z');
-        circle(vertices + (rects_per_band * 6 * i + (rects_per_band * 3)), rects_per_band * 3, band_radius, (vector4){0,0,0,1}, 'z');
-        trans((affine){band_center, 0, 0}, &tran);
-        rotate(-theta * i, 'y', &ro2);
-        mat_mult((mat4x4[2]){ro2, tran}, 2, &final);
-        matxvar(&final, vertices + (rects_per_band * 6 * i), rects_per_band * 6, vertices + (rects_per_band * 6 * i));
-    }
-
-    //Take the middle point of every other circle to the next middle point
-    for(int i = 0; i < bands; i++) {
-        for(int j = 0; j < rects_per_band; j++) {
-            vertices[i * j * 6 + rects_per_band / 2 + 1] = vertices[((i + 1) % bands) * j * 6];
-        }
     }
 
     return 0;

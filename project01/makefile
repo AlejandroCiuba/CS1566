@@ -1,8 +1,8 @@
 CC       = gcc 
 CFLAGS   = -O3 -Wall 
 LIBS      = -lXi -lXmu -lglut -lGLEW -lGLU -lm -lGL
-OBJDIR   = ../matrix\ library
-OBJS     = $(OBJDIR)/initShader.o $(OBJDIR)/matrix_ops.o $(OBJDIR)/matrix_utility.o $(OBJDIR)/shapes.o $(OBJDIR)/affine.o $(OBJDIR)/file_reader.o
+OBJDIR   = ../Catorce
+OBJS     = $(OBJDIR)/matrix_library/initShader.o $(OBJDIR)/matrix_library/matrix_ops.o $(OBJDIR)/matrix_library/matrix_utility.o $(OBJDIR)/shapes_library/shapes.o $(OBJDIR)/shapes_library/affine.o $(OBJDIR)/other/file_reader.o
 
 all: matrix project01
 

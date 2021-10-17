@@ -7,7 +7,7 @@
  */
 
 #include "affine.h"
-#include "matrix_ops.h"
+#include "../matrix_library/matrix_ops.h"
 #include <stddef.h>
 #include <math.h>
 

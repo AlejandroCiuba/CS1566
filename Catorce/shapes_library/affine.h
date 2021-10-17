@@ -9,7 +9,7 @@
 #ifndef MATRIX_SHAPES_H
 #define MATRIX_SHAPES_H
 
-#include "matrix_def.h"
+#include "../matrix_library/matrix_def.h"
 
 //Special struct to make scaling and translate easier
 typedef struct affine {

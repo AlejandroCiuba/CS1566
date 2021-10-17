@@ -12,12 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../matrix library/initShader.h"
-#include "../matrix library/matrix_def.h"
-#include "../matrix library/matrix_utility.h"
-#include "../matrix library/matrix_ops.h"
-#include "../matrix library/affine.h"
-#include "../matrix library/shapes.h"
+#include "../Catorce/matrix_library/initShader.h"
+#include "../Catorce/matrix_library/matrix_def.h"
+#include "../Catorce/matrix_library/matrix_utility.h"
+#include "../Catorce/matrix_library/matrix_ops.h"
+#include "../Catorce/shapes_library/affine.h"
+#include "../Catorce/shapes_library/shapes.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
     if(argc == 3)
         if(atoi(argv[2]) == 0) {if(cone(vertices, num_vertices, .5, 1, (vector4) {0,1,0,1}, 'y') != 0) return -1;}
         else if(atoi(argv[2]) == 1) {if(circle(vertices, num_vertices, .5, (vector4) {0,0,0,1}, 'z') != 0) return -1;}
-        else if(atoi(argv[2]) == 2) {if(flat_torus(vertices, num_vertices, .1, .5, (vector4) {0,0,0,1}) != 0) return -1;}
+        else if(atoi(argv[2]) == 2) {if(flat_torus(vertices, num_vertices, .1, .5) != 0) return -1;}
         else if(atoi(argv[2]) == 3) {if(torus(vertices, num_vertices, 10, .25, .25) != 0) return -1;}
         else if(atoi(argv[2]) == 4) {if(sphere(vertices, 360, 10, .25) != 0) return -1;}
         else {

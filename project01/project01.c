@@ -14,13 +14,13 @@
 #include <string.h>
 #include <math.h>
 
-#include "../matrix library/initShader.h"
-#include "../matrix library/matrix_def.h"
-#include "../matrix library/matrix_utility.h"
-#include "../matrix library/matrix_ops.h"
-#include "../matrix library/shapes.h"
-#include "../matrix library/affine.h"
-#include "../matrix library/file_reader.h"
+#include "../Catorce/matrix_library/initShader.h"
+#include "../Catorce/matrix_library/matrix_def.h"
+#include "../Catorce/matrix_library/matrix_utility.h"
+#include "../Catorce/matrix_library/matrix_ops.h"
+#include "../Catorce/shapes_library/shapes.h"
+#include "../Catorce/shapes_library/affine.h"
+#include "../Catorce/other/file_reader.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 

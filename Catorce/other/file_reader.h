@@ -10,7 +10,7 @@
 #define FILE_READER_H
 
 #include <stdio.h>
-#include "matrix_def.h"
+#include "../matrix_library/matrix_def.h"
 
 typedef unsigned char file_type;
 

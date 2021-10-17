@@ -8,7 +8,7 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
-#include "matrix_def.h"
+#include "../matrix_library/matrix_def.h"
 
 typedef vector4 color;
 
@@ -41,7 +41,7 @@ ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vec
 //Assumes 6 vertices
 ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin);
 
-ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer, vector4 origin);
+ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer);
 
 ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length);
 
