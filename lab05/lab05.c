@@ -123,9 +123,8 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
 int main(int argc, char **argv)
 {
-    //rectangle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), 1,1,(vector4){0,0,0,1});
-    circle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, (vector4){0,0,0,1}, 'z');
-    texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, CIRCLE);
+    rectangle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), 1,1,(vector4){0,0,0,1});
+    texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, RECTANGLE);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

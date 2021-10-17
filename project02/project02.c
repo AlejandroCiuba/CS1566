@@ -30,7 +30,7 @@ GLuint ctm_location;
 vector4* vertices;
 vector4* colors;
 
-int num_vertices = 700;
+int num_vertices = 3000;
 
 FILE* fp = NULL;
 
