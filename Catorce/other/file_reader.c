@@ -6,6 +6,7 @@
 
 #include "file_reader.h"
 
+//Assumes that it is w * h * 3
 ERROR_NUM load_raw(FILE* fp, void* texels, int width, int height) {
 
     if(fp == NULL || texels == NULL) return MATLIB_FILE_ERROR;

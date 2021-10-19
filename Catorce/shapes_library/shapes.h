@@ -26,12 +26,12 @@ typedef unsigned char shape;
 #define SPHERE 5
 
 //Assigns a color per shape (assumes triangle based implementation)
-ERROR_NUM random_colors(vector4* colors, const int num_vertices);
+ERROR_NUM random_colors(vector4* colors, int num_vertices);
 
 //Assigns one color to a series of faces
-ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color);
+ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color);
 
-ERROR_NUM texturize(vector2* texcoords, const int count, shape type);
+ERROR_NUM texturize(vector2* texcoords, int count, shape type);
 
 //Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align);

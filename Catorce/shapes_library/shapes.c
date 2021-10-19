@@ -17,7 +17,7 @@
 //Define extern RGB here
 vector4 RED = {1,0,0,1}; vector4 GREEN = {0,1,0,1}; vector4 BLUE = {0,0,1,1};
 
-ERROR_NUM random_colors(vector4* colors, const int num_vertices) {
+ERROR_NUM random_colors(vector4* colors, int num_vertices) {
     
     if(colors == NULL || num_vertices <= 0) return MATLIB_POINTER_ERROR;
 
@@ -50,7 +50,7 @@ ERROR_NUM random_colors(vector4* colors, const int num_vertices) {
 }
 
 //Assigns one color to a series of faces
-ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color) {
+ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color) {
 
     if(colors == NULL || num_vertices <= 0) return MATLIB_POINTER_ERROR;
 
@@ -79,7 +79,7 @@ ERROR_NUM const_color(vector4* colors, const int num_vertices, color face_color)
     return 0;
 }
 
-ERROR_NUM texturize(vector2* texcoords, const int count, shape type) {
+ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
     
     if(texcoords == NULL || count == 0) return MATLIB_POINTER_ERROR;
 

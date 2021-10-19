@@ -12,13 +12,7 @@
 #include <stdio.h>
 #include "../matrix_library/matrix_def.h"
 
-typedef unsigned char file_type;
-
-#define VA_FORMAT 0
-#define MA_FORMAT 1
-#define BASIC_PLY_FORMAT 2
-#define RAW_IMAGE 3
-
+//Assumes that it is w * h * 3
 ERROR_NUM load_raw(FILE* fp, void* texels, int width, int height);
 
 ERROR_NUM load_count(FILE* fp, int* count);

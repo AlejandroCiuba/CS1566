@@ -24,11 +24,18 @@
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
+//ctm for manipulating shapes
 mat4x4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
-GLuint ctm_location; 
+GLuint ctm_location;
 
+//Texels for texture
+GLubyte* texels;
+int width = 0, height = 0;
+
+//Vertex Attributes
 vector4* vertices;
 vector4* colors;
+vector2* texcoords;
 
 int num_vertices = 3000;
 
@@ -36,31 +43,73 @@ FILE* fp = NULL;
 
 void init(void)
 {
+    //Stores the texels of the image
+    width = 512;
+    height = 512;
+    texels = (GLubyte*) malloc(sizeof(vector2) * width * height * 3);
+
+    //Reads the image and puts the RGB into their respective texel
+    fp = fopen("Ollie_Dup.raw", "r");
+    load_raw(fp, texels, width, height);
+    fclose(fp);
+
+    //Load the vertex and fragment shaders
     GLuint program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
 
+    //Puts texel array onto graphics pipeline
+    GLuint mytex[1];
+    glGenTextures(1, mytex);
+    glBindTexture(GL_TEXTURE_2D, mytex[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texels);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+
+    //idk...
+    int param;
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &param);
+
+    //Use this to transport between here and graphics pipeline
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
+    //Set aside memory on Graphics Card
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, NULL, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, colors);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, sizeof(vector2) * num_vertices, texcoords);
 
+    //Use this for passing the position info into the vertex and fragment shaders
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
     glEnableVertexAttribArray(vPosition);
     glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
+    //Use this for passing the color info into the vertex and fragment shaders
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
     glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
 
+    //Use this for passing the texture coordinate info into the vertex and fragment shaders
+    GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
+    glEnableVertexAttribArray(vTexCoord);
+    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * num_vertices + 0));
+
     //Locate and use transformation matrix ctm
     ctm_location = glGetUniformLocation(program, "ctm");
 
+    //Location of texture, like location of ctm
+    GLuint texture_location = glGetUniformLocation(program, "texture");
+    glUniform1i(texture_location, 0);
+
+    printf("\ntexture_location: %i\n", texture_location);
+    
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glDepthRange(1,0);
@@ -94,7 +143,7 @@ void menu(char* dec) {
     int ui = 0;
     if(scanf("%d", &ui) == EOF) return;
 
-    while(ui != 2 && ui != 1){printf("\nINVALID OPTION!!! "); if(scanf("%d", &ui) == EOF) return;}
+    if(ui != 2 && ui != 1){printf("\nINVALID OPTION!!! "); exit(-1);}
 
     if(ui == 1) {
         printf("\nType the name of the file, located in \"files\": ");
@@ -175,6 +224,8 @@ void keyboard(unsigned char key, int mousex, int mousey)
     	glutLeaveMainLoop();
         free(vertices);
         free(colors);
+        free(texels);
+        free(texcoords);
         if(fp != NULL) fclose(fp);
         printf("\nEXIT SUCCESSFUL\n");
     }
@@ -236,10 +287,12 @@ int main(int argc, char **argv)
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
         matxvar(&final, base, num_vertices, vertices);
     }
-    else sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
+    else //sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
+        circle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, (vector4){0,0,0,1}, 'z');
     
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+    texturize(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, CIRCLE);
     printf("COUNT: %d\n",  num_vertices);
     
     //Get center of mass
