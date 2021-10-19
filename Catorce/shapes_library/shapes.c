@@ -122,7 +122,6 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
                 texcoords[i * 3 + 2 + outward * 3].y = (GLfloat) (.75 * sin((-deg * (i + 1)) * M_PI / 180));
             }
             break;
-        case CONE:
         case CIRCLE:;//bruh
             tri = count / 3;
             deg = 360.00 / tri;
@@ -131,6 +130,8 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
                 texcoords[i * 3 + 1] = (vector2) {.5, .5};
                 texcoords[i * 3 + 2] = (vector2) {cos(-deg * i * M_PI / 180) + .5, sin(-deg * i * M_PI / 180)+ .5};
             }
+            break;
+        case CONE:
             break;
         case BAND:
             break;

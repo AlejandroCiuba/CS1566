@@ -30,7 +30,14 @@ GLuint ctm_location;
 
 //Texels for texture
 GLubyte* texels;
+GLuint texture_location;
 int width = 0, height = 0;
+
+FILE* image = NULL;
+
+//Option to use texture or color
+int use_color = 0;
+GLuint use_color_location;
 
 //Vertex Attributes
 vector4* vertices;
@@ -49,9 +56,9 @@ void init(void)
     texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
 
     //Reads the image and puts the RGB into their respective texel
-    fp = fopen("Ollie_Dup.raw", "r");
-    load_raw(fp, texels, width, height);
-    fclose(fp);
+    image = fopen("Ollie_Dup.raw", "r");
+    load_raw(image, texels, width, height);
+    fclose(image);
 
     //Load the vertex and fragment shaders
     GLuint program = initShader("vshader.glsl", "fshader.glsl");
@@ -104,9 +111,12 @@ void init(void)
     ctm_location = glGetUniformLocation(program, "ctm");
 
     //Location of texture, like location of ctm
-    GLuint texture_location = glGetUniformLocation(program, "texture");
+    texture_location = glGetUniformLocation(program, "texture");
     glUniform1i(texture_location, 0);
 
+    //Choose to use either color or texture
+    use_color_location = glGetUniformLocation(program, "use_color");
+    glUniform1i(use_color_location, use_color);
 
     printf("\ntexture_location: %i\n", texture_location);
     
@@ -134,23 +144,6 @@ void display(void)
 void reshape(int width, int height)
 {
     glViewport(0, 0, 512, 512);
-}
-
-//Handles menu
-void menu(char* dec) {
-
-    printf("\n===================== PROJECT 1 =====================\n");
-    printf("\nWould you like to view a file (1) or a computer-generated object(2)? ");
-    int ui = 0;
-    if(scanf("%d", &ui) == EOF) return;
-
-    if(ui != 2 && ui != 1){printf("\nINVALID OPTION!!! "); exit(-1);}
-
-    if(ui == 1) {
-        printf("\nType the name of the file, located in \"files\": ");
-        if(scanf("%s", dec) == EOF) return;
-    }
-    else strcpy(dec, "2\0");
 }
 
 //===================== ROTATION =====================
@@ -255,40 +248,11 @@ void idle() {
 }
 
 int main(int argc, char **argv)
-{
-    //Get user decision
-    char dec[18];
-    menu(dec);
-
-    if(atoi(dec) != 2) { 
-
-        printf("\nFILE NAME: %s\n", dec);
-
-        //Load file
-        fp = fopen(strcat((char[24]) {"files/"}, dec), "r");
-        if(load_count(fp, &num_vertices) != 0) return -1;
-        if(load_va(fp, vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices) != 0) return -1;
-
-        //Get the center of mass
-        vector4 cm = {0,0,0,1};
-        com(vertices, num_vertices, &cm);
-        printf("\nCENTER OF MASS:");
-        print_vector(cm);
-
-        //Move to origin
-        //Scale to fit OpenGL Canonical View
-        mat4x4 base_or, shrink, move, final;
-        vector4 base[num_vertices];
-        for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
-        
-        translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
-        scaling(.01, .01, .01, &shrink);
-        rotate(-90, 'x', &base_or);
-        
-        mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
-        matxvar(&final, base, num_vertices, vertices);
-    }
-    else sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
+{   
+    if(argc < 2) return -1;
+    else use_color = atoi(argv[1]);
+    
+    sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
     
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
