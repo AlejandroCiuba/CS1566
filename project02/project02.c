@@ -46,7 +46,7 @@ void init(void)
     //Stores the texels of the image
     width = 512;
     height = 512;
-    texels = (GLubyte*) malloc(sizeof(vector2) * width * height * 3);
+    texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
 
     //Reads the image and puts the RGB into their respective texel
     fp = fopen("Ollie_Dup.raw", "r");
@@ -80,7 +80,7 @@ void init(void)
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices + sizeof(vector2) * num_vertices, NULL, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, colors);
     glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, sizeof(vector2) * num_vertices, texcoords);
@@ -106,6 +106,7 @@ void init(void)
     //Location of texture, like location of ctm
     GLuint texture_location = glGetUniformLocation(program, "texture");
     glUniform1i(texture_location, 0);
+
 
     printf("\ntexture_location: %i\n", texture_location);
     
