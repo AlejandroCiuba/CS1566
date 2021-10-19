@@ -223,7 +223,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
     if(key == 'r') {final_rot = identity; final_scal = identity; ctm_base = identity;}
 
-    if(key == 't') {glUniform1i(glGetUniformLocation(program, "use_color"), use_color = (use_color == 1)? 0 : 1), glutPostRedisplay();}//CURSED
+    if(key == 't') {glUniform1i(glGetUniformLocation(program, "use_color"), use_color = !use_color), glutPostRedisplay();}//CURSED
 
     //===================== SCROLLING SIZE =====================
     mat4x4 sc = identity;
@@ -261,7 +261,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
-    glutCreateWindow("Project 1");
+    glutCreateWindow("Project 2");
 
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
