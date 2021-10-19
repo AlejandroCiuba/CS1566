@@ -134,7 +134,7 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
             break;
         case BAND:
             break;
-        case SPHERE:
+        case SPHERE:;
             break;
         default:
             return MATLIB_NAN_ERROR;
