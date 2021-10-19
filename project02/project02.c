@@ -24,20 +24,20 @@
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
+//MAIN PROGRAM, HERE SO WE CAN DO ANYTHING WE WANT!!!
+GLuint program = -1;
+
 //ctm for manipulating shapes
 mat4x4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
-GLuint ctm_location;
+GLuint ctm_location; //Need for display()
 
 //Texels for texture
 GLubyte* texels;
-GLuint texture_location;
 int width = 0, height = 0;
-
 FILE* image = NULL;
 
 //Option to use texture or color
 int use_color = 0;
-GLuint use_color_location;
 
 //Vertex Attributes
 vector4* vertices;
@@ -45,8 +45,6 @@ vector4* colors;
 vector2* texcoords;
 
 int num_vertices = 3000;
-
-FILE* fp = NULL;
 
 void init(void)
 {
@@ -61,7 +59,7 @@ void init(void)
     fclose(image);
 
     //Load the vertex and fragment shaders
-    GLuint program = initShader("vshader.glsl", "fshader.glsl");
+    program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
 
     //Puts texel array onto graphics pipeline
@@ -107,18 +105,16 @@ void init(void)
     glEnableVertexAttribArray(vTexCoord);
     glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * num_vertices + 0));
 
-    //Locate and use transformation matrix ctm
+    //Locate and use transformation matrix ctm, we need a separate variable for ctm_location so we can change it in display()
     ctm_location = glGetUniformLocation(program, "ctm");
 
     //Location of texture, like location of ctm
-    texture_location = glGetUniformLocation(program, "texture");
-    glUniform1i(texture_location, 0);
+    glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
     //Choose to use either color or texture
-    use_color_location = glGetUniformLocation(program, "use_color");
-    glUniform1i(use_color_location, use_color);
+    glUniform1i(glGetUniformLocation(program, "use_color"), use_color);
 
-    printf("\ntexture_location: %i\n", texture_location);
+    printf("\ntexture_location: %i\n", glGetUniformLocation(program, "texture"));
     
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -134,7 +130,7 @@ void display(void)
     glPolygonMode(GL_BACK, GL_LINE);
 
     //Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
-    glUniformMatrix4fv(ctm_location, 1, GL_FALSE, (GLfloat *) &ctm);
+    glUniformMatrix4fv(glGetUniformLocation(program, "ctm"), 1, GL_FALSE, (GLfloat *) &ctm);
 
     glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
@@ -220,15 +216,14 @@ void keyboard(unsigned char key, int mousex, int mousey)
         free(colors);
         free(texels);
         free(texcoords);
-        if(fp != NULL) fclose(fp);
         printf("\nEXIT SUCCESSFUL\n");
     }
 
     if(key == 'd') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
 
-    if(key == 'f') if(view_file(fp) != 0) printf("\nNO FILE TO VIEW!!!\n");
-
     if(key == 'r') {final_rot = identity; final_scal = identity; ctm_base = identity;}
+
+    if(key == 't') {glUniform1i(glGetUniformLocation(program, "use_color"), use_color = (use_color == 1)? 0 : 1), glutPostRedisplay();}//CURSED
 
     //===================== SCROLLING SIZE =====================
     mat4x4 sc = identity;
@@ -251,7 +246,7 @@ int main(int argc, char **argv)
 {   
     if(argc < 2) return -1;
     else use_color = atoi(argv[1]);
-    
+
     sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
     
     //Assign color and print statistics
