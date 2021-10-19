@@ -223,7 +223,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
     if(key == 'r') {final_rot = identity; final_scal = identity; ctm_base = identity;}
 
-    if(key == 't') {glUniform1i(glGetUniformLocation(program, "use_color"), use_color = !use_color), glutPostRedisplay();}//CURSED
+    if(key == 't') {glUniform1i(glGetUniformLocation(program, "use_color"), use_color = !use_color); glutPostRedisplay();}//CURSED
 
     //===================== SCROLLING SIZE =====================
     mat4x4 sc = identity;
