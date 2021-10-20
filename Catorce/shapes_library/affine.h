@@ -11,7 +11,7 @@
 
 #include "../matrix_library/matrix_def.h"
 
-//Special struct to make scaling and translate easier
+// Special struct to make scaling and translate easier
 typedef struct affine {
     GLfloat x;
     GLfloat y;

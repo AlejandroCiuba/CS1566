@@ -12,9 +12,9 @@ mat4x4 identity = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 mat4x4 zero_matrix = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
 vector4 zero_vector = {0,0,0,0};
 
-//============== VECTOR AND MATRIX MATH FUNCTIONS ==============
+// ============== VECTOR AND MATRIX MATH FUNCTIONS ==============
 
-//for args, 0 = vector, 1 = matrix4x4
+// For args, 0 = vector, 1 = matrix4x4
 ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args) {
 
     if(matrix == NULL || (args != 0 && args != 1)) return MATLIB_POINTER_ERROR;
@@ -31,12 +31,12 @@ ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args) {
     return 0;
 }
 
-//============== VECTOR MATH FUNCTIONS ==============
+// ============== VECTOR MATH FUNCTIONS ==============
 
-//Add any number of vectors at once
+// Add any number of vectors at once
 ERROR_NUM vector_add(vector4* vectors[], int count, vector4* result) {
 
-    //Test for all vectors if any equal null
+    // Test for all vectors if any equal null
     for(int i = 0; i < count; i++) {
 
         if(vectors[i] == NULL) return MATLIB_POINTER_ERROR;
@@ -50,7 +50,7 @@ ERROR_NUM vector_add(vector4* vectors[], int count, vector4* result) {
     return 0;
 }
 
-//Subtract any number of vectors at once
+// Subtract any number of vectors at once
 ERROR_NUM vector_sub(vector4* vectors[], int count, vector4* result) {
 
     if(vectors[0] == NULL) return MATLIB_POINTER_ERROR;
@@ -74,7 +74,7 @@ ERROR_NUM vector_sub(vector4* vectors[], int count, vector4* result) {
     return 0;
 }
 
-//Returns that vectors magnitude
+// Returns that vectors magnitude
 ERROR_NUM vector_mag(const vector4* vec, GLfloat* result) {
 
     if(vec == NULL) return MATLIB_POINTER_ERROR;
@@ -82,7 +82,7 @@ ERROR_NUM vector_mag(const vector4* vec, GLfloat* result) {
     return 0;
 }
 
-//Normalizes the given vector
+// Normalizes the given vector
 ERROR_NUM vector_norm(const vector4* vec) {
 
     if(vec == NULL) return MATLIB_POINTER_ERROR;
@@ -96,7 +96,7 @@ ERROR_NUM vector_norm(const vector4* vec) {
     return 0;
 }
 
-//Normalize the given vector separately
+// Normalize the given vector separately
 ERROR_NUM vector_norm_sep(const vector4* vec, vector4* result) {
 
     if(vec == NULL) return MATLIB_POINTER_ERROR;
@@ -111,7 +111,7 @@ ERROR_NUM vector_norm_sep(const vector4* vec, vector4* result) {
     return 0;
 }
 
-//Returns the Dot Product of 2 given vectors
+// Returns the Dot Product of 2 given vectors
 ERROR_NUM vector_dot(const vector4* vec1, const vector4* vec2, GLfloat* result) {
 
     if(vec1 == NULL || vec2 == NULL) return MATLIB_POINTER_ERROR;
@@ -131,9 +131,9 @@ ERROR_NUM vector_cross(const vector4* vec1, const vector4* vec2, vector4* result
     return 0;
 }
 
-//============== MATRIX MATH FUNCTIONS ==============
+// ============== MATRIX MATH FUNCTIONS ==============
 
-//Add any number of matrices at once
+// Add any number of matrices at once
 ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result) {
 
     for(int i = 0; i < count; i++) {
@@ -164,7 +164,7 @@ ERROR_NUM matrix_add(mat4x4* matrices[], int count, mat4x4* result) {
     return 0;
 }
 
-//Subtract any number of matrices at once
+// Subtract any number of matrices at once
 ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result) {
 
     if(matrices[0] == NULL) return MATLIB_POINTER_ERROR;
@@ -217,7 +217,7 @@ ERROR_NUM matrix_sub(mat4x4* matrices[], int count, mat4x4* result) {
     return 0;
 }
 
-//Matrix-matrix multiplication, 2 ONLY
+// Matrix-matrix multiplication, 2 ONLY
 ERROR_NUM matxmat(mat4x4* matrix1, mat4x4* matrix2, mat4x4* result) {
 
     if(matrix1 == NULL || matrix2 == NULL || result == NULL) return MATLIB_POINTER_ERROR;
@@ -245,7 +245,7 @@ ERROR_NUM matxmat(mat4x4* matrix1, mat4x4* matrix2, mat4x4* result) {
     return 0;
 }
 
-//Matrix-vector multiplication, 2 ONLY
+// Matrix-vector multiplication, 2 ONLY
 ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result) {
 
     if(matrix == NULL || vector == NULL || result == NULL) return MATLIB_POINTER_ERROR;
@@ -260,7 +260,7 @@ ERROR_NUM matxvec(mat4x4* matrix, vector4* vector, vector4* result) {
     return 0;
 }
 
-//Matrix-vector array multiplication
+// Matrix-vector array multiplication
 ERROR_NUM matxvar(mat4x4* matrix, vector4* varray, int varray_count, vector4* result) {
 
     if(matrix == NULL || varray == NULL || result == NULL || varray_count == 0) return MATLIB_POINTER_ERROR;
@@ -280,7 +280,7 @@ ERROR_NUM matxvar(mat4x4* matrix, vector4* varray, int varray_count, vector4* re
     return 0;
 }
 
-//Transpose a matrix
+// Transpose a matrix
 ERROR_NUM transpose(mat4x4* matrix) {
 
     if(matrix == NULL) return MATLIB_POINTER_ERROR;
@@ -295,7 +295,7 @@ ERROR_NUM transpose(mat4x4* matrix) {
     return 0;
 }
 
-//Transpose a matrix with a separate matrix to store the results
+// Transpose a matrix with a separate matrix to store the results
 ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result) {
 
     if(matrix == NULL || result == NULL) return MATLIB_POINTER_ERROR;
@@ -308,7 +308,7 @@ ERROR_NUM transpose_sep(mat4x4* matrix, mat4x4* result) {
     return 0;
 }
 
-//Inverse of a matrix
+// Inverse of a matrix
 ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse) {
 
     if(matrix == NULL || inverse == NULL) return MATLIB_POINTER_ERROR;
@@ -329,7 +329,7 @@ ERROR_NUM inverse(mat4x4* matrix, mat4x4* inverse) {
     return 0;
 }
 
-//Returns the identity matrix
+// Returns the identity matrix
 ERROR_NUM identity_fill(mat4x4* identity) {
 
     if(identity == NULL) return MATLIB_POINTER_ERROR;
@@ -342,7 +342,7 @@ ERROR_NUM identity_fill(mat4x4* identity) {
     return 0;
 }
 
-//Returns a minor matrix for a given matrix
+// Returns a minor matrix for a given matrix
 ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
 
     if(matrix == NULL || minor == NULL) return MATLIB_POINTER_ERROR;
@@ -351,8 +351,8 @@ ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
 
     typedef GLfloat det_mat[9];
 
-    //ROWxCOL for det_mat but COLxROW for mat
-    //NO X IN ROW
+    // ROWxCOL for det_mat but COLxROW for mat
+    // NO X IN ROW
     det_mat mat11 = {mat.y.y, mat.z.y, mat.w.y, mat.y.z, mat.z.z, mat.w.z, mat.y.w, mat.z.w, mat.w.w};
     det_mat mat12 = {mat.x.y, mat.z.y, mat.w.y, mat.x.z, mat.z.z, mat.w.z, mat.x.w, mat.z.w, mat.w.w};
     det_mat mat13 = {mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.z, mat.x.w, mat.y.w, mat.w.w};
@@ -426,7 +426,7 @@ ERROR_NUM minor(mat4x4* matrix, mat4x4* minor){
     return 0;
 }
 
-//Flips signs of a matrix, affects original matrix
+// Flips signs of a matrix, affects original matrix
 ERROR_NUM cofactor(mat4x4* matrix) {
 
     if(matrix == NULL) return MATLIB_POINTER_ERROR;
@@ -439,7 +439,7 @@ ERROR_NUM cofactor(mat4x4* matrix) {
     return 0;
 }
 
-//Calculates the determinant of a matrix
+// Calculates the determinant of a matrix
 ERROR_NUM determinant(mat4x4* matrix, GLfloat* result) {
 
     if(matrix == NULL || result == NULL) return MATLIB_POINTER_ERROR;
@@ -448,14 +448,14 @@ ERROR_NUM determinant(mat4x4* matrix, GLfloat* result) {
 
     typedef GLfloat det_mat[9];
 
-    //ROWxCOL for det_mat but COLxROW for mat
-    //NO X IN ROW
+    // ROWxCOL for det_mat but COLxROW for mat
+    // NO X IN ROW
     det_mat mat11 = {mat.y.y, mat.z.y, mat.w.y, mat.y.z, mat.z.z, mat.w.z, mat.y.w, mat.z.w, mat.w.w};
     det_mat mat12 = {mat.x.y, mat.z.y, mat.w.y, mat.x.z, mat.z.z, mat.w.z, mat.x.w, mat.z.w, mat.w.w};
     det_mat mat13 = {mat.x.y, mat.y.y, mat.w.y, mat.x.z, mat.y.z, mat.w.z, mat.x.w, mat.y.w, mat.w.w};
     det_mat mat14 = {mat.x.y, mat.y.y, mat.z.y, mat.x.z, mat.y.z, mat.z.z, mat.x.w, mat.y.w, mat.z.w};
 
-    //Put them in an array
+    // Put them in an array
     GLfloat fl11 = (mat11[0] * mat11[4] * mat11[8]) + (mat11[1] * mat11[5] * mat11[6]) + (mat11[2] * mat11[3] * mat11[7])
      - (mat11[6] * mat11[4] * mat11[2]) - (mat11[7] * mat11[5] * mat11[0]) - (mat11[8] * mat11[3] * mat11[1]); 
     GLfloat fl12 = (mat12[0] * mat12[4] * mat12[8]) + (mat12[1] * mat12[5] * mat12[6]) + (mat12[2] * mat12[3] * mat12[7])
@@ -470,7 +470,7 @@ ERROR_NUM determinant(mat4x4* matrix, GLfloat* result) {
     return 0;
 }
 
-//Multiply any number of matrices in a certain order
+// Multiply any number of matrices in a certain order
 ERROR_NUM mat_mult(mat4x4* matrices, int count, mat4x4* result) {
 
     if(matrices == NULL || result == NULL) return MATLIB_POINTER_ERROR;

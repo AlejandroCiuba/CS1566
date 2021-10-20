@@ -9,7 +9,7 @@
 #ifndef MATRIX_DEF_H
 #define MATRIX_DEF_H
 
-//Error handling type and constants
+// Error handling type and constants
 typedef char ERROR_NUM;
 
 #define MATLIB_POINTER_ERROR -2
@@ -20,10 +20,10 @@ typedef char ERROR_NUM;
 #define MATLIB_FILE_ERROR -7
 #define MATLIB_FILE_FORMAT_ERROR -8
 
-//Rather than importing stdbool.h, I'll just make my own
+// Rather than importing stdbool.h, I'll just make my own
 typedef enum {false, true} bool;
 
-//Defines datatype for OpenGL
+// Defines datatype for OpenGL
 typedef float GLfloat;
 typedef unsigned char GLubyte;
 
@@ -32,7 +32,7 @@ typedef struct vector2 {
     GLfloat y;
 } vector2;
 
-//Defines base Column Vector needed for OpenGL functions
+// Defines base Column Vector needed for OpenGL functions
 typedef struct vector4 {
     GLfloat x;
     GLfloat y;

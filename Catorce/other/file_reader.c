@@ -6,7 +6,7 @@
 
 #include "file_reader.h"
 
-//Assumes that it is w * h * 3
+// Assumes that it is w * h * 3
 ERROR_NUM load_raw(FILE* fp, void* texels, int width, int height) {
 
     if(fp == NULL || texels == NULL) return MATLIB_FILE_ERROR;
@@ -33,7 +33,7 @@ ERROR_NUM load_va(FILE* fp, vector4* vertices, int count) {
     return 0;
 }
 
-//FORMATED FOR COLUMN-MAJOR!!!
+// FORMATED FOR COLUMN-MAJOR!!!
 ERROR_NUM load_ma(FILE* fp, mat4x4* matrices, int count) {
     
     if(fp == NULL) return MATLIB_FILE_ERROR;
@@ -69,7 +69,7 @@ ERROR_NUM save_va(FILE* fp, vector4* vertices, int count) {
     return 0;
 }
 
-//FORMATED FOR COLUMN-MAJOR!!!
+// FORMATED FOR COLUMN-MAJOR!!!
 ERROR_NUM save_ma(FILE* fp, mat4x4* matrices, int count) {
     if(fp == NULL) return MATLIB_FILE_ERROR;
     if(matrices == NULL) return MATLIB_POINTER_ERROR;
@@ -85,8 +85,8 @@ ERROR_NUM save_ma(FILE* fp, mat4x4* matrices, int count) {
     return 0;
 }
 
-//REWINDS FILE TO BEGINNING 
-//USE CUSTOM VIEW FUNCTION IF FILE FORMAT DIFFERS IN ANY WAY!!!
+// REWINDS FILE TO BEGINNING 
+// USE CUSTOM VIEW FUNCTION IF FILE FORMAT DIFFERS IN ANY WAY!!!
 ERROR_NUM view_file(FILE* fp) {
 
     if(fp == NULL) return MATLIB_FILE_ERROR;

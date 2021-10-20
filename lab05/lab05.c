@@ -124,10 +124,10 @@ void keyboard(unsigned char key, int mousex, int mousey)
 int main(int argc, char **argv)
 {
     //rectangle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), 1,1,(vector4){0,0,0,1});
-    circle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, (vector4){0,0,0,1}, 'z');
-    //flat_torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .75, 1);
+    //circle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, (vector4){0,0,0,1}, 'z');
+    flat_torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1);
     //cone(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1, (vector4){0,1,0,1}, 'y');
-    texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, CIRCLE);
+    texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, FLAT_TORUS, (GLfloat[2]){.5, 1});
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);

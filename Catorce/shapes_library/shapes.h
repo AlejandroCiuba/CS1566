@@ -25,20 +25,20 @@ typedef unsigned char shape;
 #define BAND 4
 #define SPHERE 5
 
-//Assigns a color per shape (assumes triangle based implementation)
+// Assigns a color per shape (assumes triangle based implementation)
 ERROR_NUM random_colors(vector4* colors, int num_vertices);
 
-//Assigns one color to a series of faces
+// Assigns one color to a series of faces
 ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color);
 
-ERROR_NUM texturize(vector2* texcoords, int count, shape type);
+ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other);
 
-//Assumes triangle-based implementation
+// Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align);
 
 ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vector4 tip, char align);
 
-//Assumes 6 vertices
+// Assumes 6 vertices
 ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin);
 
 ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer);

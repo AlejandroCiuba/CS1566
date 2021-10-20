@@ -14,7 +14,7 @@
 #include <math.h>
 #include <time.h>
 
-//Define extern RGB here
+// Define extern RGB here
 vector4 RED = {1,0,0,1}; vector4 GREEN = {0,1,0,1}; vector4 BLUE = {0,0,1,1};
 
 ERROR_NUM random_colors(vector4* colors, int num_vertices) {
@@ -49,7 +49,7 @@ ERROR_NUM random_colors(vector4* colors, int num_vertices) {
     return 0;
 }
 
-//Assigns one color to a series of faces
+// Assigns one color to a series of faces
 ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color) {
 
     if(colors == NULL || num_vertices <= 0) return MATLIB_POINTER_ERROR;
@@ -79,9 +79,13 @@ ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color) {
     return 0;
 }
 
-ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
+// GLfloat* other is an array which contains other info needed for SPHERE and FLAT_TORUS as follows:
+// SPHERE other[1] = # of horizontal bands
+// FLAT_TORUS other[2] = {inner radius, outer radius}
+ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other) {
     
     if(texcoords == NULL || count == 0) return MATLIB_POINTER_ERROR;
+    else if((type == SPHERE || type == FLAT_TORUS) && other == NULL) return MATLIB_POINTER_ERROR;
 
     switch(type) {
 
@@ -100,14 +104,14 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
 
             for(int i = 0; i < outward; i ++) {
 
-                texcoords[i * 3].x = (GLfloat) (.75 * cos((-deg * i) * M_PI / 180));
-                texcoords[i * 3].y = (GLfloat) (.75 * sin((-deg * i) * M_PI / 180));
+                texcoords[i * 3].x = (GLfloat) ((.5 / (other[1] / other[0])) * cos((-deg * i) * M_PI / 180) + .5);
+                texcoords[i * 3].y = (GLfloat) ((.5 / (other[1] / other[0])) * sin((-deg * i) * M_PI / 180) + .5);
                 
-                texcoords[i * 3 + 1].x = (GLfloat) (cos((-deg * i) * M_PI / 180));
-                texcoords[i * 3 + 1].y = (GLfloat) (sin((-deg * i) * M_PI / 180));
+                texcoords[i * 3 + 1].x = (GLfloat) (.5 * cos((-deg * i) * M_PI / 180) + .5);
+                texcoords[i * 3 + 1].y = (GLfloat) (.5 * sin((-deg * i) * M_PI / 180) + .5);
 
-                texcoords[i * 3 + 2].x = (GLfloat) (cos((-deg * (i + 1)) * M_PI / 180));
-                texcoords[i * 3 + 2].y = (GLfloat) (sin((-deg * (i + 1)) * M_PI / 180));
+                texcoords[i * 3 + 2].x = (GLfloat) (.5 * cos((-deg * (i + 1)) * M_PI / 180) + .5);
+                texcoords[i * 3 + 2].y = (GLfloat) (.5 * sin((-deg * (i + 1)) * M_PI / 180) + .5);
             }
 
             for(int i = 0; i < outward; i++) {
@@ -118,24 +122,25 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
                 texcoords[i * 3 + 1 + outward * 3].x = texcoords[i * 3 + 2].x;//(GLfloat) (outer * cos((deg_per_triangle * (i + 1)) * M_PI / 180));
                 texcoords[i * 3 + 1 + outward * 3].y = texcoords[i * 3 + 2].y;//(GLfloat) (outer * sin((deg_per_triangle * (i + 1)) * M_PI / 180));
 
-                texcoords[i * 3 + 2 + outward * 3].x = (GLfloat) (.75 * cos((-deg * (i + 1)) * M_PI / 180));
-                texcoords[i * 3 + 2 + outward * 3].y = (GLfloat) (.75 * sin((-deg * (i + 1)) * M_PI / 180));
+                texcoords[i * 3 + 2 + outward * 3].x = (GLfloat) ((.5 / (other[1] / other[0])) * cos((-deg * (i + 1)) * M_PI / 180) + .5);
+                texcoords[i * 3 + 2 + outward * 3].y = (GLfloat) ((.5 / (other[1] / other[0])) * sin((-deg * (i + 1)) * M_PI / 180) + .5);
             }
             break;
         case CIRCLE:;//bruh
             tri = count / 3;
             deg = 360.00 / tri;
             for(int i = 0; i < tri; i++) {
-                texcoords[i * 3] = (vector2) {cos(-deg * (i + 1) * M_PI / 180) + .5, sin(-deg * (i + 1) * M_PI / 180) + .5};
+                texcoords[i * 3] = (vector2) {.5 * cos(-deg * (i + 1) * M_PI / 180) +.5, .5 * sin(-deg * (i + 1) * M_PI / 180) + .5};
                 texcoords[i * 3 + 1] = (vector2) {.5, .5};
-                texcoords[i * 3 + 2] = (vector2) {cos(-deg * i * M_PI / 180) + .5, sin(-deg * i * M_PI / 180)+ .5};
+                texcoords[i * 3 + 2] = (vector2) {.5 * cos(-deg * i * M_PI / 180) + .5, .5 * sin(-deg * i * M_PI / 180)+ .5};
             }
             break;
         case CONE:
             break;
         case BAND:
             break;
-        case SPHERE:;
+        case SPHERE:
+
             break;
         default:
             return MATLIB_NAN_ERROR;
@@ -144,7 +149,7 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type) {
     return 0;
 }
 
-//Assumes triangle-based implementation
+// Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align) {
 
     if(vertices == NULL || count == 0) return MATLIB_POINTER_ERROR;
@@ -264,7 +269,7 @@ ERROR_NUM cone(vector4* vertices, int count, GLfloat radius, GLfloat height, vec
     return 0;
 }
 
-//Assumes 6 vertices
+// Assumes 6 vertices
 ERROR_NUM rectangle(vector4* vertices, GLfloat height, GLfloat width, vector4 origin) {
 
     if(vertices == NULL || height == 0 || width == 0) return MATLIB_POINTER_ERROR;

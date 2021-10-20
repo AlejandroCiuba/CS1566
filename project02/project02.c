@@ -24,7 +24,7 @@
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
-//MAIN PROGRAM, HERE SO WE CAN DO ANYTHING WE WANT!!!
+//MAIN PROGRAM HERE SO WE CAN DO ANYTHING WE WANT!!!
 GLuint program = -1;
 
 //ctm for manipulating shapes
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
     
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
-    texturize(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, CIRCLE);
+    texturize(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, 0);
     printf("COUNT: %d\n",  num_vertices);
     
     //Get center of mass
