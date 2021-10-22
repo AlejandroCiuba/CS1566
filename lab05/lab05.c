@@ -40,17 +40,17 @@ vector4* vertices;
 vector4* colors;
 vector2* tc;
 
-int num_vertices = 360;
+int num_vertices = 6;
 
 void init(void)
 {   
     //Stores the texels of the image
-    int width = 512;
-    int height = 512;
-    GLubyte my_texels[512][512][3];
+    int width = 1024;
+    int height = 1024;
+    GLubyte my_texels[width][height][3];
 
     //Reads the image and puts the RGB into their respective texel
-    FILE *fp = fopen("Ollie_Dup.raw", "r");
+    FILE *fp = fopen("wall-texture.raw", "r");
     load_raw(fp, my_texels, width, height);
     fclose(fp);
 
@@ -117,17 +117,21 @@ void display(void)
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
-    if(key == 'q') 
-	exit(0);
+    if(key == 'q') {
+        free(tc);
+        free(colors);
+        free(vertices);
+	    exit(0);
+    }
 }
 
 int main(int argc, char **argv)
 {
-    //rectangle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), 1,1,(vector4){0,0,0,1});
+    rectangle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), 1.5,1.5,(vector4){0,0,0,1});
     //circle(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, (vector4){0,0,0,1}, 'z');
-    flat_torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1);
+    //flat_torus(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1);
     //cone(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .5, 1, (vector4){0,1,0,1}, 'y');
-    texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, FLAT_TORUS, (GLfloat[2]){.5, 1});
+    texturize(tc = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, RECTANGLE, NULL);
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
