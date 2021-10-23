@@ -49,12 +49,12 @@ int num_vertices = 3000;
 void init(void)
 {
     //Stores the texels of the image
-    width = 512;
-    height = 512;
+    width = 1024;
+    height = 1024;
     texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
 
     //Reads the image and puts the RGB into their respective texel
-    image = fopen("Ollie_Dup.raw", "r");
+    image = fopen("PLY Files/measure/measuring_tape.data", "r");
     load_raw(image, texels, width, height);
     fclose(image);
 
@@ -244,14 +244,35 @@ void idle() {
 
 int main(int argc, char **argv)
 {   
-    if(argc < 2) return -1;
-    else use_color = atoi(argv[1]);
-
-    sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16, .25);
+    if(argc < 3) return -1;
+    else use_color = atoi(argv[2]);
     
+    if(atoi(argv[1]) == 1) {
+        FILE* fp = fopen("PLY Files/measure/measuring_tape.ply", "r");
+        load_PLY_text(fp, &vertices, &num_vertices, &texcoords);
+        fclose(fp);
+
+        //Get the center of mass
+        vector4 cm = {0,0,0,1};
+        com(vertices, num_vertices, &cm);
+
+        //Move to origin
+        //Scale to fit OpenGL Canonical View
+        mat4x4 base_or, shrink, move, final;
+        vector4 base[num_vertices];
+        for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
+        
+        translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
+        scaling(.001, .001, .001, &shrink);
+        rotate(-90, 'x', &base_or);
+        
+        mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
+        matxvar(&final, base, num_vertices, vertices);
+    }
+
     //Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
-    texturize(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, 0);
+    
     printf("COUNT: %d\n",  num_vertices);
     
     //Get center of mass

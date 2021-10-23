@@ -22,6 +22,8 @@ ERROR_NUM load_va(FILE* fp, vector4* vertices, int count);
 // FORMATED FOR COLUMN-MAJOR!!!
 ERROR_NUM load_ma(FILE* fp, mat4x4* matrices, int count);
 
+ERROR_NUM load_PLY_text(FILE* fp, vector4** vertices, int* count, vector2** texcoords);
+
 ERROR_NUM save_raw(FILE* fp, void* texels, int width, int height);
 
 ERROR_NUM save_va(FILE* fp, vector4* vertices, int count);

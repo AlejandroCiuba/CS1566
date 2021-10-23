@@ -31,7 +31,7 @@ ERROR_NUM random_colors(vector4* colors, int num_vertices);
 // Assigns one color to a series of faces
 ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color);
 
-ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other);
+ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other, vector4* vertices);
 
 // Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align);
@@ -45,7 +45,7 @@ ERROR_NUM flat_torus(vector4* vertices, int count, GLfloat inner, GLfloat outer)
 
 ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length);
 
-ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius);
+ERROR_NUM sphere(vector4* vertices, int count, int bands);
 
 ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat band_radius);
 

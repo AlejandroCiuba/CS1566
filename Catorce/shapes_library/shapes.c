@@ -80,9 +80,9 @@ ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color) {
 }
 
 // GLfloat* other is an array which contains other info needed for SPHERE and FLAT_TORUS as follows:
-// SPHERE other[1] = # of horizontal bands
+// SPHERE other[1] = # of horizontal bands AND vertices
 // FLAT_TORUS other[2] = {inner radius, outer radius}
-ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other) {
+ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other, vector4* vertices) {
     
     if(texcoords == NULL || count == 0) return MATLIB_POINTER_ERROR;
     else if((type == SPHERE || type == FLAT_TORUS) && other == NULL) return MATLIB_POINTER_ERROR;
@@ -139,8 +139,14 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other) {
             break;
         case BAND:
             break;
-        case SPHERE:
+        case SPHERE:;
+            int bands = (int) other[0];
+            int verts_per_band = count / (bands - 1);
 
+            for(int i = 0; i < verts_per_band; i++) {
+                texcoords[i] = (vector2){vertices[i].x, vertices[i].y};
+            }
+            
             break;
         default:
             return MATLIB_NAN_ERROR;
@@ -357,7 +363,7 @@ ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
     return 0;
 }
 
-ERROR_NUM sphere(vector4* vertices, int count, int bands, GLfloat radius) {
+ERROR_NUM sphere(vector4* vertices, int count, int bands) {
 
     if(vertices == NULL || count == 0 || bands % 2 != 0) return MATLIB_POINTER_ERROR;
     count -= (count % (6 * (bands - 1)));
