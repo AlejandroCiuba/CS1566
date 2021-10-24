@@ -37,8 +37,9 @@ GLubyte* texels;
 int width = 0, height = 0;
 FILE* image = NULL;
 
-// Option to use texture or color
-int use_color = 1;
+// Option to use texture or color, set to 1 by default (ASSUMES TEXTURE)
+int use_texture = 1;
+
 // ===================== VERTEX ATTRIBUTES =====================
 vector4* vertices;
 vector4* colors;
@@ -51,7 +52,7 @@ void init(void)
     // Load the vertex and fragment shaders
     program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
-
+    
     // Puts texel array onto graphics pipeline
     GLuint mytex[1];
     glGenTextures(1, mytex);
@@ -102,7 +103,7 @@ void init(void)
     glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
     // Choose to use either color or texture
-    glUniform1i(glGetUniformLocation(program, "use_color"), use_color);
+    glUniform1i(glGetUniformLocation(program, "use_texture"), use_texture);
 
     printf("\ntexture_location: %i\n", glGetUniformLocation(program, "texture"));
     
@@ -221,7 +222,7 @@ void keyboard(unsigned char key, int mousex, int mousey)
 
     if(key == 'r') {final_rot = identity; final_scal = identity; ctm_base = identity;}
 
-    if(key == 't') {glUniform1i(glGetUniformLocation(program, "use_color"), use_color = !use_color); glutPostRedisplay();}// CURSED, but idc cuz it keeps it small
+    if(key == 't' && use_texture != -1) {glUniform1i(glGetUniformLocation(program, "use_texture"), use_texture = !use_texture); glutPostRedisplay();}// CURSED, but idc cuz it keeps it small
 
     // ===================== CHANGING SIZE VIA KEYBOARD =====================
     mat4x4 sc = identity;
@@ -252,7 +253,8 @@ int menu() {
         printf("What would you like to see (type what is in the parenthesis) or -1 to exit:");
         printf("\n\t1. A Sphere (sphere)");
         printf("\n\t2. A Chair(chair)");
-        printf("\n\t3. A Measuring Tape(measuring_tape)\n\t");
+        printf("\n\t3. A Measuring Tape(measuring_tape)");
+        printf("\n\t4. A Nike Shoe (nike)\n\t");
 
         if(scanf("%s", user_input) == EOF) return -1;
 
@@ -260,6 +262,7 @@ int menu() {
         if(!strcmp(user_input, "sphere\0")) return 0;
         else if(!strcmp(user_input, "chair\0")) return 1;
         else if(!strcmp(user_input, "measuring_tape\0")) return 2;
+        else if(!strcmp(user_input, "nike\0")) return 3;
         else if(!strcmp(user_input, "-1\0")) return -1;
         else printf("\nINVALID OPTION!!!\n");
     }
@@ -270,54 +273,73 @@ int main(int argc, char **argv)
     int option = menu();
     if(option == -1) {printf("\nEXIT SUCCESSFUL!!!\n"); return 0;}
 
-    char* file_options[] = {"chair/chair.ply", "measure/measuring_tape.ply"};
-    char* file_textures[] = {"chair/chair.data", "measure/measuring_tape.data"};
+    char* file_options[] = {"chair/chair.ply", "measure/measuring_tape.ply", "nike/nike.ply"};
+    char* file_textures[] = {"chair/chair.data", "measure/measuring_tape.data", "NO_TEXTURE"};
     
     if(option != 0) {
 
         // Load the user's selection
         FILE* fp = fopen(strcat((char[37]) {"PLY Files/"}, file_options[option - 1]), "r");
-        load_PLY_text(fp, &vertices, &num_vertices, &texcoords); //Load the ply file with Texture Coordinates
+
+        // If the file has no texture associated with it, do this and just leave
+        if(!strcmp(file_textures[option - 1], "NO_TEXTURE")) {
+            load_PLY_color(fp, &vertices, &num_vertices, &colors);
+            use_texture = -1; // USER CANNOT CHANGE BETWEEN TEXTURE AND COLORS SINCE TEXTURE DOES NOT EXIST!!!
+            print_vector(vertices[0]);
+            print_vector(vertices[num_vertices - 1]);
+            print_vector(colors[0]);
+            print_vector(colors[num_vertices - 1]);
+        }
+        else load_PLY_text(fp, &vertices, &num_vertices, &texcoords); //Load the ply file with Texture Coordinates
+
         fclose(fp);
 
-        // LOAD THE FILE'S ASSOCIATED .data TEXTURE
-        // (Should be done in init but we save on having to have a lot of global variables this way)
-        // Stores the texels of the image
-        width = 1024; // We only work in 1024 by 1024
-        height = 1024;
-        texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
+        // IF THERE IS A TEXTURE TO BE USED, LOAD IT
+        if(use_texture != -1) {
 
-        // Reads the image and puts the RGB into their respective texel
-        image = fopen(strcat((char[38]) {"PLY Files/"}, file_textures[option - 1]), "r");
-        load_raw(image, texels, width, height);
-        fclose(image);
+            // LOAD THE FILE'S ASSOCIATED .data TEXTURE
+            // (Should be done in init but we save on having to have a lot of global variables this way)
+            // Stores the texels of the image
+            width = 1024; // We only work in 1024 by 1024
+            height = 1024;
+            texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
+
+            // Reads the image and puts the RGB into their respective texel
+            image = fopen(strcat((char[38]) {"PLY Files/"}, file_textures[option - 1]), "r");
+            load_raw(image, texels, width, height);
+            fclose(image);
+
+             // Assign color and print statistics
+            random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+        }
 
         // CENTER THE OBJECT AND SCALE IT DOWN FOR OPENGL CANONICAL VIEW
         // Get the center of mass
         vector4 cm = {0,0,0,1};
         com(vertices, num_vertices, &cm);
-
+        
         // Move to origin
         // Scale to fit OpenGL Canonical View
         mat4x4 base_or, shrink, move, final;
-        vector4 base[num_vertices];
+        // NEEDS TO BE DONE LIKE THIS OR THERE WILL BE HOT UNADULTERATED STACKS SMASHING EACH OTHER!!!
+        vector4* base = (vector4*) malloc(sizeof(vector4) * num_vertices); 
+        
         for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
         
         translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
-        scaling(.001, .001, .001, &shrink);
+        scaling(.01, .01, .01, &shrink);
         rotate(-90, 'x', &base_or);
-        
+
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
         matxvar(&final, base, num_vertices, vertices);
+        free(base); //It's over...
     }
     else {
             sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16);
-            use_color = 0; // CHANGE ONCE SPHERE TEXTURE WORKS!!!
+            use_texture = -1; // CHANGE ONCE SPHERE TEXTURE WORKS!!!
+            // Assign color and print statistics
+            random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     }
-
-    // Assign color and print statistics
-    random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
-    
     printf("VERTEX COUNT: %d\n",  num_vertices);
     
     // Get center of mass
