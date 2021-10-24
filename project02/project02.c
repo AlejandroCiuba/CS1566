@@ -254,7 +254,11 @@ int menu() {
         printf("\n\t1. A Sphere (sphere)");
         printf("\n\t2. A Chair(chair)");
         printf("\n\t3. A Measuring Tape(measuring_tape)");
-        printf("\n\t4. A Nike Shoe (nike)\n\t");
+        printf("\n\t4. A Nike Shoe (nike)");
+        printf("\n\t5. A Bus (bus)");
+        printf("\n\t6. A \"Living\" Person (full_body)");
+        printf("\n\t7. A Screwdriver (screwdriver)");
+        printf("\n\t8. A Sea Shell (sea_shell)\n\t");
 
         if(scanf("%s", user_input) == EOF) return -1;
 
@@ -263,6 +267,10 @@ int menu() {
         else if(!strcmp(user_input, "chair\0")) return 1;
         else if(!strcmp(user_input, "measuring_tape\0")) return 2;
         else if(!strcmp(user_input, "nike\0")) return 3;
+        else if(!strcmp(user_input, "bus\0")) return 4;
+        else if(!strcmp(user_input, "full_body\0")) return 5;
+        else if(!strcmp(user_input, "screwdriver\0")) return 6;
+        else if(!strcmp(user_input, "sea_shell\0")) return 7;
         else if(!strcmp(user_input, "-1\0")) return -1;
         else printf("\nINVALID OPTION!!!\n");
     }
@@ -273,22 +281,20 @@ int main(int argc, char **argv)
     int option = menu();
     if(option == -1) {printf("\nEXIT SUCCESSFUL!!!\n"); return 0;}
 
-    char* file_options[] = {"chair/chair.ply", "measure/measuring_tape.ply", "nike/nike.ply"};
-    char* file_textures[] = {"chair/chair.data", "measure/measuring_tape.data", "NO_TEXTURE"};
+    char* file_options[] = 
+    {"chair/chair.ply", "measure/measuring_tape.ply", "nike/nike.ply", "bus/bus.ply", "man/full_body.ply", "screwdriver/screwdriver.ply", "sea/sea_shell.ply"};
+    char* file_textures[] = 
+    {"chair/chair.data", "measure/measuring_tape.data", "NO_TEXTURE", "bus/bus.data", "man/full_body.data", "screwdriver/screwdriver.data", "sea/sea_shell.data"};
     
     if(option != 0) {
 
         // Load the user's selection
-        FILE* fp = fopen(strcat((char[37]) {"PLY Files/"}, file_options[option - 1]), "r");
+        FILE* fp = fopen(strcat((char[38]) {"PLY Files/"}, file_options[option - 1]), "r");
 
         // If the file has no texture associated with it, do this and just leave
         if(!strcmp(file_textures[option - 1], "NO_TEXTURE")) {
             load_PLY_color(fp, &vertices, &num_vertices, &colors);
             use_texture = -1; // USER CANNOT CHANGE BETWEEN TEXTURE AND COLORS SINCE TEXTURE DOES NOT EXIST!!!
-            print_vector(vertices[0]);
-            print_vector(vertices[num_vertices - 1]);
-            print_vector(colors[0]);
-            print_vector(colors[num_vertices - 1]);
         }
         else load_PLY_text(fp, &vertices, &num_vertices, &texcoords); //Load the ply file with Texture Coordinates
 
@@ -305,13 +311,18 @@ int main(int argc, char **argv)
             texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
 
             // Reads the image and puts the RGB into their respective texel
-            image = fopen(strcat((char[38]) {"PLY Files/"}, file_textures[option - 1]), "r");
+            image = fopen(strcat((char[39]) {"PLY Files/"}, file_textures[option - 1]), "r");
             load_raw(image, texels, width, height);
             fclose(image);
 
              // Assign color and print statistics
             random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
         }
+
+        print_vector(vertices[0]);
+        print_vector(vertices[num_vertices - 1]);
+        print_vector(colors[0]);
+        print_vector(colors[num_vertices - 1]);
 
         // CENTER THE OBJECT AND SCALE IT DOWN FOR OPENGL CANONICAL VIEW
         // Get the center of mass
