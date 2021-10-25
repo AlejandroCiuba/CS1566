@@ -253,7 +253,7 @@ int menu() {
         printf("What would you like to see (type what is in the parenthesis) or -1 to exit:");
         printf("\n\t1. A Sphere (sphere)");
         printf("\n\t2. A Chair (chair)");
-        printf("\n\t3. A Measuring Tape( measuring_tape)");
+        printf("\n\t3. A Measuring Tape (measuring_tape)");
         printf("\n\t4. A Nike Shoe (nike)");
         printf("\n\t5. A Bus (bus)");
         printf("\n\t6. A \"Living\" Person (full_body)");
