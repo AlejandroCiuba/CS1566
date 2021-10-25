@@ -327,7 +327,7 @@ int main(int argc, char **argv)
 
         // CENTER THE OBJECT AND SCALE IT DOWN FOR OPENGL CANONICAL VIEW
         // Get the center of mass
-        vector4 cm = {0,0,0,1};
+        vector4 cm;
         com(vertices, num_vertices, &cm);
         
         // Move to origin
@@ -344,11 +344,22 @@ int main(int argc, char **argv)
 
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
         matxvar(&final, base, num_vertices, vertices);
-        free(base); //It's over...
+        free(base); // It's over...
     }
     else {
-            sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 16);
-            use_texture = -1; // CHANGE ONCE SPHERE TEXTURE WORKS!!!
+            sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .75, 16);
+            
+            // Load texels
+            width = 1024; // We only work in 1024 by 1024
+            height = 1024;
+            texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
+
+            //Load sphere texture and texturize it
+            image = fopen("Ollie_Dup.raw", "r");
+            load_raw(image, texels, width, height);
+            fclose(image);
+            texturize(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, NULL);
+
             // Assign color and print statistics
             random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     }

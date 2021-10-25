@@ -79,10 +79,9 @@ ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color) {
     return 0;
 }
 
-// GLfloat* other is an array which contains other info needed for SPHERE and FLAT_TORUS as follows:
-// SPHERE other[1] = # of horizontal bands AND vertices
+// GLfloat* other is an array which contains other info needed for FLAT_TORUS as follows:
 // FLAT_TORUS other[2] = {inner radius, outer radius}
-ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other, vector4* vertices) {
+ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other) {
     
     if(texcoords == NULL || count == 0) return MATLIB_POINTER_ERROR;
     else if((type == SPHERE || type == FLAT_TORUS) && other == NULL) return MATLIB_POINTER_ERROR;
@@ -97,7 +96,7 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other, v
             texcoords[4] = (vector2) {1.0, 0.0};
             texcoords[5] = (vector2) {0.0, 0.0};
             break;
-        case FLAT_TORUS:;//bruh II
+        case FLAT_TORUS:; // bruh
             int tri = count / 3;
             int outward = tri / 2;
             GLfloat deg = 360.00 / outward;
@@ -126,7 +125,7 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other, v
                 texcoords[i * 3 + 2 + outward * 3].y = (GLfloat) ((.5 / (other[1] / other[0])) * sin((-deg * (i + 1)) * M_PI / 180) + .5);
             }
             break;
-        case CIRCLE:;//bruh
+        case CIRCLE:
             tri = count / 3;
             deg = 360.00 / tri;
             for(int i = 0; i < tri; i++) {
@@ -139,14 +138,7 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other, v
             break;
         case BAND:
             break;
-        case SPHERE:;
-            int bands = (int) other[0];
-            int verts_per_band = count / (bands - 1);
-
-            for(int i = 0; i < verts_per_band; i++) {
-                texcoords[i] = (vector2){vertices[i].x, vertices[i].y};
-            }
-            
+        case SPHERE:
             break;
         default:
             return MATLIB_NAN_ERROR;
@@ -363,7 +355,7 @@ ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
     return 0;
 }
 
-ERROR_NUM sphere(vector4* vertices, int count, int bands) {
+ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, int bands) {
 
     if(vertices == NULL || count == 0 || bands % 2 != 0) return MATLIB_POINTER_ERROR;
     count -= (count % (6 * (bands - 1)));
@@ -374,10 +366,10 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands) {
     GLfloat phi = (GLfloat) (90.00 / (bands / 2));
     
     //Generate the bottom
-    vector4 base = {0,-1,0,1}, point;
+    vector4 base = {0,-radius,0,1}, point;
     mat4x4 ro;
     rotate(-phi * ((bands - 2) / 2), 'z', &ro);
-    matxvec(&ro, &(vector4){1,0,0,1}, &point);
+    matxvec(&ro, &(vector4){radius,0,0,1}, &point);
     
     for(int i = 0; i < rects; i++) {
 
@@ -393,10 +385,10 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands) {
     for(int i = 1; i < bands / 2; i++) {
 
         rotate(-phi * ((int)(bands / 2) - i), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point);
+        matxvec(&ro, &(vector4){radius,0,0,1}, &point);
 
         rotate(-phi * ((int)(bands / 2) - (i + 1)), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
+        matxvec(&ro, &(vector4){radius,0,0,1}, &point2);
 
         for(int j = 0; j < rects; j++) {
 
@@ -416,10 +408,10 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands) {
     }
 
     int offset = count / 2;
-    base = (vector4){0,1,0,1};
+    base = (vector4){0,radius,0,1};
 
     rotate(phi * ((bands - 2) / 2), 'z', &ro);
-    matxvec(&ro, &(vector4){1,0,0,1}, &point);
+    matxvec(&ro, &(vector4){radius,0,0,1}, &point);
 
     for(int i = 0; i < rects; i++) {
 
@@ -434,10 +426,10 @@ ERROR_NUM sphere(vector4* vertices, int count, int bands) {
     for(int i = 1; i < bands / 2; i++) {
 
         rotate(phi * ((int)(bands / 2) - i), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point);
+        matxvec(&ro, &(vector4){radius,0,0,1}, &point);
 
         rotate(phi * ((int)(bands / 2) - (i + 1)), 'z', &ro);
-        matxvec(&ro, &(vector4){1,0,0,1}, &point2);
+        matxvec(&ro, &(vector4){radius,0,0,1}, &point2);
 
         for(int j = 0; j < rects; j++) {
 
