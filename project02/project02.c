@@ -258,7 +258,8 @@ int menu() {
         printf("\n\t5. A Bus (bus)");
         printf("\n\t6. A \"Living\" Person (full_body)");
         printf("\n\t7. A Screwdriver (screwdriver)");
-        printf("\n\t8. A Sea Shell (sea_shell)\n\t");
+        printf("\n\t8. A Sea Shell (sea_shell)");
+        printf("\nFile Selected: ");
 
         if(scanf("%s", user_input) == EOF) return -1;
 
