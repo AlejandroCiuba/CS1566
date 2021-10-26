@@ -338,8 +338,12 @@ int main(int argc, char **argv)
         
         for(int i = 0; i < num_vertices; i++) copy_vector(vertices + i, base + i);
         
-        translate(-1 * cm.x,-1 * cm.y, -1 * cm.z, &move);
-        scaling(.01, .01, .01, &shrink);
+        translate(-1 * cm.x, -1 * cm.y, -1 * cm.z, &move);
+
+        // Special case, we don't want to scale measuring_tape or sea_shell as much
+        if(!strcmp(file_options[option - 1], "measure/measuring_tape.ply") || !strcmp(file_options[option - 1], "sea/sea_shell.ply")) scaling(.01, .01, .01, &shrink);
+        else scaling(.001, .001, .001, &shrink);
+
         rotate(-90, 'x', &base_or);
 
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
