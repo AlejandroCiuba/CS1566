@@ -31,7 +31,9 @@ ERROR_NUM random_colors(vector4* colors, int num_vertices);
 // Assigns one color to a series of faces
 ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color);
 
-ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other);
+ERROR_NUM texturize2D(vector2* texcoords, int count, shape type, GLfloat* other);
+
+ERROR_NUM texturize3D(vector2* texcoords, int count, shape type, vector4* vertices);
 
 // Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align);

@@ -81,10 +81,10 @@ ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color) {
 
 // GLfloat* other is an array which contains other info needed for FLAT_TORUS as follows:
 // FLAT_TORUS other[2] = {inner radius, outer radius}
-ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other) {
+ERROR_NUM texturize2D(vector2* texcoords, int count, shape type, GLfloat* other) {
     
     if(texcoords == NULL || count == 0) return MATLIB_POINTER_ERROR;
-    else if((type == SPHERE || type == FLAT_TORUS) && other == NULL) return MATLIB_POINTER_ERROR;
+    else if(type == FLAT_TORUS && other == NULL) return MATLIB_POINTER_ERROR;
 
     switch(type) {
 
@@ -133,17 +133,27 @@ ERROR_NUM texturize(vector2* texcoords, int count, shape type, GLfloat* other) {
                 texcoords[i * 3 + 1] = (vector2) {.5, .5};
                 texcoords[i * 3 + 2] = (vector2) {.5 * cos(-deg * i * M_PI / 180) + .5, .5 * sin(-deg * i * M_PI / 180)+ .5};
             }
-            break;
-        case CONE:
-            break;
-        case BAND:
-            break;
-        case SPHERE:
-            break;
         default:
             return MATLIB_NAN_ERROR;
     }
     
+    return 0;
+}
+
+ERROR_NUM texturize3D(vector2* texcoords, int count, shape type, vector4* vertices) {
+
+    if(texcoords == NULL || count == 0) return MATLIB_POINTER_ERROR;
+
+    switch(type) {
+        case SPHERE:
+            for(int i = 0; i < count; i++) texcoords[i] = (vector2) {(vertices[i].x + 1) / 4, (vertices[i].y + 1) / 8}; // Why 4 and 8 always?
+            break;
+        case BAND:
+        case CONE:
+        default:
+            return MATLIB_NAN_ERROR;
+    }
+
     return 0;
 }
 
@@ -355,6 +365,7 @@ ERROR_NUM band(vector4* vertices, int count, GLfloat radius, GLfloat length) {
     return 0;
 }
 
+// Bands must be a power of 2!!!
 ERROR_NUM sphere(vector4* vertices, int count, GLfloat radius, int bands) {
 
     if(vertices == NULL || count == 0 || bands % 2 != 0) return MATLIB_POINTER_ERROR;

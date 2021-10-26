@@ -348,10 +348,11 @@ int main(int argc, char **argv)
 
         mat_mult((mat4x4[3]) {base_or, shrink, move}, 3, &final);
         matxvar(&final, base, num_vertices, vertices);
+
         free(base); // It's over...
     }
     else {
-            sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, .75, 16);
+            sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
             
             // Load texels
             width = 1024; // We only work in 1024 by 1024
@@ -362,7 +363,7 @@ int main(int argc, char **argv)
             image = fopen("Ollie_Dup.raw", "r");
             load_raw(image, texels, width, height);
             fclose(image);
-            texturize(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, NULL);
+            texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
 
             // Assign color and print statistics
             random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
@@ -372,16 +373,19 @@ int main(int argc, char **argv)
     // Get center of mass
     com(vertices, num_vertices, &center);
 
+    // Create program and initialize the viewing windos
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
     glutCreateWindow("Project 2");
 
+    // Assign the functions to their jobs
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutIdleFunc(idle);
 
+    // Start the program and event-driven loop
     glewInit();
     init();
     glutDisplayFunc(display);
