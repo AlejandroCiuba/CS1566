@@ -17,6 +17,9 @@
 // Define extern RGB here
 vector4 RED = {1,0,0,1}; vector4 GREEN = {0,1,0,1}; vector4 BLUE = {0,0,1,1};
 
+// Scaling factor for textures
+static GLfloat scale_y = 2, scale_x = 2;
+
 ERROR_NUM random_colors(vector4* colors, int num_vertices) {
     
     if(colors == NULL || num_vertices <= 0) return MATLIB_POINTER_ERROR;
@@ -146,7 +149,7 @@ ERROR_NUM texturize3D(vector2* texcoords, int count, shape type, vector4* vertic
 
     switch(type) {
         case SPHERE:
-            for(int i = 0; i < count; i++) texcoords[i] = (vector2) {(vertices[i].x + 1) / 4, (vertices[i].y + 1) / 8}; // Why 4 and 8 always?
+            for(int i = 0; i < count; i++) texcoords[i] = (vector2) {(vertices[i].x + 1) / scale_x, (vertices[i].y + 1) / scale_y}; // Why 4 and 8 always for 1024?
             break;
         case BAND:
         case CONE:
@@ -154,6 +157,14 @@ ERROR_NUM texturize3D(vector2* texcoords, int count, shape type, vector4* vertic
             return MATLIB_NAN_ERROR;
     }
 
+    return 0;
+}
+
+// Changes the scaling when applying textures
+ERROR_NUM texture_scale(GLfloat x, GLfloat y) {
+
+    if(x == 0 || y == 0) return MATLIB_NAN_ERROR;
+    scale_x = x; scale_y = y;
     return 0;
 }
 

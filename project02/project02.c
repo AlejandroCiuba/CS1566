@@ -355,18 +355,26 @@ int main(int argc, char **argv)
             sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
             
             // Load texels
-            width = 1024; // We only work in 1024 by 1024
-            height = 1024;
+            width = 320;
+            height = 320;
             texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
 
-            //Load sphere texture and texturize it
-            image = fopen("Ollie_Dup.raw", "r");
+            //Load sphere texture
+            image = fopen("texture01.raw", "r");
             load_raw(image, texels, width, height);
             fclose(image);
+
+            // We only want the top fourth of the texture, change texture scale on x and y to 4, then apply texture
+            texture_scale(4, 4);
             texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
 
             // Assign color and print statistics
             random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+
+            // Demonstrates how texture scaling is only done AFTER creation, things should be in the ratio you plan to see them
+            mat4x4 sc;
+            scal((affine){.5,.5,.5}, &sc);
+            matxvar(&sc, vertices, num_vertices, vertices);
     }
     printf("VERTEX COUNT: %d\n",  num_vertices);
     

@@ -25,6 +25,9 @@ typedef unsigned char shape;
 #define BAND 4
 #define SPHERE 5
 
+// Default scale values
+#define DEFAULT_SCALING 2
+
 // Assigns a color per shape (assumes triangle based implementation)
 ERROR_NUM random_colors(vector4* colors, int num_vertices);
 
@@ -34,6 +37,9 @@ ERROR_NUM const_color(vector4* colors, int num_vertices, color face_color);
 ERROR_NUM texturize2D(vector2* texcoords, int count, shape type, GLfloat* other);
 
 ERROR_NUM texturize3D(vector2* texcoords, int count, shape type, vector4* vertices);
+
+// Changes the scaling when applying textures
+ERROR_NUM texture_scale(GLfloat x, GLfloat y);
 
 // Assumes triangle-based implementation
 ERROR_NUM circle(vector4* vertices, int count, GLfloat radius, vector4 origin, char align);
