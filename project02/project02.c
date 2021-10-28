@@ -45,7 +45,7 @@ vector4* vertices;
 vector4* colors;
 vector2* texcoords;
 
-int num_vertices = 3000;
+int num_vertices = 3600;
 
 void init(void)
 {
@@ -365,7 +365,7 @@ int main(int argc, char **argv)
             fclose(image);
 
             // We only want the top fourth of the texture, change texture scale on x and y to 4, then apply texture
-            texture_scale(4, 4);
+            texture_scale(4, -4);
             texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
 
             // Assign color and print statistics

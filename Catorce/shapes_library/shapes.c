@@ -149,9 +149,12 @@ ERROR_NUM texturize3D(vector2* texcoords, int count, shape type, vector4* vertic
 
     switch(type) {
         case SPHERE:
-            for(int i = 0; i < count; i++) texcoords[i] = (vector2) {(vertices[i].x + 1) / scale_x, (vertices[i].y + 1) / scale_y}; // Why 4 and 8 always for 1024?
+            for(int i = 0; i < count; i++) texcoords[i] = (vector2) {(vertices[i].x + 1) / scale_x, -(vertices[i].y + 1) / scale_y}; // Why 4 and 8 always for 1024?
             break;
         case BAND:
+            for(int i = 0; i < count / 2; i++) 
+                texturize2D((vector2[6]){{vertices[i].x, vertices[i].y},{vertices[i + 1].x, vertices[i + 1].y}}, 6, RECTANGLE, NULL); // INCOMPLETE
+            break;
         case CONE:
         default:
             return MATLIB_NAN_ERROR;
