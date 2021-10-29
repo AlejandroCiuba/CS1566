@@ -320,9 +320,14 @@ int main(int argc, char **argv)
             random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
         }
 
+        printf("\n===================== FILE VERTEX STATISTICS =====================\n");
+        printf("First Vertex: ");
         print_vector(vertices[0]);
+        printf("Last Vertex: ");
         print_vector(vertices[num_vertices - 1]);
+        printf("First Color: ");
         print_vector(colors[0]);
+        printf("Last Color: ");
         print_vector(colors[num_vertices - 1]);
 
         // CENTER THE OBJECT AND SCALE IT DOWN FOR OPENGL CANONICAL VIEW
@@ -352,30 +357,31 @@ int main(int argc, char **argv)
         free(base); // It's over...
     }
     else {
-            sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
-            
-            // Load texels
-            width = 320;
-            height = 320;
-            texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
+        sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
+        
+        // Load texels
+        width = 320;
+        height = 320;
+        texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
 
-            //Load sphere texture
-            image = fopen("texture01.raw", "r");
-            load_raw(image, texels, width, height);
-            fclose(image);
+        //Load sphere texture
+        image = fopen("texture01.raw", "r");
+        load_raw(image, texels, width, height);
+        fclose(image);
 
-            // We only want the top fourth of the texture, change texture scale on x and y to 4, then apply texture
-            texture_scale(4, -4);
-            texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
+        // We only want the top fourth of the texture, change texture scale on x and y to 4, then apply texture
+        texture_scale(4, -4);
+        texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
 
-            // Assign color and print statistics
-            random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+        // Assign color and print statistics
+        random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
-            // Demonstrates how texture scaling is only done AFTER creation, things should be in the ratio you plan to see them
-            mat4x4 sc;
-            scal((affine){.5,.5,.5}, &sc);
-            matxvar(&sc, vertices, num_vertices, vertices);
+        // Demonstrates how texture scaling is only done AFTER creation, things should be in the ratio you plan to see them
+        mat4x4 sc;
+        scal((affine){.5,.5,.5}, &sc);
+        matxvar(&sc, vertices, num_vertices, vertices);
     }
+
     printf("VERTEX COUNT: %d\n",  num_vertices);
     
     // Get center of mass
