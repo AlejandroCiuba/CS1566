@@ -117,6 +117,7 @@ ERROR_NUM load_PLY_text(FILE* fp, vector4** vertices, int* count, vector2** texc
 
     for(int i = 0; i < vertex_num; i++) if(fread(&temp_refs[i], 4, 3, fp) == EOF) return MATLIB_FILE_FORMAT_ERROR;
 
+
     // Load in the vertices
     *count = face_num * 3;
     *vertices = (vector4*) malloc(sizeof(vector4) * (*count));
