@@ -6,7 +6,7 @@ CCFLAGS = -O3 -Wall
 all: file_reader
 
 file_reader: file_reader.c
-	$(CC) file_reader file_reader.c $(CCFLAGS)
+	$(CC) $(CCFLAGS) -c file_reader.c 
 
 clean:
 	rm file_reader.o
