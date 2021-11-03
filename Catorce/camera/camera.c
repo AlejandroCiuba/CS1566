@@ -14,7 +14,7 @@
 ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
 
     if(VRP == NULL || VPN == NULL || VUP == NULL) return MATLIB_POINTER_ERROR;
-    if(VRP->w != 0 || VPN->w != VUP->w) return MATLIB_VECTOR_ERROR;
+    // if(VRP->w != 0 || VPN->w != VUP->w) return MATLIB_VECTOR_ERROR;
 
     // Define the new camera frame axes (n,u,v) -> n is VPN
     vector4 n = zero_vector;
@@ -47,11 +47,11 @@ ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
     // Step 1: Rotation Matrix
     mat4x4 ro = zero_matrix;
     ro = (mat4x4) {{u.x, v.x, n.x, 0}, {u.y, v.y, n.y, 0}, {u.z, v.z, n.z, 0}, {0, 0, 0, 1}};
-
+    
     // Step 2: Translation Matrix
     mat4x4 tra = zero_matrix;
     tra = (mat4x4) {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {-(VRP->x), -(VRP->y), -(VRP->z), 1}};
-
+    
     // Step 3: Combine into M = RT
     matxmat(&ro, &tra, result);
 
