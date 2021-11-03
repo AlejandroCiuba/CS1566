@@ -13,6 +13,8 @@ extern mat4x4 identity, zero_matrix;
 extern vector4 zero_vector;
 
 // ============== VECTOR AND MATRIX MATH FUNCTIONS ==============
+
+// For args, 0 = vector, 1 = matrix4x4
 ERROR_NUM scalar(const void* matrix, const GLfloat alpha, const char args);
 
 // ============== VECTOR MATH FUNCTIONS ==============

@@ -6,10 +6,57 @@
  */
 
 #include "camera.h"
+#include "../matrix_library/matrix_ops.h"
+#include "../matrix_library/matrix_utility.h"
 #include <stdlib.h>
 
 // Returns the matrix needed to generate a model-view function given the camera descriptors
-ERROR_NUM model_view();
+ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
+
+    if(VRP == NULL || VPN == NULL || VUP == NULL) return MATLIB_POINTER_ERROR;
+    if(VRP->w != 0 || VPN->w != VUP->w) return MATLIB_VECTOR_ERROR;
+
+    // Define the new camera frame axes (n,u,v) -> n is VPN
+    vector4 n = zero_vector;
+    copy_vector(VPN, &n);
+
+    // Vector v
+    vector4 v = zero_vector;
+    GLfloat scalar_num = 0.0f;
+    GLfloat scalar_denom = 0.0f;
+
+    vector_dot(VUP, VPN, &scalar_num);
+    vector_dot(VPN, VPN, &scalar_denom);
+
+    vector4 VPN_scalar;
+    copy_vector(VPN, &VPN_scalar);
+
+    scalar(&VPN_scalar, scalar_num / scalar_denom, 0);
+    vector_sub((vector4*[2]) {VUP, &VPN_scalar}, 2, &v);
+
+    // Vector u
+    vector4 u = zero_vector;
+    vector_cross(&v, VPN, &u);
+
+    // Normalize the vectors
+    vector_norm(&n);
+    vector_norm(&v);
+    vector_norm(&u);
+
+    // We need to make a matrix M such that we Rotate all points and then Translate; therefore: M = TR
+    // Step 1: Rotation Matrix
+    mat4x4 ro = zero_matrix;
+    ro = (mat4x4) {{u.x, v.x, n.x, 0}, {u.y, v.y, n.y, 0}, {u.z, v.z, n.z, 0}, {0, 0, 0, 1}};
+
+    // Step 2: Translation Matrix
+    mat4x4 tra = zero_matrix;
+    tra = (mat4x4) {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {-(VRP->x), -(VRP->y), -(VRP->z), 1}};
+
+    // Step 3: Combine into M = RT
+    matxmat(&ro, &tra, result);
+
+    return 0;
+}
 
 // Returns the matrix necessary for an orthographic perspective of a given scene
 // Takes in front-lower-left (left, bottom, near) and back-top-right (right, top, far)
