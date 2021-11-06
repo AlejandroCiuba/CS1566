@@ -29,6 +29,9 @@ list* init_list();
 // Appends node to the end of the linked list
 void append(const void* n);
 
+// Delete the first node with the data
+void delete();
+
 // Gets the first instance of a node with that data
 bool contains(const void* data);
 

@@ -73,4 +73,21 @@ ERROR_NUM orthographic(view* world_view, mat4x4* ortho_matrix) {
                                  -(world_view->near + world_view->far) / (world_view->near - world_view->far), 1};
 
     return 0;
-} 
+}
+
+// Returns the matrix necessary for a frustrum projection of a given scene
+// Takes in front-lower-left (left, bottom, near) and back-top-right (right, top, far)
+// NOTE: near = 1.0 and far = -1.0
+ERROR_NUM perspective(view* world_view, mat4x4* frust_matrix) {
+
+    if(world_view == NULL || frust_matrix == NULL) return MATLIB_POINTER_ERROR;
+
+    frust_matrix->x = (vector4) {-(2 * world_view->near) / (world_view->right - world_view->left), 0, 0, 0};
+    frust_matrix->y = (vector4) {0, -(2 * world_view->near) / (world_view->top - world_view->bottom), 0, 0};
+    frust_matrix->z = (vector4) {(world_view->left + world_view->right) / (world_view->right - world_view->left), 
+                                 (world_view->bottom + world_view->top) / (world_view->top - world_view->bottom), 
+                                 (world_view->near + world_view->far) / (world_view->far - world_view->near), -1};
+    frust_matrix->w = (vector4) {0, 0, -(2 * world_view->near * world_view->far) / (world_view->far - world_view->near)};
+
+    return 0;
+}

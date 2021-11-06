@@ -28,4 +28,9 @@ ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result);
 // NOTE: near = 1.0 and far = -1.0
 ERROR_NUM orthographic(view* world_view, mat4x4* ortho_matrix);
 
+// Returns the matrix necessary for a frustrum projection of a given scene
+// Takes in front-lower-left (left, bottom, near) and back-top-right (right, top, far)
+// NOTE: near = 1.0 and far = -1.0
+ERROR_NUM perspective(view* world_view, mat4x4* frust_matrix);
+
 #endif

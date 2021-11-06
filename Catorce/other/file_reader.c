@@ -293,6 +293,11 @@ ERROR_NUM load_PLY_color(FILE* fp, vector4** vertices, int* count, vector4** col
     return 0;
 }
 
+ERROR_NUM load_OBJ(FILE* fp, vector4** vertices, int* count, vector4** texcoords) {
+
+    if(fp == NULL || vertices == NULL || texcoords == NULL) return MATLIB_POINTER_ERROR;
+}
+
 ERROR_NUM save_raw(FILE* fp, void* texels, int width, int height) {
 
     if(fp == NULL || texels == NULL) return MATLIB_FILE_ERROR;
