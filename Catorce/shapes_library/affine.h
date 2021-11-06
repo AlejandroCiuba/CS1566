@@ -6,8 +6,8 @@
  * @author Alejandro Ciuba
  */
 
-#ifndef MATRIX_SHAPES_H
-#define MATRIX_SHAPES_H
+#ifndef AFFINE_H
+#define AFFINE_H
 
 #include "../matrix_library/matrix_def.h"
 

@@ -5,6 +5,9 @@
  *  @author Alejandro Ciuba
  */
 
+#ifndef CAMERA_H
+#define CAMERA_H
+
 #include "../matrix_library/matrix_def.h"
 
 //Special 6x1 Vector Column to define view-frames
@@ -24,3 +27,5 @@ ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result);
 // Takes in front-lower-left (left, bottom, near) and back-top-right (right, top, far)
 // NOTE: near = 1.0 and far = -1.0
 ERROR_NUM orthographic(view* world_view, mat4x4* ortho_matrix);
+
+#endif
