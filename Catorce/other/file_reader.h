@@ -26,6 +26,7 @@ ERROR_NUM load_PLY_text(FILE* fp, vector4** vertices, int* count, vector2** texc
 
 ERROR_NUM load_PLY_color(FILE* fp, vector4** vertices, int* count, vector4** colors);
 
+// Specific layout... Like all my file loaders lmao
 ERROR_NUM load_OBJ(FILE* fp, vector4** vertices, int* count, vector4** texcoords);
 
 ERROR_NUM save_raw(FILE* fp, void* texels, int width, int height);

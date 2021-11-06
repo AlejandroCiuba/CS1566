@@ -293,9 +293,12 @@ ERROR_NUM load_PLY_color(FILE* fp, vector4** vertices, int* count, vector4** col
     return 0;
 }
 
+// Specific layout... Like all my file loaders lmao
 ERROR_NUM load_OBJ(FILE* fp, vector4** vertices, int* count, vector4** texcoords) {
 
     if(fp == NULL || vertices == NULL || texcoords == NULL) return MATLIB_POINTER_ERROR;
+
+    //First pass is to establish the count
 }
 
 ERROR_NUM save_raw(FILE* fp, void* texels, int width, int height) {
