@@ -5,6 +5,11 @@ CCFLAGS = -O3 -Wall
 
 all: matrix_library shapes_library camera other
 
+.PHONY: matrix_library
+.PHONY: shapes_library
+.PHONY: camera
+.PHONY: other
+
 matrix_library:
 	$(MAKE) -C matrix_library
 
