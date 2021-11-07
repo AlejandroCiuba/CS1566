@@ -40,12 +40,12 @@ int main() {
     print_matrix(mv);*/
 
     // Test array_list
-    arl* my_ar = init_arl(64);
+    arl* my_ar = init_arl(64, sizeof(int));
     printf("\nARRAY LIST INITIALIZED WITH:\n\tCAPACITY: %d\n\tSIZE: %d\n", my_ar->capacity, my_ar->size);
 
-    //Adds values to my_ar up to 58
+    //Appends values to my_ar up to 58
     for(int i = 0; i < 58; i++)
-        my_ar = add(&i, my_ar, sizeof(int));
+        my_ar = append(&i, my_ar);
 
     printf("\nARRAY LIST NOW WITH:\n\tCAPACITY: %d\n\tSIZE: %d\n", my_ar->capacity, my_ar->size);
 
@@ -54,9 +54,9 @@ int main() {
         printf("%d ", *(int*) get_shallow(i, my_ar));
     printf("\n");
 
-    //Adds values to my_ar past initial capacity
+    //Appends values to my_ar past initial capacity
     for(int i = 0; i < 88; i++)
-        my_ar = add(&i, my_ar, sizeof(int));
+        my_ar = append(&i, my_ar);
 
     printf("\nARRAY LIST NOW WITH:\n\tCAPACITY: %d\n\tSIZE: %d\n", my_ar->capacity, my_ar->size);
 
@@ -67,7 +67,7 @@ int main() {
 
     //Replaces values in my_ar
     for(int i = 58; i < my_ar->size; i++)
-        my_ar = replace(&i, i, my_ar, sizeof(int));
+        my_ar = replace(&i, i, my_ar);
 
     printf("\nARRAY LIST NOW WITH:\n\tCAPACITY: %d\n\tSIZE: %d\n", my_ar->capacity, my_ar->size);
 
@@ -75,6 +75,29 @@ int main() {
     for(int i = 0; i < my_ar->size; i++)
         printf("%d ", *(int*) get_shallow(i, my_ar));
     printf("\n");
+
+    //Delete values
+    for(int i = 0; i < 19; i++)
+        my_ar = delete(i, my_ar);
+
+    printf("\nARRAY LIST NOW WITH:\n\tCAPACITY: %d\n\tSIZE: %d\n", my_ar->capacity, my_ar->size);
+
+    //Prints values
+    for(int i = 0; i < my_ar->size; i++)
+        printf("%d ", *(int*) get_shallow(i, my_ar));
+    printf("\n");
+
+    // Shallow vs. Deep Copy Test
+    int* base = (int*)(get_deep(0, my_ar));
+    *base = 25;
+    printf("%d %d\n", *(int*) get_shallow(0, my_ar), *base);
+
+    // REMEMBER TO FREE STUFF GOTTEN WITH get_deep()
+    free(base);
+
+    int* base2 = (int*)(get_shallow(0, my_ar));
+    *base2 = 35;
+    printf("%d %d\n", *(int*) get_shallow(0, my_ar), *base2);
 
     //Free my_ar
     free_arl(my_ar);
