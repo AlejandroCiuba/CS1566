@@ -5,8 +5,11 @@
  */
 
 #include "file_reader.h"
+#include "array_list.h"
 #include <stdlib.h>
 #include <string.h>
+
+#include <stdio.h>
 
 // Assumes that it is w * h * 3
 ERROR_NUM load_raw(FILE* fp, void* texels, int width, int height) {
@@ -294,16 +297,47 @@ ERROR_NUM load_PLY_color(FILE* fp, vector4** vertices, int* count, vector4** col
 }
 
 // Specific layout... Like all my file loaders lmao
-ERROR_NUM load_OBJ(FILE* fp, vector4** vertices, int* count, vector4** texcoords) {
+ERROR_NUM load_OBJ(FILE* fp, vector4** vertices, int* count, vector2** texcoords) {
 
     if(fp == NULL ) return MATLIB_FILE_ERROR;
     
-    // First pass is to establish the count
-    // Rewind to the beginning
+    // Literally made array_list.c for this so...
+    // Rewind
     rewind(fp);
 
-    char vert_header = 'v';
-    vector4 dummy = {0,0,0,0};
+    // ===================== PART I: LOAD REFERENCE VERTEX ARRAY =====================
+    // Make array_list which will be used to store the vertices
+    arl* ref_arr = init_arl(1024, sizeof(vector4));
+    vector4 dummy = {0,0,0,1};
+
+    char header[] = "\0";
+    if(fscanf(fp, "%s", header) == EOF) return MATLIB_FILE_FORMAT_ERROR;
+
+    while(strcmp(header, "v") == 0) {
+        if(fscanf(fp, "%f %f %f", &dummy.x, &dummy.y, &dummy.z) == EOF) return MATLIB_FILE_FORMAT_ERROR;
+        ref_arr = append(&dummy, ref_arr);
+        if(fscanf(fp, "%s", header) == EOF) return MATLIB_FILE_FORMAT_ERROR;
+    }
+
+    // ===================== PART II: LOAD REFERENCE TEXTURE COORDINATES ARRAY =====================
+    // Make array_list which will be used to store the texture coordinates
+    arl* ref_tex = init_arl(1024, sizeof(vector2));
+    vector2 dummy2 = {0,0};
+
+    while(strcmp(header, "vt") == 0) {
+        if(fscanf(fp, "%f %f", &dummy2.x, &dummy2.y) == EOF) return MATLIB_FILE_FORMAT_ERROR;
+        ref_tex = append(&dummy2, ref_tex);
+        if(fscanf(fp, "%s", header) == EOF) return MATLIB_FILE_FORMAT_ERROR;
+    }
+    
+    // ===================== PART III: THE FINALE =====================
+    // Did someone say waste more memory?
+    arl* main_vec = init_arl(1024, sizeof(vector4));
+    arl* main_tex = init_arl(1024, sizeof(vector2));
+
+    
+
+    return 0;
 }
 
 ERROR_NUM save_raw(FILE* fp, void* texels, int width, int height) {

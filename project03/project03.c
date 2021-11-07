@@ -21,6 +21,7 @@
 #include "../Catorce/shapes_library/shapes.h"
 #include "../Catorce/shapes_library/affine.h"
 #include "../Catorce/other/file_reader.h"
+#include "../Catorce/other/array_list.h"
 #include "../Catorce/camera/camera.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
@@ -237,6 +238,11 @@ void idle() {
 
 int main(int argc, char **argv)
 {   
+
+    // Test for .obj file parsing
+    FILE* fp = fopen("city/city.obj", "r");
+    load_OBJ(fp, &vertices, &num_vertices, &texcoords);
+
     sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
 
     // Assign color and print statistics
