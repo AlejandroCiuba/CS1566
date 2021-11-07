@@ -77,7 +77,7 @@ int main() {
     printf("\n");
 
     //Delete values
-    for(int i = 0; i < 19; i++)
+    for(int i = 0; i < 140; i++)
         my_ar = delete(i, my_ar);
 
     printf("\nARRAY LIST NOW WITH:\n\tCAPACITY: %d\n\tSIZE: %d\n", my_ar->capacity, my_ar->size);

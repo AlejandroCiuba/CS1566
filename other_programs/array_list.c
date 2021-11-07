@@ -1,7 +1,7 @@
 /**
  * Array list for general purposes
  * Running this on Valgrind generates
- * NO memory leaks, NO errors
+ * NO memory leaks
  * @author Alejandro Ciuba
  */
 
