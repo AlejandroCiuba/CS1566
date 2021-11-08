@@ -1,0 +1,68 @@
+valgrind --leak-check=full -s ./project03
+==34326== Memcheck, a memory error detector
+==34326== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==34326== Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
+==34326== Command: ./project03
+==34326== 
+VERTEX COUNT: 23220
+
+texture_location: 1
+
+EXIT SUCCESSFUL
+==34326== 
+==34326== HEAP SUMMARY:
+==34326==     in use at exit: 314,355 bytes in 2,902 blocks
+==34326==   total heap usage: 202,533 allocs, 199,631 frees, 33,906,820 bytes allocated
+==34326== 
+==34326== 128 bytes in 1 blocks are possibly lost in loss record 2,154 of 2,199
+==34326==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==34326==    by 0x6A84A04: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x760DC67: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x757D2A4: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x757B096: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x6A798BA: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x713709B: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x6A7C62B: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x7048A69: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x661A24C: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x660B1F0: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x6606E95: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326== 
+==34326== 176 bytes in 1 blocks are possibly lost in loss record 2,162 of 2,199
+==34326==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==34326==    by 0x6A84A04: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x6A84ACD: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x760DCC1: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x757D2A4: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x757B096: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x6A798BA: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x713709B: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x6A7C62B: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x7048A69: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x661A24C: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x660B1F0: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326== 
+==34326== 1,772 (56 direct, 1,716 indirect) bytes in 1 blocks are definitely lost in loss record 2,183 of 2,199
+==34326==    at 0x483B7F3: malloc (in /usr/lib/x86_64-linux-gnu/valgrind/vgpreload_memcheck-amd64-linux.so)
+==34326==    by 0x7048C30: ??? (in /usr/lib/x86_64-linux-gnu/dri/vmwgfx_dri.so)
+==34326==    by 0x662625E: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x6619A5E: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x66044F4: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x6619FC6: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x660A01E: ??? (in /usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0)
+==34326==    by 0x512AEC1: ??? (in /usr/lib/x86_64-linux-gnu/libGLX.so.0.0.0)
+==34326==    by 0x512B466: ??? (in /usr/lib/x86_64-linux-gnu/libGLX.so.0.0.0)
+==34326==    by 0x512CC57: ??? (in /usr/lib/x86_64-linux-gnu/libGLX.so.0.0.0)
+==34326==    by 0x4880839: fgOpenWindow (in /usr/lib/x86_64-linux-gnu/libglut.so.3.9.0)
+==34326==    by 0x487F113: fgCreateWindow (in /usr/lib/x86_64-linux-gnu/libglut.so.3.9.0)
+==34326== 
+==34326== LEAK SUMMARY:
+==34326==    definitely lost: 56 bytes in 1 blocks
+==34326==    indirectly lost: 1,716 bytes in 18 blocks
+==34326==      possibly lost: 304 bytes in 2 blocks
+==34326==    still reachable: 312,279 bytes in 2,881 blocks
+==34326==         suppressed: 0 bytes in 0 blocks
+==34326== Reachable blocks (those to which a pointer was found) are not shown.
+==34326== To see them, rerun with: --leak-check=full --show-leak-kinds=all
+==34326== 
+==34326== ERROR SUMMARY: 3 errors from 3 contexts (suppressed: 0 from 0)
