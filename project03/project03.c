@@ -239,15 +239,26 @@ void idle() {
 int main(int argc, char **argv)
 {   
 
-    // Test for .obj file parsing
+    // ===================== FILE PARSING =====================
+    // .obj file parsing
     FILE* fp = fopen("city/city.obj", "r");
     load_OBJ(fp, &vertices, &num_vertices, &texcoords);
+    fclose(fp);
 
-    sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
-
-    // Assign color and print statistics
-    random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
-
+    // .data file parsing
+    width = 1024;
+    height = 1024;
+    image = fopen("city/city.data", "r");
+    texels = (GLubyte*) malloc(width * height * 3);
+    load_raw(image, texels, width, height);
+    fclose(image);
+    
+    // Perform t = t - 1 for all texcoords (s, t)
+    // Specific to this .obj file so I didn't put it in load_OBJ()
+    for(int i = 0; i < num_vertices; i++)
+        texcoords[i].y = 1 - texcoords[i].y;
+    // ===================== POSITION CITY =====================
+    
     printf("VERTEX COUNT: %d\n",  num_vertices);
     
     // Get center of mass
@@ -258,7 +269,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
-    glutCreateWindow("Project 2");
+    glutCreateWindow("Project 3");
 
     // Assign the functions to their jobs
     glutMouseFunc(mouse);

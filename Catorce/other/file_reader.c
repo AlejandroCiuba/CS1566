@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include <stdio.h>
+#include "../matrix_library/matrix_utility.h"
 
 // Assumes that it is w * h * 3
 ERROR_NUM load_raw(FILE* fp, void* texels, int width, int height) {
@@ -297,6 +298,8 @@ ERROR_NUM load_PLY_color(FILE* fp, vector4** vertices, int* count, vector4** col
 }
 
 // Specific layout... Like all my file loaders lmao
+// Can hold up to 15-sided polygons with vertex points
+// Less than 256 characters long
 ERROR_NUM load_OBJ(FILE* fp, vector4** vertices, int* count, vector2** texcoords) {
 
     if(fp == NULL ) return MATLIB_FILE_ERROR;
@@ -334,9 +337,81 @@ ERROR_NUM load_OBJ(FILE* fp, vector4** vertices, int* count, vector2** texcoords
     // Did someone say waste more memory?
     arl* main_vec = init_arl(1024, sizeof(vector4));
     arl* main_tex = init_arl(1024, sizeof(vector2));
+    char intermediate_step[256];
+    char* token = NULL;
 
+    // File parsing was a mistake
+    int index_array[30];
+    int actual_length = 0;
+
+    // DID SOMEONE SAY BAD CODE???
+    // Read in the first set since that's missing the f at the beginning
+    if(fgets(intermediate_step, 256, fp) == NULL) return MATLIB_FILE_FORMAT_ERROR;
+    token = strtok(intermediate_step, " /");
+
+    while(token != NULL) {
+        index_array[actual_length++] = atoi(token) - 1; //.obj array starts at 1
+        token = strtok(NULL, " /");
+    }
+
+    // THE POWER OF MATH!!!
+    for(int i = 0; i < (actual_length / 2) - 2; i++) {
+        main_vec = append(get_shallow(index_array[0], ref_arr), main_vec);
+        main_tex = append(get_shallow(index_array[1], ref_tex), main_tex);
+
+        main_vec = append(get_shallow(index_array[2 * (i + 1)], ref_arr), main_vec);
+        main_tex = append(get_shallow(index_array[2 * (i + 1) + 1], ref_tex), main_tex);
+
+        main_vec = append(get_shallow(index_array[2 * (i + 2)], ref_arr), main_vec);
+        main_tex = append(get_shallow(index_array[2 * (i + 2) + 1], ref_tex), main_tex);
+    }
     
+    // Main loop
+    while(fgets(intermediate_step, 256, fp) != NULL) {
+        token = NULL;
+        actual_length = 0;
+        token = strtok(intermediate_step, "f /");
 
+        while(token != NULL) {
+            index_array[actual_length++] = atoi(token) - 1; //.obj array starts at 1
+            token = strtok(NULL, "f /");
+        }
+        
+        // THE POWER OF MATH!!!
+        for(int i = 0; i < (actual_length / 2) - 2; i++) {
+            main_vec = append(get_shallow(index_array[0], ref_arr), main_vec);
+            main_tex = append(get_shallow(index_array[1], ref_tex), main_tex);
+
+            main_vec = append(get_shallow(index_array[2 * (i + 1)], ref_arr), main_vec);
+            main_tex = append(get_shallow(index_array[2 * (i + 1) + 1], ref_tex), main_tex);
+
+            main_vec = append(get_shallow(index_array[2 * (i + 2)], ref_arr), main_vec);
+            main_tex = append(get_shallow(index_array[2 * (i + 2) + 1], ref_tex), main_tex);
+        }
+    }
+    
+    // ===================== PART IV: THE EPILOGUE =====================
+    // Free the ref arrays
+    free_arl(ref_arr);
+    free_arl(ref_tex);
+
+    // Get count and malloc vertices and texcoords
+    // They SHOULD be the same size!!!
+    *count = main_vec->size;
+    *vertices = (vector4*) malloc(sizeof(vector4) * (*count));
+    *texcoords = (vector2*) malloc(sizeof(vector2) * (*count));
+    
+    // Copy everything from the main_vec and main_tex into the vertex array and texture coordinate arrays
+    for(int i = 0; i < main_vec->size; i++) {
+        (*vertices)[i] = *((vector4*)get_shallow(i, main_vec));
+        (*texcoords)[i] = *((vector2*)get_shallow(i, main_tex));
+    }
+
+    // Free main_vec and main_tex
+    free_arl(main_vec);
+    free_arl(main_tex);
+    
+    // And with that, the nightmare is over... For now...
     return 0;
 }
 
