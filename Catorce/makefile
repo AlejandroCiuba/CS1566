@@ -1,8 +1,5 @@
 #Catorce Library Makefile
 #Created by Alejandro Ciuba
-CC = gcc
-CCFLAGS = -O3 -Wall
-
 all: matrix_library shapes_library camera other
 
 .PHONY: matrix_library

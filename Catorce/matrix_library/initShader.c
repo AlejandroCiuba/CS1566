@@ -22,7 +22,10 @@ static char* readShaderSource(const char* shaderFile)
 
     fseek(fp, 0L, SEEK_SET);
     char *buf = (char *) malloc(size + 1);
-    fread(buf, 1, size, fp);
+    if(fread(buf, 1, size, fp) == EOF) {
+		printf("\nERROR IN readShaderSource\n");
+		return NULL;
+	};
 
     buf[size] = '\0';
     fclose(fp);

@@ -1,5 +1,5 @@
 CC       = gcc 
-CFLAGS   = -O3 -Wall 
+CFLAGS   = -O3 -Wall -Werror -g
 LIBS      = -lXi -lXmu -lglut -lGLEW -lGLU -lm -lGL
 OBJDIR   = ../Catorce
 OBJS     = $(OBJDIR)/matrix_library/initShader.o $(OBJDIR)/matrix_library/matrix_ops.o $(OBJDIR)/matrix_library/matrix_utility.o $(OBJDIR)/shapes_library/shapes.o $(OBJDIR)/shapes_library/affine.o $(OBJDIR)/other/file_reader.o $(OBJDIR)/other/array_list.o

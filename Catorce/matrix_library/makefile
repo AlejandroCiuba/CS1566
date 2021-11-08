@@ -1,7 +1,7 @@
 #matrix_library Library Makefile
 #Created by Alejandro Ciuba
 CC = gcc
-CCFLAGS = -O3 -Wall
+CCFLAGS = -O3 -Wall -Werror -g
 
 all: initShader matrix_utility matrix_ops
 

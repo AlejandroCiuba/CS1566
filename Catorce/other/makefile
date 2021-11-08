@@ -1,7 +1,7 @@
 #other makefile
 #Created by Alejandro Ciuba
 CC = gcc
-CCFLAGS = -O3 -Wall
+CCFLAGS = -O3 -Wall -Werror -g
 
 all: array_list file_reader
 
