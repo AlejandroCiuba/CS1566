@@ -59,4 +59,10 @@ bool matrix_equal(mat4x4* mat1, mat4x4* mat2);
 // Convert screen coordinates to world coordinates
 ERROR_NUM screen_to_world(vector4* screen, vector4* result, int x_screen, int y_screen, GLfloat z_treatment(GLfloat, GLfloat));
 
+// Returns the vector with the smallest x, y, or z coordinate
+ERROR_NUM smallest(vector4* vertices, int count, char type, vector4* result);
+
+// Returns the vector with the biggest x, y, z, or w coordinate
+ERROR_NUM biggest(vector4* vertices, int count, char type, vector4* result);
+
 #endif

@@ -258,9 +258,32 @@ int main(int argc, char **argv)
     for(int i = 0; i < num_vertices; i++)
         texcoords[i].y = 1 - texcoords[i].y;
     // ===================== POSITION CITY =====================
+    // Get the smallest x, y, and z and translate by them
+    vector4 small, dummy;
+
+    smallest(vertices, num_vertices, 'x', &dummy);
+    small.x = dummy.x;
+
+    smallest(vertices, num_vertices, 'y', &dummy);
+    small.y = dummy.y;
+
+    smallest(vertices, num_vertices, 'z', &dummy);
+    small.z = dummy.z;
+
+    mat4x4 tra, sc, fin;
+    trans((affine){-small.x, -small.y, -small.z}, &tra);
+    scal((affine){100, 100, 100}, &sc);
+    matxmat(&sc, &tra, &fin);
     
+    // Apply to the city
+    matxvar(&fin, vertices, num_vertices, vertices);
+
+    // ===================== CREATE GROUND =====================
+
     printf("VERTEX COUNT: %d\n",  num_vertices);
     
+    print_vector(small);
+
     // Get center of mass
     com(vertices, num_vertices, &center);
 

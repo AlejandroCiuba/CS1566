@@ -190,3 +190,65 @@ ERROR_NUM screen_to_world(vector4* screen, vector4* result, int x_screen, int y_
 
     return 0;
 }
+
+// Returns the vector with the smallest x, y, z, or w coordinate
+ERROR_NUM smallest(vector4* vertices, int count, char type, vector4* result) {
+
+    if(vertices == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+    if(type != 'x' && type != 'y' && type != 'z' && type != 'w') return MATLIB_NAN_ERROR;
+
+    // Inefficient but whatever...
+    *result = vertices[0];
+
+    switch(type) {
+        case 'x':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].x < result->x) *result = vertices[i];
+        break;
+        case 'y':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].y < result->y) *result = vertices[i];
+        break;
+        case 'z':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].z < result->z) *result = vertices[i];
+        break;
+        case 'w':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].w < result->w) *result = vertices[i];
+        break;
+    }
+
+    return 0;
+}
+
+// Returns the vector with the biggest x, y, z, or w coordinate
+ERROR_NUM biggest(vector4* vertices, int count, char type, vector4* result) {
+
+    if(vertices == NULL || result == NULL) return MATLIB_POINTER_ERROR;
+    if(type != 'x' && type != 'y' && type != 'z' && type != 'w') return MATLIB_NAN_ERROR;
+
+    // Inefficient but whatever...
+    *result = vertices[0];
+
+    switch(type) {
+        case 'x':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].x > result->x) *result = vertices[i];
+        break;
+        case 'y':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].y > result->y) *result = vertices[i];
+        break;
+        case 'z':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].z > result->z) *result = vertices[i];
+        break;
+        case 'w':
+            for(int i = 1; i < count; i++) 
+                if(vertices[i].w > result->w) *result = vertices[i];
+        break;
+    }
+
+    return 0;
+}
