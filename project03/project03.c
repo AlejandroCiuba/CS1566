@@ -34,6 +34,10 @@ GLuint program = -1;
 mat4x4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location; // Need for display()
 
+// model_view for camera position
+mat4x4 mvm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+GLuint mvm_location;
+
 // Texels for texture
 GLubyte* texels;
 int width = 0, height = 0;
@@ -98,6 +102,9 @@ void init(void)
     // Locate and use transformation matrix ctm, we need a separate variable for ctm_location so we can change it in display()
     ctm_location = glGetUniformLocation(program, "ctm");
 
+    // Locate and use transformation matrix model_view, we need a separate variable for ctm_location so we can change it in display()
+    mvm_location = glGetUniformLocation(program, "mvm");
+
     // Location of texture, like location of ctm
     glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
@@ -127,7 +134,10 @@ void display(void)
     glPolygonMode(GL_BACK, GL_LINE);
 
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
-    glUniformMatrix4fv(glGetUniformLocation(program, "ctm"), 1, GL_FALSE, (GLfloat *) &ctm);
+    glUniformMatrix4fv(ctm_location, 1, GL_FALSE, (GLfloat *) &ctm);
+
+    // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
+    glUniformMatrix4fv(mvm_location, 1, GL_FALSE, (GLfloat *) &mvm);
 
     glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
@@ -276,13 +286,16 @@ int main(int argc, char **argv)
     matxmat(&sc, &tra, &fin);
     
     // Apply to the city
-    matxvar(&fin, vertices, num_vertices, vertices);
+    matxvar(&tra, vertices, num_vertices, vertices);
 
     // ===================== CREATE GROUND =====================
 
+    // ===================== CHANGE CAMERA LOCATION =====================
+    vector4 VRP = {.75, .75, 1, 1}, VPN = {0, 0, 1, 0}, VUP = {0, 1, 0, 0};
+    model_view(&VRP, &VPN, &VUP, &mvm);
+    print_matrix(mvm);
+
     printf("VERTEX COUNT: %d\n",  num_vertices);
-    
-    print_vector(small);
 
     // Get center of mass
     com(vertices, num_vertices, &center);

@@ -7,10 +7,11 @@ varying vec2 texCoord;
 varying vec4 color;
 
 uniform mat4x4 ctm;
+uniform mat4x4 mvm;
 
 void main()
 {
 	texCoord = vTexCoord;
-	gl_Position = ctm * vPosition;
+	gl_Position = mvm * ctm * vPosition;
 	color = vColor;
 }
