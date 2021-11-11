@@ -38,6 +38,10 @@ GLuint ctm_location; // Need for display()
 mat4x4 mvm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint mvm_location;
 
+// perspective projection for world view
+mat4x4 perm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+GLuint perm_location;
+
 // Texels for texture
 GLubyte* texels;
 int width = 0, height = 0;
@@ -102,8 +106,11 @@ void init(void)
     // Locate and use transformation matrix ctm, we need a separate variable for ctm_location so we can change it in display()
     ctm_location = glGetUniformLocation(program, "ctm");
 
-    // Locate and use transformation matrix model_view, we need a separate variable for ctm_location so we can change it in display()
+    // Locate and use transformation matrix model_view, we need a separate variable for mvm_location so we can change it in display()
     mvm_location = glGetUniformLocation(program, "mvm");
+
+    // Locate and use transformation matrix perspective, we need a separate variable for perm_location so we can change it in display()
+    perm_location = glGetUniformLocation(program, "perm");
 
     // Location of texture, like location of ctm
     glUniform1i(glGetUniformLocation(program, "texture"), 0);
@@ -139,6 +146,9 @@ void display(void)
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
     glUniformMatrix4fv(mvm_location, 1, GL_FALSE, (GLfloat *) &mvm);
 
+    // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
+    glUniformMatrix4fv(perm_location, 1, GL_FALSE, (GLfloat *) &perm);
+
     glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
     glutSwapBuffers();
@@ -156,8 +166,9 @@ void keyboard(unsigned char key, int mousex, int mousey)
     if(key == 'v') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
 }
 
-// Camera origin
-vector4 VRP = {.75, 0, 1, 1}, VPN = {0, 0, 1, 0}, VUP = {0, 1, 0, 0};
+// Camera origin and perspective
+vector4 VRP = {0, 0, 1, 1}, VPN = {0, 0, -1, 0}, VUP = {0, 1, 0, 0};
+view world_view = {-1, 1, 1, -1, 1, -1};
 
 // Animations used for this project
 typedef enum {MAP, EXPLORE} animations;
@@ -214,17 +225,20 @@ int main(int argc, char **argv)
 
     mat4x4 tra, sc, fin;
     trans((affine){-small.x, -small.y, -small.z}, &tra);
-    scal((affine){100, 100, 100}, &sc);
+    scal((affine){1, 1, 1}, &sc);
     matxmat(&sc, &tra, &fin);
     
     // Apply to the city
-    matxvar(&tra, vertices, num_vertices, vertices);
+    matxvar(&fin, vertices, num_vertices, vertices);
 
     // ===================== CREATE GROUND =====================
 
     // ===================== CHANGE CAMERA LOCATION =====================
     model_view(&VRP, &VPN, &VUP, &mvm);
     print_matrix(mvm);
+
+    //perspective(&world_view, &perm);
+    print_matrix(perm);
 
     printf("VERTEX COUNT: %d\n",  num_vertices);
 

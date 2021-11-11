@@ -9,6 +9,7 @@
 #include "../matrix_library/matrix_ops.h"
 #include "../matrix_library/matrix_utility.h"
 #include <stdlib.h>
+#include <math.h>
 
 // Returns the matrix needed to generate a model-view function given the camera descriptors
 ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
@@ -31,7 +32,7 @@ ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
     vector4 VPN_scalar;
     copy_vector(VPN, &VPN_scalar);
 
-    scalar(&VPN_scalar, scalar_num / scalar_denom, 0);
+    scalar(&VPN_scalar, (GLfloat) (scalar_num / scalar_denom), 0);
     vector_sub((vector4*[2]) {VUP, &VPN_scalar}, 2, &v);
 
     // Vector u
@@ -50,7 +51,7 @@ ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
     
     // Step 2: Translation Matrix
     mat4x4 tra = zero_matrix;
-    tra = (mat4x4) {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {-(VRP->x), -(VRP->y), -(VRP->z), 1}};
+    tra = (mat4x4) {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {VRP->x / sqrt(3), -(VRP->y) / sqrt(3), -(VRP->z) / sqrt(3), 1}};
     
     // Step 3: Combine into M = RT
     matxmat(&ro, &tra, result);
