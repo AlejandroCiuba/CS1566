@@ -159,33 +159,70 @@ void reshape(int width, int height)
     glViewport(0, 0, 512, 512);
 }
 
+// Spawn-point
+vector4 eye = {1, 0, 0, 1};
+vector4 look = {1, 0, -2, 1};
+vector4 up = {0, 1, 0, 0};
+
+// Walk distance
+GLfloat walk = .05;
+
+// Right-Left turn degrees
+GLfloat degree_lr = .05;
+
+// Animations used for this project
+typedef enum {MAP, EXPLORE, WALK_FORWARD, WALK_BACKWARD, WALK_RIGHT, WALK_LEFT, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, NONE} animations;
+animations curr_anim = NONE;
+
+
 void keyboard(unsigned char key, int mousex, int mousey)
 {
     if(key == 'q') quit_program();
     	
     if(key == 'v') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
+
+    // ===================== WALK TRIGGERS =====================
+    if(key == 'w') curr_anim = WALK_FORWARD;
+    else if(key == 's') curr_anim = WALK_BACKWARD;
+    else if(key == 'a') curr_anim = WALK_RIGHT;
+    else if(key == 'd') curr_anim = WALK_LEFT;
 }
-
-// Camera origin and perspective
-vector4 VRP = {0, 0, 1, 1}, VPN = {0, 0, -1, 0}, VUP = {0, 1, 0, 0};
-view world_view = {-1, 1, 1, -1, 1, -1};
-
-// Animations used for this project
-typedef enum {MAP, EXPLORE} animations;
-char curr_anim = -1;
 
 // Used for special keys, arrow keys, and F keys
 void special(int key, int x, int y) {
 
-    if(key == GLUT_KEY_UP) VRP.z+=.01;
-    else if(key == GLUT_KEY_DOWN) VRP.z-=.01;
-
-    if(key == GLUT_KEY_RIGHT) VRP.x+=.01;
-    else if(key == GLUT_KEY_LEFT) VRP.x-=.01;
+    if(key == GLUT_KEY_RIGHT) curr_anim = LOOK_RIGHT;
+    else if(key == GLUT_KEY_LEFT) curr_anim = LOOK_LEFT;
 }
 
 void idle() {
-    model_view(&VRP, &VPN, &VUP, &mvm);
+
+    // ===================== ANIMATIONS =====================
+    if(curr_anim == WALK_FORWARD) {
+        eye.z-=walk;
+        look.z-=walk;
+        look_at(&eye, &look, &up, &mvm);
+        curr_anim = NONE;
+    }
+    else if(curr_anim == WALK_BACKWARD) {
+        eye.z+=walk;
+        look.z+=walk;
+        look_at(&eye, &look, &up, &mvm);
+        curr_anim = NONE;
+    }
+    else if(curr_anim == WALK_RIGHT) {
+        eye.x+=walk;
+        look.x+=walk;
+        look_at(&eye, &look, &up, &mvm);
+        curr_anim = NONE;
+    }
+    else if(curr_anim == WALK_LEFT) {
+        eye.x-=walk;
+        look.x-=walk;
+        look_at(&eye, &look, &up, &mvm);
+        curr_anim = NONE;
+    }
+
     glutPostRedisplay();
 }
 
@@ -234,11 +271,13 @@ int main(int argc, char **argv)
     // ===================== CREATE GROUND =====================
 
     // ===================== CHANGE CAMERA LOCATION =====================
-    model_view(&VRP, &VPN, &VUP, &mvm);
-    print_matrix(mvm);
+    look_at(&eye, &look, &up, &mvm);
 
-    //perspective(&world_view, &perm);
-    print_matrix(perm);
+    print_matrix(mvm);
+    printf("\nVRP\n");
+    print_vector(eye);
+    printf("\nLOOK\n");
+    print_vector(look);
 
     printf("VERTEX COUNT: %d\n",  num_vertices);
 

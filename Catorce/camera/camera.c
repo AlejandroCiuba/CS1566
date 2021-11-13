@@ -32,8 +32,8 @@ ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
     vector4 VPN_scalar;
     copy_vector(VPN, &VPN_scalar);
 
-    scalar(&VPN_scalar, (GLfloat) (scalar_num / scalar_denom), 0);
-    vector_sub((vector4*[2]) {VUP, &VPN_scalar}, 2, &v);
+    scalar(&VPN_scalar, (GLfloat) -(scalar_num / scalar_denom), 0);
+    vector_add((vector4*[2]) {VUP, &VPN_scalar}, 2, &v);
 
     // Vector u
     vector4 u = zero_vector;
@@ -51,10 +51,22 @@ ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result) {
     
     // Step 2: Translation Matrix
     mat4x4 tra = zero_matrix;
-    tra = (mat4x4) {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {VRP->x / sqrt(3), -(VRP->y) / sqrt(3), -(VRP->z) / sqrt(3), 1}};
+    tra = (mat4x4) {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {-(VRP->x), -(VRP->y), -(VRP->z), 1}};
     
     // Step 3: Combine into M = RT
     matxmat(&ro, &tra, result);
+
+    return 0;
+}
+
+ERROR_NUM look_at(vector4* eye, vector4* look_vector, vector4* up, mat4x4* result) {
+
+    if(eye == NULL || look_vector == NULL || up == NULL) return MATLIB_POINTER_ERROR;
+
+    vector4 VPN = zero_vector;
+    vector_sub((vector4*[2]) {eye, look_vector}, 2, &VPN);
+
+    model_view(eye, &VPN, up, result);
 
     return 0;
 }

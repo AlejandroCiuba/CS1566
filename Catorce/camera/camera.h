@@ -21,7 +21,9 @@ typedef struct view {
 } view;
 
 // Returns the matrix needed to generate a model-view function given the camera descriptors
-ERROR_NUM model_view(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result);
+ERROR_NUM look_at(vector4* VRP, vector4* VPN, vector4* VUP, mat4x4* result);
+
+ERROR_NUM model_view(vector4* eye, vector4* look_point, vector4* up, mat4x4* result);
 
 // Returns the matrix necessary for an orthographic perspective of a given scene
 // Takes in front-lower-left (left, bottom, near) and back-top-right (right, top, far)

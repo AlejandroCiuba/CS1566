@@ -64,7 +64,7 @@ ERROR_NUM vector_sub(vector4* vectors[], int count, vector4* result) {
     for(int i = 1; i < count; i++) {
 
         if(vectors[i] == NULL) return MATLIB_POINTER_ERROR;
-
+        
         result->x -= vectors[i]->x;
         result->y -= vectors[i]->y;
         result->z -= vectors[i]->z;
