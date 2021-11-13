@@ -159,16 +159,19 @@ void reshape(int width, int height)
     glViewport(0, 0, 512, 512);
 }
 
+// Center-of-Mass
+vector4 co;
+
 // Spawn-point
-vector4 eye = {1, 0, 0, 1};
-vector4 look = {1, 0, -2, 1};
+vector4 eye = {0, 0, 0, 1};
+vector4 look = {0, 0, -1, 1};
 vector4 up = {0, 1, 0, 0};
 
 // Walk distance
 GLfloat walk = .05;
 
 // Right-Left turn degrees
-GLfloat degree_lr = .05;
+GLfloat degree_lr = .5;
 
 // Animations used for this project
 typedef enum {MAP, EXPLORE, WALK_FORWARD, WALK_BACKWARD, WALK_RIGHT, WALK_LEFT, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, NONE} animations;
@@ -184,8 +187,8 @@ void keyboard(unsigned char key, int mousex, int mousey)
     // ===================== WALK TRIGGERS =====================
     if(key == 'w') curr_anim = WALK_FORWARD;
     else if(key == 's') curr_anim = WALK_BACKWARD;
-    else if(key == 'a') curr_anim = WALK_RIGHT;
-    else if(key == 'd') curr_anim = WALK_LEFT;
+    else if(key == 'a') curr_anim = WALK_LEFT;
+    else if(key == 'd') curr_anim = WALK_RIGHT;
 }
 
 // Used for special keys, arrow keys, and F keys
@@ -195,30 +198,65 @@ void special(int key, int x, int y) {
     else if(key == GLUT_KEY_LEFT) curr_anim = LOOK_LEFT;
 }
 
+// rotate world
+mat4x4 ro_wo;
+
 void idle() {
 
     // ===================== ANIMATIONS =====================
     if(curr_anim == WALK_FORWARD) {
-        eye.z-=walk;
+        /*eye.z-=walk;
         look.z-=walk;
+        look_at(&eye, &look, &up, &mvm);*/
+        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+        vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
+        vector_norm(&temp1);
+        scalar(&temp1, walk, 0);
+        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+        copy_vector(&temp2, &eye);
+
+        copy_vector(&look, &temp2);
+        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+        copy_vector(&temp3, &look);
         look_at(&eye, &look, &up, &mvm);
+ 
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_BACKWARD) {
-        eye.z+=walk;
+        /*eye.z+=walk;
         look.z+=walk;
+        look_at(&eye, &look, &up, &mvm);*/
+        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+        vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
+        vector_norm(&temp1);
+        scalar(&temp1, -walk, 0);
+        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+        copy_vector(&temp2, &eye);
+
+        copy_vector(&look, &temp2);
+        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+        copy_vector(&temp3, &look);
         look_at(&eye, &look, &up, &mvm);
+ 
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_RIGHT) {
-        eye.x+=walk;
-        look.x+=walk;
+       
+    }
+    else if(curr_anim == WALK_LEFT) {
+       
+    }
+    else if(curr_anim == LOOK_RIGHT) {
+        rotate_arb(degree_lr, &up, &co, &ro_wo);
+        matxvec(&ro_wo, &eye, &eye);
+        matxvec(&ro_wo, &look, &look);
         look_at(&eye, &look, &up, &mvm);
         curr_anim = NONE;
     }
-    else if(curr_anim == WALK_LEFT) {
-        eye.x-=walk;
-        look.x-=walk;
+    else if(curr_anim == LOOK_LEFT) {
+        rotate_arb(-degree_lr, &up, &co, &ro_wo);
+        matxvec(&ro_wo, &eye, &eye);
+        matxvec(&ro_wo, &look, &look);
         look_at(&eye, &look, &up, &mvm);
         curr_anim = NONE;
     }
@@ -272,9 +310,10 @@ int main(int argc, char **argv)
 
     // ===================== CHANGE CAMERA LOCATION =====================
     look_at(&eye, &look, &up, &mvm);
+    com(vertices, num_vertices, &co);
 
     print_matrix(mvm);
-    printf("\nVRP\n");
+    printf("\nEYE\n");
     print_vector(eye);
     printf("\nLOOK\n");
     print_vector(look);
