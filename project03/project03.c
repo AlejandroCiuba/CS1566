@@ -158,10 +158,6 @@ void reshape(int width, int height)
 {
     glViewport(0, 0, 512, 512);
 }
-
-// Center-of-Mass
-vector4 co;
-
 // Spawn-point
 vector4 eye = {0, 0, 0, 1};
 vector4 look = {0, 0, -1, 1};
@@ -198,34 +194,23 @@ void special(int key, int x, int y) {
     else if(key == GLUT_KEY_LEFT) curr_anim = LOOK_LEFT;
 }
 
-// rotate world
-mat4x4 ro_wo;
-
 void idle() {
 
     // ===================== ANIMATIONS =====================
     if(curr_anim == WALK_FORWARD) {
-        /*eye.z-=walk;
-        look.z-=walk;
-        look_at(&eye, &look, &up, &mvm);*/
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
         vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
         vector_norm(&temp1);
         scalar(&temp1, walk, 0);
         vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
         copy_vector(&temp2, &eye);
-
         copy_vector(&look, &temp2);
         vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
         copy_vector(&temp3, &look);
         look_at(&eye, &look, &up, &mvm);
- 
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_BACKWARD) {
-        /*eye.z+=walk;
-        look.z+=walk;
-        look_at(&eye, &look, &up, &mvm);*/
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
         vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
         vector_norm(&temp1);
@@ -237,26 +222,62 @@ void idle() {
         vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
         copy_vector(&temp3, &look);
         look_at(&eye, &look, &up, &mvm);
- 
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_RIGHT) {
-       
+        // Get the VPN to cross with the up vector
+        vector4 VPN = zero_vector;
+        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+        // Cross
+        vector4 right = zero_vector;
+        vector_cross(&up, &VPN, &right);
+        printf("\nRIGHT CROSS\n");
+        print_vector(right);
+        // Do the op
+        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+        vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
+        vector_norm(&temp1);
+        scalar(&temp1, walk, 0);
+        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+        copy_vector(&temp2, &eye);
+        copy_vector(&look, &temp2);
+        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+        copy_vector(&temp3, &look);
+        look_at(&eye, &look, &up, &mvm);
+        curr_anim = NONE;
     }
     else if(curr_anim == WALK_LEFT) {
-       
+        // Get the VPN to cross with the up vector
+        vector4 VPN = zero_vector;
+        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+        // Cross
+        vector4 right = zero_vector;
+        vector_cross(&VPN, &up, &right);
+        printf("\nLEFT CROSS\n");
+        print_vector(right);
+        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+        vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
+        vector_norm(&temp1);
+        scalar(&temp1, walk, 0);
+        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+        copy_vector(&temp2, &eye);
+        copy_vector(&look, &temp2);
+        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+        copy_vector(&temp3, &look);
+        look_at(&eye, &look, &up, &mvm);
+        curr_anim = NONE;
     }
     else if(curr_anim == LOOK_RIGHT) {
-        rotate_arb(degree_lr, &up, &co, &ro_wo);
-        matxvec(&ro_wo, &eye, &eye);
-        matxvec(&ro_wo, &look, &look);
+        mat4x4 ro = zero_matrix;
+        rotate_arb(degree_lr, &up, &eye, &ro);
+        matxvec(&ro, &look, &look);
         look_at(&eye, &look, &up, &mvm);
         curr_anim = NONE;
     }
     else if(curr_anim == LOOK_LEFT) {
-        rotate_arb(-degree_lr, &up, &co, &ro_wo);
-        matxvec(&ro_wo, &eye, &eye);
-        matxvec(&ro_wo, &look, &look);
+        mat4x4 ro = zero_matrix;
+        rotate_arb(-degree_lr, &up, &eye, &ro);
+        matxvec(&ro, &look, &look);
         look_at(&eye, &look, &up, &mvm);
         curr_anim = NONE;
     }
@@ -310,13 +331,18 @@ int main(int argc, char **argv)
 
     // ===================== CHANGE CAMERA LOCATION =====================
     look_at(&eye, &look, &up, &mvm);
-    com(vertices, num_vertices, &co);
 
     print_matrix(mvm);
     printf("\nEYE\n");
     print_vector(eye);
     printf("\nLOOK\n");
     print_vector(look);
+
+    // ===================== WORLD VIEW =====================
+    /*view world = {0, 20000, 20000, 0, 0, -20000};
+    perspective(&world, &perm);
+    printf("\nPERSPECTIVE MATRIX\n");
+    print_matrix(perm);*/
 
     printf("VERTEX COUNT: %d\n",  num_vertices);
 
