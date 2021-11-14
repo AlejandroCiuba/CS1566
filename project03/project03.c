@@ -180,6 +180,21 @@ void keyboard(unsigned char key, int mousex, int mousey)
     	
     if(key == 'v') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
 
+    if(key == 'c') {
+        printf("\nMODEL-VIEW MATRIX\n");
+        print_matrix(mvm);
+        printf("\nEYE\n");
+        print_vector(eye);
+        printf("\nLOOK\n");
+        print_vector(look);
+        printf("\nUP\n");
+        print_vector(up);
+    }
+    if(key == 'x') {
+        printf("\nPERSPECTIVE MATRIX\n");
+        print_matrix(perm);
+    }
+
     // ===================== WALK TRIGGERS =====================
     if(key == 'w') curr_anim = WALK_FORWARD;
     else if(key == 's') curr_anim = WALK_BACKWARD;
@@ -225,14 +240,20 @@ void idle() {
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_RIGHT) {
-        // Get the VPN to cross with the up vector
+        /*// Get the VPN to cross with the up vector
         vector4 VPN = zero_vector;
         vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
         // Cross
         vector4 right = zero_vector;
         vector_cross(&up, &VPN, &right);
         printf("\nRIGHT CROSS\n");
-        print_vector(right);
+        print_vector(right);*/
+        // Rotate look by 90 degrees
+        vector4 right = look;
+        mat4x4 ro = zero_matrix;
+        rotate_arb(-90, &up, &eye, &ro);
+        matxvec(&ro, &right, &right);
+
         // Do the op
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
         vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
@@ -247,16 +268,21 @@ void idle() {
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_LEFT) {
-        // Get the VPN to cross with the up vector
+        /*// Get the VPN to cross with the up vector
         vector4 VPN = zero_vector;
         vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
         // Cross
-        vector4 right = zero_vector;
-        vector_cross(&VPN, &up, &right);
+        vector4 left = zero_vector;
+        vector_cross(&VPN, &up, &left);
         printf("\nLEFT CROSS\n");
-        print_vector(right);
+        print_vector(left);*/
+        // Rotate look by 90 degrees
+        vector4 left = look;
+        mat4x4 ro = zero_matrix;
+        rotate_arb(90, &up, &eye, &ro);
+        matxvec(&ro, &left, &left);
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
-        vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
+        vector_sub((vector4*[2]) {&left, &eye}, 2, &temp1);
         vector_norm(&temp1);
         scalar(&temp1, walk, 0);
         vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
@@ -332,14 +358,17 @@ int main(int argc, char **argv)
     // ===================== CHANGE CAMERA LOCATION =====================
     look_at(&eye, &look, &up, &mvm);
 
+    printf("\nMODEL-VIEW MATRIX\n");
     print_matrix(mvm);
     printf("\nEYE\n");
     print_vector(eye);
     printf("\nLOOK\n");
     print_vector(look);
+    printf("\nUP\n");
+    print_vector(up);
 
     // ===================== WORLD VIEW =====================
-    /*view world = {0, 20000, 20000, 0, 0, -20000};
+    /*view world = {-1, 1, 1, -1, 1, -200};
     perspective(&world, &perm);
     printf("\nPERSPECTIVE MATRIX\n");
     print_matrix(perm);*/
