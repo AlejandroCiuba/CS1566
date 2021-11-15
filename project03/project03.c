@@ -235,7 +235,6 @@ void idle() {
         scalar(&temp1, -walk, 0);
         vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
         copy_vector(&temp2, &eye);
-
         copy_vector(&look, &temp2);
         vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
         copy_vector(&temp3, &look);
@@ -291,32 +290,46 @@ void idle() {
         curr_anim = NONE;
     }
     else if(curr_anim == LOOK_UP) {
-        if(look.y < .995) {
-            vector4 VPN = zero_vector;
-            vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+        // Calculate the angle between the vector of VPN and up
+        vector4 VPN = zero_vector;
+        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+        vector_norm(&VPN);
+        GLfloat VPN_mag, up_mag, dot, deg;
+        vector_mag(&VPN, &VPN_mag);
+        vector_mag(&up, &up_mag);
+        vector_dot(&VPN, &up, &dot);
+        deg = (acos(dot / (VPN_mag * up_mag))) * 180 / M_PI;
+        if(deg < 175) {
             vector4 axis = zero_vector;
             vector_cross(&VPN, &up, &axis);
-            printf("\nAXIS\n");
-            print_vector(axis);
+            vector_norm(&axis);
             mat4x4 ro = zero_matrix;
-            rotate_arb(degree_lr, &axis, &eye, &ro);
+            rotate_arb(-degree_lr, &axis, &eye, &ro);
             matxvec(&ro, &look, &look);
             look_at(&eye, &look, &up, &mvm);
         }
         curr_anim = NONE;
     }
     else if(curr_anim == LOOK_DOWN) {
-        if(look.y > -.995) {
-            vector4 VPN = zero_vector;
-            vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+        // Calculate the angle between the vector of VPN and up
+        vector4 VPN = zero_vector;
+        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+        vector_norm(&VPN);
+        GLfloat VPN_mag, up_mag, dot, deg;
+        vector_mag(&VPN, &VPN_mag);
+        vector_mag(&up, &up_mag);
+        vector_dot(&VPN, &up, &dot);
+        deg = (acos(dot / (VPN_mag * up_mag))) * 180 / M_PI;
+        if(deg > 5) {
             vector4 axis = zero_vector;
             vector_cross(&VPN, &up, &axis);
+            vector_norm(&axis);
             mat4x4 ro = zero_matrix;
-            rotate_arb(-degree_lr, &axis, &eye, &ro);
+            rotate_arb(degree_lr, &axis, &eye, &ro);
             matxvec(&ro, &look, &look);
             look_at(&eye, &look, &up, &mvm);
-            curr_anim = NONE;
         }
+        curr_anim = NONE;
     }
 
     glutPostRedisplay();
