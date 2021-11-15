@@ -159,15 +159,15 @@ void reshape(int width, int height)
     glViewport(0, 0, 512, 512);
 }
 // Spawn-point
-vector4 eye = {0, 0, 0, 1};
-vector4 look = {0, 0, -1, 1};
+vector4 eye = {-10.3687, 1.5, 64.5486, 1};
+vector4 look = {-9.3687, 1.5, 64.3577, 1};
 vector4 up = {0, 1, 0, 0};
 
 // Walk distance
-GLfloat walk = .05;
+GLfloat walk = .75;
 
 // Right-Left turn degrees
-GLfloat degree_lr = .5;
+GLfloat degree_lr = 2.5;
 
 // Animations used for this project
 typedef enum {MAP, EXPLORE, WALK_FORWARD, WALK_BACKWARD, WALK_RIGHT, WALK_LEFT, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, NONE} animations;
@@ -207,6 +207,9 @@ void special(int key, int x, int y) {
 
     if(key == GLUT_KEY_RIGHT) curr_anim = LOOK_RIGHT;
     else if(key == GLUT_KEY_LEFT) curr_anim = LOOK_LEFT;
+    else if(key == GLUT_KEY_UP) curr_anim = LOOK_UP;
+    else if(key == GLUT_KEY_DOWN) curr_anim = LOOK_DOWN;
+
 }
 
 void idle() {
@@ -240,21 +243,10 @@ void idle() {
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_RIGHT) {
-        /*// Get the VPN to cross with the up vector
-        vector4 VPN = zero_vector;
-        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
-        // Cross
-        vector4 right = zero_vector;
-        vector_cross(&up, &VPN, &right);
-        printf("\nRIGHT CROSS\n");
-        print_vector(right);*/
-        // Rotate look by 90 degrees
         vector4 right = look;
         mat4x4 ro = zero_matrix;
         rotate_arb(-90, &up, &eye, &ro);
         matxvec(&ro, &right, &right);
-
-        // Do the op
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
         vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
         vector_norm(&temp1);
@@ -268,15 +260,6 @@ void idle() {
         curr_anim = NONE;
     }
     else if(curr_anim == WALK_LEFT) {
-        /*// Get the VPN to cross with the up vector
-        vector4 VPN = zero_vector;
-        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
-        // Cross
-        vector4 left = zero_vector;
-        vector_cross(&VPN, &up, &left);
-        printf("\nLEFT CROSS\n");
-        print_vector(left);*/
-        // Rotate look by 90 degrees
         vector4 left = look;
         mat4x4 ro = zero_matrix;
         rotate_arb(90, &up, &eye, &ro);
@@ -295,17 +278,45 @@ void idle() {
     }
     else if(curr_anim == LOOK_RIGHT) {
         mat4x4 ro = zero_matrix;
-        rotate_arb(degree_lr, &up, &eye, &ro);
+        rotate_arb(-degree_lr, &up, &eye, &ro);
         matxvec(&ro, &look, &look);
         look_at(&eye, &look, &up, &mvm);
         curr_anim = NONE;
     }
     else if(curr_anim == LOOK_LEFT) {
         mat4x4 ro = zero_matrix;
-        rotate_arb(-degree_lr, &up, &eye, &ro);
+        rotate_arb(degree_lr, &up, &eye, &ro);
         matxvec(&ro, &look, &look);
         look_at(&eye, &look, &up, &mvm);
         curr_anim = NONE;
+    }
+    else if(curr_anim == LOOK_UP) {
+        if(look.y < .995) {
+            vector4 VPN = zero_vector;
+            vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+            vector4 axis = zero_vector;
+            vector_cross(&VPN, &up, &axis);
+            printf("\nAXIS\n");
+            print_vector(axis);
+            mat4x4 ro = zero_matrix;
+            rotate_arb(degree_lr, &axis, &eye, &ro);
+            matxvec(&ro, &look, &look);
+            look_at(&eye, &look, &up, &mvm);
+        }
+        curr_anim = NONE;
+    }
+    else if(curr_anim == LOOK_DOWN) {
+        if(look.y > -.995) {
+            vector4 VPN = zero_vector;
+            vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+            vector4 axis = zero_vector;
+            vector_cross(&VPN, &up, &axis);
+            mat4x4 ro = zero_matrix;
+            rotate_arb(-degree_lr, &axis, &eye, &ro);
+            matxvec(&ro, &look, &look);
+            look_at(&eye, &look, &up, &mvm);
+            curr_anim = NONE;
+        }
     }
 
     glutPostRedisplay();
@@ -347,7 +358,7 @@ int main(int argc, char **argv)
 
     mat4x4 tra, sc, fin;
     trans((affine){-small.x, -small.y, -small.z}, &tra);
-    scal((affine){1, 1, 1}, &sc);
+    scal((affine){100, 100, 100}, &sc);
     matxmat(&sc, &tra, &fin);
     
     // Apply to the city
@@ -368,10 +379,10 @@ int main(int argc, char **argv)
     print_vector(up);
 
     // ===================== WORLD VIEW =====================
-    /*view world = {-1, 1, 1, -1, 1, -200};
+    view world = {-1, 1, 1, -1, -1, -1000};
     perspective(&world, &perm);
     printf("\nPERSPECTIVE MATRIX\n");
-    print_matrix(perm);*/
+    print_matrix(perm);
 
     printf("VERTEX COUNT: %d\n",  num_vertices);
 
