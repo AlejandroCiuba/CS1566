@@ -52,6 +52,10 @@ vector4* vertices;
 vector4* colors;
 vector2* texcoords;
 
+// vector to store city
+vector4* city;
+vector2* city_tex;
+
 int num_vertices = 3600;
 
 void init(void)
@@ -83,10 +87,10 @@ void init(void)
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices + sizeof(vector2) * num_vertices, NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, colors);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, sizeof(vector2) * num_vertices, texcoords);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * (num_vertices + 9) + sizeof(vector2) * (num_vertices + 9), NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * (num_vertices + 9), vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * (num_vertices + 9), sizeof(vector4) * (num_vertices + 9), colors);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * (num_vertices + 9), sizeof(vector2) * (num_vertices + 9), texcoords);
 
     // Use this for passing the position info into the vertex and fragment shaders
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
@@ -96,12 +100,12 @@ void init(void)
     // Use this for passing the color info into the vertex and fragment shaders
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
-    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
+    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * (num_vertices + 9)) + 0);
 
     // Use this for passing the texture coordinate info into the vertex and fragment shaders
     GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
     glEnableVertexAttribArray(vTexCoord);
-    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * num_vertices + 0));
+    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * (num_vertices + 9)) + 0);
 
     // Locate and use transformation matrix ctm, we need a separate variable for ctm_location so we can change it in display()
     ctm_location = glGetUniformLocation(program, "ctm");
@@ -149,7 +153,7 @@ void display(void)
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
     glUniformMatrix4fv(perm_location, 1, GL_FALSE, (GLfloat *) &perm);
 
-    glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+    glDrawArrays(GL_TRIANGLES, 0, num_vertices + 6);
 
     glutSwapBuffers();
 }
@@ -213,7 +217,6 @@ void special(int key, int x, int y) {
 }
 
 void idle() {
-
     // ===================== ANIMATIONS =====================
     if(curr_anim == WALK_FORWARD) {
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
@@ -246,6 +249,10 @@ void idle() {
         mat4x4 ro = zero_matrix;
         rotate_arb(-90, &up, &eye, &ro);
         matxvec(&ro, &right, &right);
+        /*vector4 VPN = zero_vector;
+        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+        vector4 right = zero_vector;
+        vector_cross(&up, &VPN, &right);*/
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
         vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
         vector_norm(&temp1);
@@ -263,6 +270,10 @@ void idle() {
         mat4x4 ro = zero_matrix;
         rotate_arb(90, &up, &eye, &ro);
         matxvec(&ro, &left, &left);
+        /*vector4 VPN = zero_vector;
+        vector_sub((vector4*[2]) {&look, &eye}, 2, &VPN);
+        vector4 left = zero_vector;
+        vector_cross(&VPN, &up, &left);*/
         vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
         vector_sub((vector4*[2]) {&left, &eye}, 2, &temp1);
         vector_norm(&temp1);
@@ -341,7 +352,7 @@ int main(int argc, char **argv)
     // ===================== FILE PARSING =====================
     // .obj file parsing
     FILE* fp = fopen("city/city.obj", "r");
-    load_OBJ(fp, &vertices, &num_vertices, &texcoords);
+    load_OBJ(fp, &city, &num_vertices, &city_tex);
     fclose(fp);
 
     // .data file parsing
@@ -355,7 +366,19 @@ int main(int argc, char **argv)
     // Perform t = t - 1 for all texcoords (s, t)
     // Specific to this .obj file so I didn't put it in load_OBJ()
     for(int i = 0; i < num_vertices; i++)
-        texcoords[i].y = 1 - texcoords[i].y;
+        city_tex[i].y = 1 - city_tex[i].y;
+    
+    vertices = (vector4*) malloc(sizeof(vector4) * (num_vertices + 9));
+    for(int i = 0; i < num_vertices; i++) copy_vector(city + i, vertices + i);
+
+    texcoords = (vector2*) malloc(sizeof(vector2) * (num_vertices + 9));
+    for(int i = 0; i < num_vertices; i++) {
+        texcoords[i].x = city_tex[i].x;
+        texcoords[i].y = city_tex[i].y;
+    }
+
+    free(city);
+    free(city_tex);
     // ===================== POSITION CITY =====================
     // Get the smallest x, y, and z and translate by them
     vector4 small, dummy;
@@ -378,7 +401,13 @@ int main(int argc, char **argv)
     matxvar(&fin, vertices, num_vertices, vertices);
 
     // ===================== CREATE GROUND =====================
-
+    rectangle(vertices + num_vertices, 1000, 1000, (vector4) {0,0,0,1});
+    colors = (vector4*) malloc(sizeof(vector4) * (num_vertices + 9));
+    const_color(colors + num_vertices, 6, (color) {0,0,0,1});
+    print_vector(colors[num_vertices]);
+    mat4x4 ro = zero_matrix;
+    rotate(-90, 'x', &ro);
+    matxvar(&ro, vertices + num_vertices, 6, vertices + num_vertices);
     // ===================== CHANGE CAMERA LOCATION =====================
     look_at(&eye, &look, &up, &mvm);
 
@@ -392,7 +421,7 @@ int main(int argc, char **argv)
     print_vector(up);
 
     // ===================== WORLD VIEW =====================
-    view world = {-1, 1, 1, -1, -1, -1000};
+    view world = {-1, 1, 1, -1, -1, -10000000};
     perspective(&world, &perm);
     printf("\nPERSPECTIVE MATRIX\n");
     print_matrix(perm);
