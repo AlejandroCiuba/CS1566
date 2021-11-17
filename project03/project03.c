@@ -45,6 +45,9 @@ GLuint perm_location;
 // Change between rendering texture or colors
 bool use_color = false;
 
+// Activate the triange
+bool tri = false;
+
 // Texels for texture
 GLubyte* texels;
 int width = 0, height = 0;
@@ -184,7 +187,7 @@ vector4 look = {-9.3687, 2, 64.3577, 1};
 vector4 up = {0, 1, 0, 0};
 
 // Used to reset look, look at any point without rotations
-vector4 reset_look = {-9.3687, 1.5, 64.3577, 1};
+vector4 reset_look = {-9.3687, 2, 64.3577, 1};
 
 // Walk distance
 GLfloat walk = .75;
@@ -228,13 +231,20 @@ void keyboard(unsigned char key, int mousex, int mousey)
         else if(key == 'd') curr_anim = WALK_RIGHT;
         else if(key == 'r') {printf("\nRESET\n"); curr_anim = RESET;}
     }
-    if(key == 'f') {printf("\nMAP-VIEW MODE\n"); curr_anim = MAP; can_press = false;}
+    if(key == 'f') {
+        // Set look to the last known reset_look;
+        look = reset_look;
+        look_at(&eye, &look, &up, &mvm);
+        curr_anim = NONE;
+        printf("\nMAP-VIEW MODE\n"); curr_anim = MAP; 
+        can_press = false;
+    }
     else if(key == 'g') {printf("\nEXPLORE-VIEW MODE\n"); curr_anim = EXPLORE;}
+    else if(key == 'm') {print_vector(reset_look);}
 }
 
 // Used for special keys, arrow keys, and F keys
 void special(int key, int x, int y) {
-
     if(can_press) {
         if(key == GLUT_KEY_RIGHT) curr_anim = LOOK_RIGHT;
         else if(key == GLUT_KEY_LEFT) curr_anim = LOOK_LEFT;
@@ -388,19 +398,39 @@ void idle() {
             matxvec(&ro, &look, &look);
             look_at(&eye, &look, &up, &mvm);
         }
-        else if(eye.y < 100){
+        else if(eye.y < 100) {
             eye.y += .05;
             look.y += .05;
             look_at(&eye, &look, &up, &mvm);
         }
         else {
-            printf("\nLOCATION IN SKY\n%f %f %f\n", eye.x, eye.y, eye.z);
+            printf("\nLOCATION IN SKY\n%f %f %f %f\n", eye.x, eye.y, eye.z, deg);
             curr_anim = NONE;
         }
     }
     else if(curr_anim == EXPLORE) {
-        can_press = true;
-        curr_anim = NONE;
+        if(eye.y > 2) {
+            eye.y -= .05;
+            look.y -= .05;
+            look_at(&eye, &look, &up, &mvm);
+        }
+        else if(deg < 89.8) {
+            vector4 axis = zero_vector;
+            vector4 temp = zero_vector;
+            vector_sub((vector4*[2]) {&eye, &reset_look}, 2, &temp);
+            vector_norm(&temp);
+            vector_cross(&temp, &up, &axis);
+            vector_norm(&axis);
+            mat4x4 ro = zero_matrix;
+            rotate_arb(-degree_lr / 10, &axis, &eye, &ro);
+            matxvec(&ro, &look, &look);
+            look_at(&eye, &look, &up, &mvm);
+        }
+        else {
+            eye.y = 2;
+            curr_anim = RESET;
+            can_press = true;
+        }
     }
 
     glutPostRedisplay();
@@ -461,6 +491,7 @@ int main(int argc, char **argv)
     matxvar(&fin, vertices, num_vertices, vertices);
 
     // ===================== CREATE GROUND =====================
+    // Set ground, change color, and rotate to be ground
     rectangle(vertices + num_vertices, 1000, 1000, (vector4) {0,0,0,1});
     colors = (vector4*) malloc(sizeof(vector4) * (num_vertices + 9));
     const_color(colors + num_vertices, 6, (color) {0,0,0,1});
