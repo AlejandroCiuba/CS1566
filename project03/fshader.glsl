@@ -5,9 +5,12 @@ varying vec4 color;
 varying float count;
 
 uniform sampler2D texture;
+uniform bool use_color;
 
 void main()
-{			
-	gl_FragColor = color;
-	gl_FragColor = texture2D(texture, texCoord);
+{	
+	if(use_color)
+		gl_FragColor = color;
+	else
+		gl_FragColor = texture2D(texture, texCoord);
 }

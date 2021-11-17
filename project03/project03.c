@@ -42,6 +42,9 @@ GLuint mvm_location;
 mat4x4 perm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint perm_location;
 
+// Change between rendering texture or colors
+bool use_color = false;
+
 // Texels for texture
 GLubyte* texels;
 int width = 0, height = 0;
@@ -119,11 +122,14 @@ void init(void)
     // Location of texture, like location of ctm
     glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
+    // Locate the boolean to change between color and texture
+    glUniform1i(glGetUniformLocation(program, "use_color"), use_color);
+
     printf("\ntexture_location: %i\n", glGetUniformLocation(program, "texture"));
     
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glDepthRange(1,0);
 }
 
@@ -153,7 +159,17 @@ void display(void)
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
     glUniformMatrix4fv(perm_location, 1, GL_FALSE, (GLfloat *) &perm);
 
-    glDrawArrays(GL_TRIANGLES, 0, num_vertices + 6);
+    // Locate the boolean to change between color and texture
+    glUniform1i(glGetUniformLocation(program, "use_color"), use_color = false);
+
+    // Draw city using textures
+    glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+
+    // Locate the boolean to change between color and texture
+    glUniform1i(glGetUniformLocation(program, "use_color"), use_color = true);
+
+    // Redraw the 6 vertices for the square
+    glDrawArrays(GL_TRIANGLES, num_vertices, num_vertices + 6);
 
     glutSwapBuffers();
 }
@@ -163,20 +179,25 @@ void reshape(int width, int height)
     glViewport(0, 0, 512, 512);
 }
 // Spawn-point
-vector4 eye = {-10.3687, 1.5, 64.5486, 1};
-vector4 look = {-9.3687, 1.5, 64.3577, 1};
+vector4 eye = {-10.3687, 2, 64.5486, 1};
+vector4 look = {-9.3687, 2, 64.3577, 1};
 vector4 up = {0, 1, 0, 0};
+
+// Used to reset look, look at any point without rotations
+vector4 reset_look = {-9.3687, 1.5, 64.3577, 1};
 
 // Walk distance
 GLfloat walk = .75;
 
 // Right-Left turn degrees
-GLfloat degree_lr = 2.5;
+GLfloat degree_lr = 2;
 
 // Animations used for this project
-typedef enum {MAP, EXPLORE, WALK_FORWARD, WALK_BACKWARD, WALK_RIGHT, WALK_LEFT, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, NONE} animations;
+typedef enum {MAP, EXPLORE, WALK_FORWARD, WALK_BACKWARD, WALK_RIGHT, WALK_LEFT, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, RESET, NONE} animations;
 animations curr_anim = NONE;
 
+// Allows players to press stuff
+bool can_press = true;
 
 void keyboard(unsigned char key, int mousex, int mousey)
 {
@@ -200,146 +221,185 @@ void keyboard(unsigned char key, int mousex, int mousey)
     }
 
     // ===================== WALK TRIGGERS =====================
-    if(key == 'w') curr_anim = WALK_FORWARD;
-    else if(key == 's') curr_anim = WALK_BACKWARD;
-    else if(key == 'a') curr_anim = WALK_LEFT;
-    else if(key == 'd') curr_anim = WALK_RIGHT;
+    if(can_press) {
+        if(key == 'w') curr_anim = WALK_FORWARD;
+        else if(key == 's') curr_anim = WALK_BACKWARD;
+        else if(key == 'a') curr_anim = WALK_LEFT;
+        else if(key == 'd') curr_anim = WALK_RIGHT;
+        else if(key == 'r') {printf("\nRESET\n"); curr_anim = RESET;}
+    }
+    if(key == 'f') {printf("\nMAP-VIEW MODE\n"); curr_anim = MAP; can_press = false;}
+    else if(key == 'g') {printf("\nEXPLORE-VIEW MODE\n"); curr_anim = EXPLORE;}
 }
 
 // Used for special keys, arrow keys, and F keys
 void special(int key, int x, int y) {
 
-    if(key == GLUT_KEY_RIGHT) curr_anim = LOOK_RIGHT;
-    else if(key == GLUT_KEY_LEFT) curr_anim = LOOK_LEFT;
-    else if(key == GLUT_KEY_UP) curr_anim = LOOK_UP;
-    else if(key == GLUT_KEY_DOWN) curr_anim = LOOK_DOWN;
-
+    if(can_press) {
+        if(key == GLUT_KEY_RIGHT) curr_anim = LOOK_RIGHT;
+        else if(key == GLUT_KEY_LEFT) curr_anim = LOOK_LEFT;
+        else if(key == GLUT_KEY_UP) curr_anim = LOOK_UP;
+        else if(key == GLUT_KEY_DOWN) curr_anim = LOOK_DOWN;
+    }
 }
 
 void idle() {
+    // Calculate the angle between the vector of VPN and up, needed for almost everything
+    vector4 VPN = zero_vector;
+    vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
+    vector_norm(&VPN);
+    GLfloat VPN_mag, up_mag, dot, deg;
+    vector_mag(&VPN, &VPN_mag);
+    vector_mag(&up, &up_mag);
+    vector_dot(&VPN, &up, &dot);
+    deg = (acos(dot / (VPN_mag * up_mag))) * 180 / M_PI;
     // ===================== ANIMATIONS =====================
-    if(curr_anim == WALK_FORWARD) {
-        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
-        vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
-        vector_norm(&temp1);
-        scalar(&temp1, walk, 0);
-        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
-        copy_vector(&temp2, &eye);
-        copy_vector(&look, &temp2);
-        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
-        copy_vector(&temp3, &look);
-        look_at(&eye, &look, &up, &mvm);
-        curr_anim = NONE;
+    if(curr_anim != MAP && curr_anim != EXPLORE) {
+        if(curr_anim == WALK_FORWARD) {
+            if(deg == 90) {
+                vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+                vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
+                vector_norm(&temp1);
+                scalar(&temp1, walk, 0);
+                vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+                copy_vector(&temp2, &eye);
+                copy_vector(&look, &temp2);
+                vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+                copy_vector(&temp3, &look);
+                look_at(&eye, &look, &up, &mvm);
+                reset_look = look;
+            }
+            curr_anim = NONE;
+        }
+        else if(curr_anim == WALK_BACKWARD) {
+            if(deg == 90) {
+                vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+                vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
+                vector_norm(&temp1);
+                scalar(&temp1, -walk, 0);
+                vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+                copy_vector(&temp2, &eye);
+                copy_vector(&look, &temp2);
+                vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+                copy_vector(&temp3, &look);
+                look_at(&eye, &look, &up, &mvm);
+                reset_look = look;
+            }
+            curr_anim = NONE;
+        }
+        else if(curr_anim == WALK_RIGHT) {
+            if(deg == 90) {
+                vector4 right = look;
+                mat4x4 ro = zero_matrix;
+                rotate_arb(-90, &up, &eye, &ro);
+                matxvec(&ro, &right, &right);
+                vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+                vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
+                vector_norm(&temp1);
+                scalar(&temp1, walk, 0);
+                vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+                copy_vector(&temp2, &eye);
+                copy_vector(&look, &temp2);
+                vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+                copy_vector(&temp3, &look);
+                look_at(&eye, &look, &up, &mvm);
+                reset_look = look;
+            }
+            curr_anim = NONE;
+        }
+        else if(curr_anim == WALK_LEFT) {
+            if(deg == 90) {
+                vector4 left = look;
+                mat4x4 ro = zero_matrix;
+                rotate_arb(90, &up, &eye, &ro);
+                matxvec(&ro, &left, &left);
+                vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
+                vector_sub((vector4*[2]) {&left, &eye}, 2, &temp1);
+                vector_norm(&temp1);
+                scalar(&temp1, walk, 0);
+                vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
+                copy_vector(&temp2, &eye);
+                copy_vector(&look, &temp2);
+                vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
+                copy_vector(&temp3, &look);
+                look_at(&eye, &look, &up, &mvm);
+                reset_look = look;
+            }
+            curr_anim = NONE;
+        }
+        else if(curr_anim == LOOK_RIGHT) {
+            mat4x4 ro = zero_matrix;
+            rotate_arb(-degree_lr, &up, &eye, &ro);
+            matxvec(&ro, &look, &look);
+            look_at(&eye, &look, &up, &mvm);
+            if(deg == 90) reset_look = look;
+            curr_anim = NONE;
+        }
+        else if(curr_anim == LOOK_LEFT) {
+            mat4x4 ro = zero_matrix;
+            rotate_arb(degree_lr, &up, &eye, &ro);
+            matxvec(&ro, &look, &look);
+            look_at(&eye, &look, &up, &mvm);
+            if(deg == 90) reset_look = look;
+            curr_anim = NONE;
+        }
+        else if(curr_anim == LOOK_UP) {
+            if(deg < 175) {
+                vector4 axis = zero_vector;
+                vector_cross(&VPN, &up, &axis);
+                vector_norm(&axis);
+                mat4x4 ro = zero_matrix;
+                rotate_arb(-degree_lr, &axis, &eye, &ro);
+                matxvec(&ro, &look, &look);
+                look_at(&eye, &look, &up, &mvm);
+            }
+            curr_anim = NONE;
+        }
+        else if(curr_anim == LOOK_DOWN) {
+            if(deg > 5) {
+                vector4 axis = zero_vector;
+                vector_cross(&VPN, &up, &axis);
+                vector_norm(&axis);
+                mat4x4 ro = zero_matrix;
+                rotate_arb(degree_lr, &axis, &eye, &ro);
+                matxvec(&ro, &look, &look);
+                look_at(&eye, &look, &up, &mvm);
+            }
+            curr_anim = NONE;
+        }
+        else if(curr_anim == RESET) {
+            // Set look to the last known reset_look;
+            look = reset_look;
+            look_at(&eye, &look, &up, &mvm);
+            curr_anim = NONE;
+        }
     }
-    else if(curr_anim == WALK_BACKWARD) {
-        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
-        vector_sub((vector4*[2]) {&look, &eye}, 2, &temp1);
-        vector_norm(&temp1);
-        scalar(&temp1, -walk, 0);
-        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
-        copy_vector(&temp2, &eye);
-        copy_vector(&look, &temp2);
-        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
-        copy_vector(&temp3, &look);
-        look_at(&eye, &look, &up, &mvm);
-        curr_anim = NONE;
-    }
-    else if(curr_anim == WALK_RIGHT) {
-        vector4 right = look;
-        mat4x4 ro = zero_matrix;
-        rotate_arb(-90, &up, &eye, &ro);
-        matxvec(&ro, &right, &right);
-        /*vector4 VPN = zero_vector;
-        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
-        vector4 right = zero_vector;
-        vector_cross(&up, &VPN, &right);*/
-        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
-        vector_sub((vector4*[2]) {&right, &eye}, 2, &temp1);
-        vector_norm(&temp1);
-        scalar(&temp1, walk, 0);
-        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
-        copy_vector(&temp2, &eye);
-        copy_vector(&look, &temp2);
-        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
-        copy_vector(&temp3, &look);
-        look_at(&eye, &look, &up, &mvm);
-        curr_anim = NONE;
-    }
-    else if(curr_anim == WALK_LEFT) {
-        vector4 left = look;
-        mat4x4 ro = zero_matrix;
-        rotate_arb(90, &up, &eye, &ro);
-        matxvec(&ro, &left, &left);
-        /*vector4 VPN = zero_vector;
-        vector_sub((vector4*[2]) {&look, &eye}, 2, &VPN);
-        vector4 left = zero_vector;
-        vector_cross(&VPN, &up, &left);*/
-        vector4 temp1, temp2 = zero_vector, temp3 = zero_vector;
-        vector_sub((vector4*[2]) {&left, &eye}, 2, &temp1);
-        vector_norm(&temp1);
-        scalar(&temp1, walk, 0);
-        vector_add((vector4*[2]) {&temp1, &eye}, 2, &temp2);
-        copy_vector(&temp2, &eye);
-        copy_vector(&look, &temp2);
-        vector_add((vector4*[2]) {&temp1, &temp2}, 2, &temp3);
-        copy_vector(&temp3, &look);
-        look_at(&eye, &look, &up, &mvm);
-        curr_anim = NONE;
-    }
-    else if(curr_anim == LOOK_RIGHT) {
-        mat4x4 ro = zero_matrix;
-        rotate_arb(-degree_lr, &up, &eye, &ro);
-        matxvec(&ro, &look, &look);
-        look_at(&eye, &look, &up, &mvm);
-        curr_anim = NONE;
-    }
-    else if(curr_anim == LOOK_LEFT) {
-        mat4x4 ro = zero_matrix;
-        rotate_arb(degree_lr, &up, &eye, &ro);
-        matxvec(&ro, &look, &look);
-        look_at(&eye, &look, &up, &mvm);
-        curr_anim = NONE;
-    }
-    else if(curr_anim == LOOK_UP) {
-        // Calculate the angle between the vector of VPN and up
-        vector4 VPN = zero_vector;
-        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
-        vector_norm(&VPN);
-        GLfloat VPN_mag, up_mag, dot, deg;
-        vector_mag(&VPN, &VPN_mag);
-        vector_mag(&up, &up_mag);
-        vector_dot(&VPN, &up, &dot);
-        deg = (acos(dot / (VPN_mag * up_mag))) * 180 / M_PI;
-        if(deg < 175) {
+    // ===================== MAP-VIEW AND WALK-VIEW MODES =====================
+    else if(curr_anim == MAP) {
+        if(deg > .5) {
             vector4 axis = zero_vector;
-            vector_cross(&VPN, &up, &axis);
+            vector4 temp = zero_vector;
+            vector_sub((vector4*[2]) {&eye, &reset_look}, 2, &temp);
+            vector_norm(&temp);
+            vector_cross(&temp, &up, &axis);
             vector_norm(&axis);
             mat4x4 ro = zero_matrix;
-            rotate_arb(-degree_lr, &axis, &eye, &ro);
+            rotate_arb(degree_lr / 10, &axis, &eye, &ro);
             matxvec(&ro, &look, &look);
             look_at(&eye, &look, &up, &mvm);
         }
-        curr_anim = NONE;
-    }
-    else if(curr_anim == LOOK_DOWN) {
-        // Calculate the angle between the vector of VPN and up
-        vector4 VPN = zero_vector;
-        vector_sub((vector4*[2]) {&eye, &look}, 2, &VPN);
-        vector_norm(&VPN);
-        GLfloat VPN_mag, up_mag, dot, deg;
-        vector_mag(&VPN, &VPN_mag);
-        vector_mag(&up, &up_mag);
-        vector_dot(&VPN, &up, &dot);
-        deg = (acos(dot / (VPN_mag * up_mag))) * 180 / M_PI;
-        if(deg > 5) {
-            vector4 axis = zero_vector;
-            vector_cross(&VPN, &up, &axis);
-            vector_norm(&axis);
-            mat4x4 ro = zero_matrix;
-            rotate_arb(degree_lr, &axis, &eye, &ro);
-            matxvec(&ro, &look, &look);
+        else if(eye.y < 100){
+            eye.y += .05;
+            look.y += .05;
             look_at(&eye, &look, &up, &mvm);
         }
+        else {
+            printf("\nLOCATION IN SKY\n%f %f %f\n", eye.x, eye.y, eye.z);
+            curr_anim = NONE;
+        }
+    }
+    else if(curr_anim == EXPLORE) {
+        can_press = true;
         curr_anim = NONE;
     }
 
