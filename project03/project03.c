@@ -47,6 +47,7 @@ bool use_color = false;
 
 // Activate the triange
 bool tri = false;
+bool isTriangle = false;
 
 // Texels for texture
 GLubyte* texels;
@@ -128,7 +129,7 @@ void init(void)
     // Locate the boolean to change between color and texture
     glUniform1i(glGetUniformLocation(program, "use_color"), use_color);
 
-    glUniform1i(glGetUniformLocation(program, "isTriange"), tri);
+    glUniform1i(glGetUniformLocation(program, "isTriange"), isTriangle);
 
     printf("\ntexture_location: %i\n", glGetUniformLocation(program, "texture"));
     
@@ -177,8 +178,11 @@ void display(void)
     glDrawArrays(GL_TRIANGLES, num_vertices, num_vertices + 6);
 
     // Redraw for triangle
-    if(tri)
+    if(tri) {
+        glUniform1i(glGetUniformLocation(program, "isTriangle"), isTriangle = true);
         glDrawArrays(GL_TRIANGLES, num_vertices + 6, num_vertices + 9);
+        glUniform1i(glGetUniformLocation(program, "isTriangle"), isTriangle = false);
+    }
 
     glutSwapBuffers();
 }
@@ -400,7 +404,7 @@ void idle() {
             vector_cross(&temp, &up, &axis);
             vector_norm(&axis);
             mat4x4 ro = zero_matrix;
-            rotate_arb(degree_lr / 10, &axis, &eye, &ro);
+            rotate_arb(degree_lr / 5, &axis, &eye, &ro);
             matxvec(&ro, &look, &look);
             look_at(&eye, &look, &up, &mvm);
         }
@@ -408,11 +412,11 @@ void idle() {
             eye.y += .05;
             look.y += .05;
             look_at(&eye, &look, &up, &mvm);
+            tri = true;
         }
         else {
             printf("\nLOCATION IN SKY\n%f %f %f %f\n", eye.x, eye.y, eye.z, deg);
             curr_anim = NONE;
-            tri = true;
         }
     }
     else if(curr_anim == EXPLORE) {
@@ -422,6 +426,7 @@ void idle() {
             look_at(&eye, &look, &up, &mvm);
         }
         else if(deg < 89.8) {
+            tri = false;
             vector4 axis = zero_vector;
             vector4 temp = zero_vector;
             vector_sub((vector4*[2]) {&eye, &reset_look}, 2, &temp);
@@ -437,7 +442,6 @@ void idle() {
             eye.y = 2;
             curr_anim = RESET;
             can_press = true;
-            tri = false;
         }
     }
 
@@ -509,9 +513,9 @@ int main(int argc, char **argv)
     matxvar(&ro, vertices + num_vertices, 6, vertices + num_vertices);
 
     // Place triangle
-    vertices[num_vertices + 6] = (vector4) {0, .5, 0, 1};
-    vertices[num_vertices + 7] = (vector4) {-.5, 0, 0, 1};
-    vertices[num_vertices + 8] = (vector4) {.5, 0, 0, 1};
+    vertices[num_vertices + 6] = (vector4) {0, .05, 0, 1};
+    vertices[num_vertices + 7] = (vector4) {-.025, 0, 0, 1};
+    vertices[num_vertices + 8] = (vector4) {.025, 0, 0, 1};
     const_color(colors + (num_vertices + 6), 3, BLUE);
     // ===================== CHANGE CAMERA LOCATION =====================
     look_at(&eye, &look, &up, &mvm);
