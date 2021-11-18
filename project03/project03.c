@@ -504,9 +504,9 @@ int main(int argc, char **argv)
 
     // ===================== CREATE GROUND =====================
     // Set ground, change color, and rotate to be ground
-    rectangle(vertices + num_vertices, 1000, 1000, (vector4) {0,0,0,1});
+    rectangle(vertices + num_vertices, 100000, 100000, (vector4) {0,0,0,1});
     colors = (vector4*) malloc(sizeof(vector4) * (num_vertices + 9));
-    const_color(colors + num_vertices, 6, (color) {0,0,0,1});
+    const_color(colors + num_vertices, 6, GREEN);
     print_vector(colors[num_vertices]);
     mat4x4 ro = zero_matrix;
     rotate(-90, 'x', &ro);
@@ -516,7 +516,7 @@ int main(int argc, char **argv)
     vertices[num_vertices + 6] = (vector4) {0, .05, 0, 1};
     vertices[num_vertices + 7] = (vector4) {-.025, 0, 0, 1};
     vertices[num_vertices + 8] = (vector4) {.025, 0, 0, 1};
-    const_color(colors + (num_vertices + 6), 3, BLUE);
+    const_color(colors + (num_vertices + 6), 3, RED);
     // ===================== CHANGE CAMERA LOCATION =====================
     look_at(&eye, &look, &up, &mvm);
 
