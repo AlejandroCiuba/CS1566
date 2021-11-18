@@ -128,6 +128,8 @@ void init(void)
     // Locate the boolean to change between color and texture
     glUniform1i(glGetUniformLocation(program, "use_color"), use_color);
 
+    glUniform1i(glGetUniformLocation(program, "isTriange"), tri);
+
     printf("\ntexture_location: %i\n", glGetUniformLocation(program, "texture"));
     
     glEnable(GL_CULL_FACE);
@@ -173,6 +175,10 @@ void display(void)
 
     // Redraw the 6 vertices for the square
     glDrawArrays(GL_TRIANGLES, num_vertices, num_vertices + 6);
+
+    // Redraw for triangle
+    if(tri)
+        glDrawArrays(GL_TRIANGLES, num_vertices + 6, num_vertices + 9);
 
     glutSwapBuffers();
 }
@@ -406,6 +412,7 @@ void idle() {
         else {
             printf("\nLOCATION IN SKY\n%f %f %f %f\n", eye.x, eye.y, eye.z, deg);
             curr_anim = NONE;
+            tri = true;
         }
     }
     else if(curr_anim == EXPLORE) {
@@ -430,6 +437,7 @@ void idle() {
             eye.y = 2;
             curr_anim = RESET;
             can_press = true;
+            tri = false;
         }
     }
 
@@ -499,6 +507,12 @@ int main(int argc, char **argv)
     mat4x4 ro = zero_matrix;
     rotate(-90, 'x', &ro);
     matxvar(&ro, vertices + num_vertices, 6, vertices + num_vertices);
+
+    // Place triangle
+    vertices[num_vertices + 6] = (vector4) {0, .5, 0, 1};
+    vertices[num_vertices + 7] = (vector4) {-.5, 0, 0, 1};
+    vertices[num_vertices + 8] = (vector4) {.5, 0, 0, 1};
+    const_color(colors + (num_vertices + 6), 3, BLUE);
     // ===================== CHANGE CAMERA LOCATION =====================
     look_at(&eye, &look, &up, &mvm);
 

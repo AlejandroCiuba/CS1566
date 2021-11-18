@@ -10,9 +10,14 @@ uniform mat4x4 ctm;
 uniform mat4x4 mvm;
 uniform mat4x4 perm;
 
+uniform bool isTriangle;
+
 void main()
 {
 	texCoord = vTexCoord;
-	gl_Position = perm * mvm * ctm * vPosition;
+	if(isTriangle)
+		gl_Position = vPosition;
+	else
+		gl_Position = perm * mvm * ctm * vPosition;
 	color = vColor;
 }
