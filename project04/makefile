@@ -7,17 +7,17 @@ $(OBJDIR)/shapes_library/shapes.o $(OBJDIR)/shapes_library/affine.o\
 $(OBJDIR)/other/file_reader.o $(OBJDIR)/other/array_list.o\
 $(OBJDIR)/camera/camera.o
 
-all: matrix project02
+all: matrix project04
 
-.PHONY: project02
-project02: project02.c $(OBJS)
-	$(CC) -o project02 project02.c $(OBJS) $(CFLAGS) $(LIBS)
+.PHONY: project04
+project04: project04.c $(OBJS)
+	$(CC) -o project04 project04.c $(OBJS) $(CFLAGS) $(LIBS)
 
 matrix:
 	$(MAKE) -C $(OBJDIR)
 
 clean:
-	rm -f project02 *~ 
+	rm -f project04 *~ 
 
 clean_all: clean
 	$(MAKE) clean -C $(OBJDIR) 
