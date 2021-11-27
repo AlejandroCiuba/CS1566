@@ -21,6 +21,7 @@
 #include "../Catorce/shapes_library/shapes.h"
 #include "../Catorce/shapes_library/affine.h"
 #include "../Catorce/other/file_reader.h"
+#include "../Catorce/camera/camera.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
@@ -31,6 +32,10 @@ GLuint program = -1;
 // ctm for manipulating shapes
 mat4x4 ctm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint ctm_location; // Need for display()
+
+// projection for perspective
+mat4x4 perm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+GLuint perm_location;
 
 // Texels for texture
 GLubyte* texels;
@@ -99,6 +104,9 @@ void init(void)
     // Locate and use transformation matrix ctm, we need a separate variable for ctm_location so we can change it in display()
     ctm_location = glGetUniformLocation(program, "ctm");
 
+    // Locate and use transformation matrix per, we need a separate variable for perm_location so we can change it in display()
+    perm_location = glGetUniformLocation(program, "projection");
+
     // Location of texture, like location of ctm
     glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
@@ -132,6 +140,9 @@ void display(void)
 
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
     glUniformMatrix4fv(glGetUniformLocation(program, "ctm"), 1, GL_FALSE, (GLfloat *) &ctm);
+
+    // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
+    glUniformMatrix4fv(perm_location, 1, GL_FALSE, (GLfloat *) &perm);
 
     glDrawArrays(GL_TRIANGLES, 0, num_vertices);
 
@@ -272,9 +283,17 @@ int main(int argc, char **argv)
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
     // Demonstrates how texture scaling is only done AFTER creation, things should be in the ratio you plan to see them
-    mat4x4 sc;
+    mat4x4 sc, tra, fin;
     scal((affine){.5,.5,.5}, &sc);
-    matxvar(&sc, vertices, num_vertices, vertices);
+    trans((affine){0,0,-1.75}, &tra);
+    mat_mult((mat4x4[2]){tra, sc}, 2, &fin);
+    matxvar(&fin, vertices, num_vertices, vertices);
+
+    // ===================== WORLD VIEW =====================
+    view world = {-1, 1, 1, -1, -1, -10};
+    perspective(&world, &perm);
+    printf("\nPERSPECTIVE MATRIX\n");
+    print_matrix(perm);
 
     printf("VERTEX COUNT: %d\n",  num_vertices);
     
@@ -286,7 +305,7 @@ int main(int argc, char **argv)
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(512, 512);
     glutInitWindowPosition(100,100);
-    glutCreateWindow("Project 2");
+    glutCreateWindow("Project 4");
 
     // Assign the functions to their jobs
     glutMouseFunc(mouse);
