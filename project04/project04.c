@@ -38,14 +38,14 @@ int width = 0, height = 0;
 FILE* image = NULL;
 
 // Option to use texture or color, set to 1 by default (ASSUMES TEXTURE)
-int use_texture = 1;
+int use_texture = 0;
 
 // ===================== VERTEX ATTRIBUTES =====================
 vector4* vertices;
 vector4* colors;
 vector2* texcoords;
 
-int num_vertices = 3600;
+int num_vertices = 972;
 
 void init(void)
 {
@@ -109,7 +109,7 @@ void init(void)
     
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glDepthRange(1,0);
 }
 
@@ -249,7 +249,10 @@ int menu() {
 
 int main(int argc, char **argv)
 {   
-    sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
+    //sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
+    //rect3D(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), .5, .5, .5);
+
+    rubix_cube(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
     
     // Load texels
     width = 320;
@@ -262,8 +265,8 @@ int main(int argc, char **argv)
     fclose(image);
 
     // We only want the top fourth of the texture, change texture scale on x and y to 4, then apply texture
-    texture_scale(4, -4);
-    texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
+    // texture_scale(4, -4);
+    // texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
 
     // Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);

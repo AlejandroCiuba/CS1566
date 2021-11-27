@@ -498,3 +498,90 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat
 
     return 0;
 }
+
+ERROR_NUM rect3D(vector4* vertices, GLfloat length, GLfloat width, GLfloat height) {
+
+    if(vertices == NULL) return MATLIB_POINTER_ERROR;
+
+    // I just programmed it manually
+    // Face 1
+    vertices[0] = (vector4) {width / 2.0, -height / 2.0, length / 2.0, 1.0};
+    vertices[1] = (vector4) {width / 2.0, height / 2.0, length / 2.0, 1.0};
+    vertices[2] = (vector4) {-width / 2.0, -height / 2.0, length / 2.0, 1.0};
+    vertices[3] = vertices[2];
+    vertices[4] = vertices[1];
+    vertices[5] = (vector4) {-width / 2.0, height / 2.0, length / 2.0, 1.0};
+
+    // Face 2
+    vertices[6] = (vector4) {width / 2.0, -height / 2.0, -length / 2.0, 1.0};
+    vertices[7] = (vector4) {-width / 2.0, -height / 2.0, -length / 2.0, 1.0};
+    vertices[8] = (vector4) {width / 2.0, height / 2.0, -length / 2.0, 1.0};
+    vertices[9] = vertices[8];
+    vertices[10] = vertices[7];
+    vertices[11] = (vector4) {-width / 2.0, height / 2.0, -length / 2.0, 1.0};
+
+    // Face 3
+    vertices[12] = vertices[8];
+    vertices[13] = vertices[1];
+    vertices[14] = vertices[6];
+    vertices[15] = vertices[6];
+    vertices[16] = vertices[1];
+    vertices[17] = vertices[0];
+
+    // Face 4
+    vertices[18] = vertices[5];
+    vertices[19] = vertices[11];
+    vertices[20] = vertices[7];
+    vertices[21] = vertices[7];
+    vertices[22] = vertices[2];
+    vertices[23] = vertices[5];
+
+    // Face 5
+    vertices[24] = vertices[1];
+    vertices[25] = vertices[11];
+    vertices[26] = vertices[5];
+    vertices[27] = vertices[8];
+    vertices[28] = vertices[11];
+    vertices[29] = vertices[1];
+
+    // Face 6
+    vertices[30] = vertices[0];
+    vertices[31] = vertices[2];
+    vertices[32] = vertices[7];
+    vertices[33] = vertices[0];
+    vertices[34] = vertices[7];
+    vertices[35] = vertices[6];
+
+    return 0;
+}
+
+// 27 Cubes, 6 Verts per cube face, 6 cube faces
+ERROR_NUM rubix_cube(vector4* vertices) {
+
+    if(vertices == NULL) return MATLIB_POINTER_ERROR;
+
+    // Make the cubes
+    for(int i = 0; i < 27; i++) 
+        rect3D(vertices + (i * 36), .5, .5, .5);
+
+    // Transpose Everything
+    mat4x4 tra = zero_matrix;
+    int i = 0;
+    for(float x = 0; x < 1.5; x+=.5) {
+        for(float y = 0; y < 1.5; y +=.5) {
+            for(float z = 0; z < 1.5; z +=.5) {
+                trans((affine){x, y, z}, &tra);
+                matxvar(&tra, vertices + (i * 36), 36, vertices + (i * 36));
+                i++;
+            }
+        }
+    }
+    
+    // Move it all back to the center
+    vector4 co = zero_vector;
+    com(vertices, 972, &co);
+    trans((affine){-co.x, -co.y, -co.z}, &tra);
+    matxvar(&tra, vertices, 972, vertices);
+
+    return 0;
+}
