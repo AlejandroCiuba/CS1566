@@ -37,6 +37,10 @@ GLuint ctm_location; // Need for display()
 mat4x4 perm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint perm_location;
 
+// projection for perspective
+mat4x4 mvm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
+GLuint mvm_location;
+
 // Texels for texture
 GLubyte* texels;
 int width = 0, height = 0;
@@ -52,8 +56,8 @@ vector2* texcoords;
 
 int num_vertices = 972;
 
-void init(void)
-{
+void init(void) {
+
     // Load the vertex and fragment shaders
     program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
@@ -107,6 +111,9 @@ void init(void)
     // Locate and use transformation matrix per, we need a separate variable for perm_location so we can change it in display()
     perm_location = glGetUniformLocation(program, "projection");
 
+    // Locate and use transformation matrix per, we need a separate variable for perm_location so we can change it in display()
+    mvm_location = glGetUniformLocation(program, "model_view");
+
     // Location of texture, like location of ctm
     glUniform1i(glGetUniformLocation(program, "texture"), 0);
 
@@ -131,15 +138,18 @@ void quit_program() {
         printf("\nEXIT SUCCESSFUL\n");
 }
 
-void display(void)
-{
+void display(void) {
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPolygonMode(GL_FRONT, GL_FILL);
     glPolygonMode(GL_BACK, GL_LINE);
 
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
-    glUniformMatrix4fv(glGetUniformLocation(program, "ctm"), 1, GL_FALSE, (GLfloat *) &ctm);
+    glUniformMatrix4fv(ctm_location, 1, GL_FALSE, (GLfloat *) &ctm);
+
+    // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
+    glUniformMatrix4fv(mvm_location, 1, GL_FALSE, (GLfloat *) &mvm);
 
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
     glUniformMatrix4fv(perm_location, 1, GL_FALSE, (GLfloat *) &perm);
@@ -149,120 +159,117 @@ void display(void)
     glutSwapBuffers();
 }
 
-void reshape(int width, int height)
-{
-    glViewport(0, 0, 512, 512);
-}
+void reshape(int width, int height) {glViewport(0, 0, 512, 512);}
 
-// ===================== ROTATION =====================
-// Calculate z-Axis point and degree
-GLfloat z_treatment(GLfloat x, GLfloat y) {return sqrt(1 - pow(x, 2) - pow(y, 2));}
-GLfloat rad_to_degrees(GLfloat rad) {return rad * 180 / M_PI;}
-
-// World points used to determine the axis of rotation via cross product
-vector4 world_points_1 = {0,0,0,1}, world_points_2 = {0,0,FP_NAN,1}; // Yes...
-vector4 center = {0,0,0,1};
-mat4x4 final_rot = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
-
-// ====================================================
-// Keep the previous ctm to not reset between every call
-mat4x4 ctm_base = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
-
-// Handles zoom in and zoom out
-// Global Variables associated with scale
-affine s = {1,1,1};
-mat4x4 final_scal = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
-
-void mouse(int button, int state, int x, int y) {
-
-    // ===================== SCROLLING SIZE =====================
-    mat4x4 sc = identity;
-
-    if(button == 3) s = (affine) {s.x + .02, s.y + .02, s.z + .02};
-    else if(button == 4) s = (affine) {s.x - .02, s.y - .02, s.z - .02};
-    else s = (affine) {1,1,1};
-
-    // Resize management
-    scal(s, &sc);
-    copy_matrix(&sc, &final_scal);
-
-    // ===================== TURNING OBJECT =====================
-    // Captures the beginning of the rotation (The first in the cross product)
-    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        screen_to_world(&(vector4){x, y, 0, 1}, &world_points_1, 512, 512, z_treatment);
-        if(!isnan(world_points_1.z)) copy_matrix(&ctm, &ctm_base); // Keep the current ctm to modify
-    }
-    else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-        final_rot = identity;
-        copy_matrix(&ctm, &ctm_base); // Keep the current ctm and stay there
-    }
-}
+void mouse(int button, int state, int x, int y) {}
 
 // Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
-void motion(int x, int y) {
+void motion(int x, int y) {}
 
-    vector4 screen_points = {x, y, 0, 1};
-    vector4 cross = {0,0,0,1};
-    GLfloat rad = 0.0f;
+// ===================== CAMERA COORDINATES =====================
+// Spawn-point and Reset Points
+vector4 eye = {0, 0, 0, 1};
+vector4 look = {0, 0, -1, 1};
+vector4 up = {0, 1, 0, 0};
+GLfloat radius = 1; // Used for zooming in and out
+int turns = 0; // Used to describe the # of turns from the original position
 
-    // Gets the second point in the cross product (constantly changes)
-    screen_to_world(&screen_points, &world_points_2, 512, 512, z_treatment);
-        
-    // If inside sphere of rotation calculate the cross product vector and normalize it
-    // Also obtain the amount of rotation and rotate around said axis said degrees
-    if(!(isnan(world_points_1.z) || isnan(world_points_2.z))) {
+vector4 reye = {0, 0, 0, 1};
+vector4 rlook = {0, 0, -1, 1};
+vector4 rup = {0, 1, 0, 0};
+GLfloat rradius = 1; // Used for zooming in and out
+int rturns = 0; // Used to describe the # of turns from the original position
 
-        world_points_1.w = 0.0f;
-        world_points_2.w = 0.0f;
-        vector_norm(&world_points_1);
-        vector_norm(&world_points_2);
+// Animations
+typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT, RESET, ANIM_NUM} animation;
+animation anim = BASE;
 
-        vector_cross(&world_points_1, &world_points_2, &cross);
-        vector_norm(&cross);
-        vector_dot(&world_points_1, &world_points_2, &rad);
-
-        rotate_arb(rad_to_degrees(acos(rad)), &cross, &center, &final_rot);
-    } else {final_rot = identity; copy_matrix(&ctm, &ctm_base);} // Don't do anything else otherwise
-}
-
-void keyboard(unsigned char key, int mousex, int mousey)
-{
+void keyboard(unsigned char key, int mousex, int mousey) {
     if(key == 'q') quit_program();
     	
-    if(key == 'd') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
-
-    if(key == 'r') {final_rot = identity; final_scal = identity; ctm_base = identity;}
+    if(key == 'v') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
 
     if(key == 't' && use_texture != -1) {glUniform1i(glGetUniformLocation(program, "use_texture"), use_texture = !use_texture); glutPostRedisplay();}// CURSED, but idc cuz it keeps it small
 
-    // ===================== CHANGING SIZE VIA KEYBOARD =====================
-    mat4x4 sc = identity;
+    // ===================== CAMERA MOVEMENT =====================
+    if(key == 'w') anim = LOOK_UP;
+    else if(key == 's') anim = LOOK_DOWN;
+    else if(key == 'a') anim = LOOK_LEFT;
+    else if(key == 'd') anim = LOOK_RIGHT;
 
-    // Optional keyboard input
-    if(key == '+') s = (affine) {s.x + .02, s.y + .02, s.z + .02};
-    else if(key == '-') s = (affine) {s.x - .02, s.y - .02, s.z - .02};
+    if(key == '+') anim = ZOOM_IN;
+    else if(key == '-') anim = ZOOM_OUT;
 
-    // Resize management
-    scal(s, &sc);
-    copy_matrix(&sc, &final_scal);
+    if(key == 'r') anim = RESET;
 }
 
 void idle() {
-    // Take the values gotten from the rotation and scaling and apply it via the ctm
-    mat_mult((mat4x4[3]){final_rot, final_scal, ctm_base}, 3, &ctm);
+
+    GLfloat degree = 1;
+    // ===================== ANIMATIONS =====================
+    if(anim == LOOK_UP) {
+        GLfloat y = radius * cos((degree * --turns - 270) * M_PI / 180);
+        GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
+        eye = (vector4) {eye.x, y, z, 1.0};
+        look_at(&eye, &look, &up, &mvm);
+        anim = BASE;
+    }
+    else if(anim == LOOK_DOWN) {
+        GLfloat y = radius * cos((degree * ++turns - 270) * M_PI / 180);
+        GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
+        eye = (vector4) {eye.x, y, z, 1.0};
+        look_at(&eye, &look, &up, &mvm);
+        anim = BASE;
+    }
+    else if(anim == LOOK_RIGHT) {
+        // Calculate the relative_radius
+        GLfloat relative_radius = sqrt(pow(eye.x - look.x, 2) + pow(eye.z - look.z, 2));
+        if(relative_radius < 1.75)
+            printf("\n%f %f %f\n", relative_radius, eye.x, eye.z);
+        GLfloat x = relative_radius * cos((degree * --turns + 90) * M_PI / 180);
+        GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
+        eye = (vector4) {x, eye.y, z, 1.0};
+        look_at(&eye, &look, &up, &mvm);
+        anim = BASE;
+    }
+    else if(anim == LOOK_LEFT) {
+        // Calculate the relative_radius
+        GLfloat relative_radius = sqrt(pow(eye.x - look.x, 2) + pow(eye.z - look.z, 2));
+        if(relative_radius < 1.75)
+            printf("\n%f %f %f\n", relative_radius, eye.x, eye.z);
+        GLfloat x = relative_radius * cos((degree * ++turns + 90) * M_PI / 180);
+        GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
+        eye = (vector4) {x, eye.y, z, 1.0};
+        look_at(&eye, &look, &up, &mvm);
+        anim = BASE;
+    }
+    else if(anim == ZOOM_IN) {
+       anim = BASE;
+    }
+    else if(anim == ZOOM_OUT) {anim = BASE;}
+    else if(anim == RESET) {
+        eye = reye;
+        look = rlook;
+        up = rup;
+        radius = rradius;
+        turns = rturns;
+        look_at(&eye, &look, &up, &mvm);
+        printf("\nRESET\n");
+        anim = BASE;
+    }
+    look_at(&eye, &look, &up, &mvm);
     glutPostRedisplay();
 }
 
 // Obtains the user's input for the file to load
-int menu() {
-    return 0;
-}
+int menu() {return 0;}
 
-int main(int argc, char **argv)
-{   
-    //sphere(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices, 1, 16);
-    //rect3D(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices), .5, .5, .5);
+// I wrote the coloring of the cube here to keep the original shapes.c cleaner
+void color_rubix(vector4* colors, int num_vertices);
 
+int main(int argc, char **argv) {
+
+    // ===================== LOAD-IN RUBIX CUBE =====================
     rubix_cube(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
     
     // Load texels
@@ -275,10 +282,6 @@ int main(int argc, char **argv)
     load_raw(image, texels, width, height);
     fclose(image);
 
-    // We only want the top fourth of the texture, change texture scale on x and y to 4, then apply texture
-    // texture_scale(4, -4);
-    // texturize3D(texcoords = (vector2*) malloc(sizeof(vector2) * num_vertices), num_vertices, SPHERE, vertices);
-
     // Assign color and print statistics
     random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
@@ -289,6 +292,23 @@ int main(int argc, char **argv)
     mat_mult((mat4x4[2]){tra, sc}, 2, &fin);
     matxvar(&fin, vertices, num_vertices, vertices);
 
+    // ===================== CHANGE CAMERA LOCATION =====================
+    vector4 co = zero_vector;
+    com(vertices, num_vertices, &co);
+    copy_vector(&co, &look);
+    copy_vector(&look, &rlook);
+    radius = rradius = look.z * -1;
+    look_at(&eye, &look, &up, &mvm);
+
+    printf("\nMODEL-VIEW MATRIX\n");
+    print_matrix(mvm);
+    printf("\nEYE\n");
+    print_vector(eye);
+    printf("\nLOOK\n");
+    print_vector(look);
+    printf("\nUP\n");
+    print_vector(up);
+
     // ===================== WORLD VIEW =====================
     view world = {-1, 1, 1, -1, -1, -10};
     perspective(&world, &perm);
@@ -296,9 +316,6 @@ int main(int argc, char **argv)
     print_matrix(perm);
 
     printf("VERTEX COUNT: %d\n",  num_vertices);
-    
-    // Get center of mass
-    com(vertices, num_vertices, &center);
 
     // Create program and initialize the viewing windos
     glutInit(&argc, argv);
@@ -321,4 +338,13 @@ int main(int argc, char **argv)
     glutMainLoop();
 
     return 0;
+}
+
+// I wrote the coloring of the cube here to keep the original shapes.c cleaner
+void color_rubix(vector4* colors, int num_vertices) {
+
+    if(colors == NULL) return;
+
+    // Fill black
+    for(int i = 0; i < num_vertices; i++) colors[i] = BLACK;
 }

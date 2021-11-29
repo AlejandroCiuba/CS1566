@@ -15,7 +15,7 @@
 #include <time.h>
 
 // Define extern RGB here
-vector4 RED = {1,0,0,1}; vector4 GREEN = {0,1,0,1}; vector4 BLUE = {0,0,1,1};
+vector4 RED = {1,0,0,1}; vector4 GREEN = {0,1,0,1}; vector4 BLUE = {0,0,1,1}; vector4 BLACK = {0,0,0,1}; vector4 WHITE = {1,1,1,1};
 
 // Scaling factor for textures
 static GLfloat scale_y = 2, scale_x = 2;
