@@ -168,21 +168,24 @@ void motion(int x, int y) {}
 
 // ===================== CAMERA COORDINATES =====================
 // Spawn-point and Reset Points
-vector4 eye = {0, 0, 0, 1};
-vector4 look = {0, 0, -1, 1};
+vector4 eye = {0.01, 0.01, 1, 1};
+vector4 look = {0, 0, 0, 1};
 vector4 up = {0, 1, 0, 0};
 GLfloat radius = 1; // Used for zooming in and out
 int turns = 0; // Used to describe the # of turns from the original position
 
-vector4 reye = {0, 0, 0, 1};
-vector4 rlook = {0, 0, -1, 1};
+vector4 reye = {0.01, 0.01, 1, 1};
+vector4 rlook = {0, 0, 0, 1};
 vector4 rup = {0, 1, 0, 0};
 GLfloat rradius = 1; // Used for zooming in and out
 int rturns = 0; // Used to describe the # of turns from the original position
 
-// Animations
-typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT, RESET, ANIM_NUM} animation;
-animation anim = BASE;
+// Center of Objects Mass
+vector4 co = {0,0,0,1};
+
+// camera movements
+typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT, RESET, CAM_NUM} camera;
+camera cam = BASE;
 
 void keyboard(unsigned char key, int mousex, int mousey) {
     if(key == 'q') quit_program();
@@ -192,82 +195,73 @@ void keyboard(unsigned char key, int mousex, int mousey) {
     if(key == 't' && use_texture != -1) {glUniform1i(glGetUniformLocation(program, "use_texture"), use_texture = !use_texture); glutPostRedisplay();}// CURSED, but idc cuz it keeps it small
 
     // ===================== CAMERA MOVEMENT =====================
-    if(key == 'w') anim = LOOK_UP;
-    else if(key == 's') anim = LOOK_DOWN;
-    else if(key == 'a') anim = LOOK_LEFT;
-    else if(key == 'd') anim = LOOK_RIGHT;
+    if(key == 'w') cam = LOOK_UP;
+    else if(key == 's') cam = LOOK_DOWN;
+    else if(key == 'a') cam = LOOK_LEFT;
+    else if(key == 'd') cam = LOOK_RIGHT;
 
-    if(key == '+') anim = ZOOM_IN;
-    else if(key == '-') anim = ZOOM_OUT;
+    if(key == '+') cam = ZOOM_IN;
+    else if(key == '-') cam = ZOOM_OUT;
 
-    if(key == 'r') anim = RESET;
+    if(key == 'r') cam = RESET;
 }
 
 void idle() {
 
     GLfloat degree = 1;
-    // ===================== ANIMATIONS =====================
-    if(anim == LOOK_UP) {
-        // Calculate the degree using the normalized dot product
-        vector4 eye_vec = zero_vector;
-        vector_sub((vector4*[2]){&eye, &look}, 2, &eye_vec);
-        vector_norm(&eye_vec);
-        GLfloat dot = 0.0f;
-        vector_dot(&up, &eye_vec, &dot);
-        if(acos(dot) * 180 / M_PI > 1) {
-            GLfloat y = radius * cos((degree * --turns - 270) * M_PI / 180);
-            GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
-            eye = (vector4) {eye.x, y, z, 1.0};
-            look_at(&eye, &look, &up, &mvm);
-            anim = BASE;
-        }
-    }
-    else if(anim == LOOK_DOWN) {
-        // Calculate the degree using the normalized dot product
-        vector4 eye_vec = zero_vector;
-        vector_sub((vector4*[2]){&eye, &look}, 2, &eye_vec);
-        vector_norm(&eye_vec);
-        GLfloat dot = 0.0f;
-        vector_dot(&up, &eye_vec, &dot);
-        if(acos(dot) * 180 / M_PI < 179) {
-            GLfloat y = radius * cos((degree * ++turns - 270) * M_PI / 180);
-            GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
-            eye = (vector4) {eye.x, y, z, 1.0};
-            look_at(&eye, &look, &up, &mvm);
-            anim = BASE;
-        }
-    }
-    else if(anim == LOOK_RIGHT) {
-        GLfloat relative_radius = 1.75f;
-        GLfloat x = relative_radius * cos((degree * --turns + 90) * M_PI / 180);
-        GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
-        eye = (vector4) {x, eye.y, z, 1.0};
+    // ===================== camATIONS =====================
+    if(cam == LOOK_UP) {
+        // Calculate the cross product
+        vector4 cross = zero_vector;
+        vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
+        vector_cross(&up, &eye_vec, &cross);
+        vector_norm(&cross);
+        mat4x4 ro = zero_matrix;
+        rotate_arb(-degree, &cross, &co, &ro);
+        matxvec(&ro, &eye, &eye);
         look_at(&eye, &look, &up, &mvm);
-        anim = BASE;
+        cam = BASE;
     }
-    else if(anim == LOOK_LEFT) {
-        GLfloat relative_radius = 1.75f;
-        GLfloat x = relative_radius * cos((degree * ++turns + 90) * M_PI / 180);
-        GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
-        eye = (vector4) {x, eye.y, z, 1.0};
+    else if(cam == LOOK_DOWN) {
+        // Calculate the cross product
+        vector4 cross = zero_vector;
+        vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
+        vector_cross(&up, &eye_vec, &cross);
+        vector_norm(&cross);
+        mat4x4 ro = zero_matrix;
+        rotate_arb(degree, &cross, &co, &ro);
+        matxvec(&ro, &eye, &eye);
         look_at(&eye, &look, &up, &mvm);
-        anim = BASE;
+        cam = BASE;
     }
-    else if(anim == ZOOM_IN) {
-        anim = BASE;
+    else if(cam == LOOK_RIGHT) {
+        mat4x4 ro = zero_matrix;
+        rotate_arb(degree, &up, &co, &ro);
+        matxvec(&ro, &eye, &eye);
+        look_at(&eye, &look, &up, &mvm);
+        cam = BASE;
     }
-    else if(anim == ZOOM_OUT) {
-        anim = BASE;
+    else if(cam == LOOK_LEFT) {
+        mat4x4 ro = zero_matrix;
+        rotate_arb(-degree, &up, &co, &ro);
+        matxvec(&ro, &eye, &eye);
+        look_at(&eye, &look, &up, &mvm);
+        cam = BASE;
     }
-    else if(anim == RESET) {
+    else if(cam == ZOOM_IN) {
+        cam = BASE;
+    }
+    else if(cam == ZOOM_OUT) {
+        cam = BASE;
+    }
+    else if(cam == RESET) {
+        radius = rradius;
         eye = reye;
         look = rlook;
         up = rup;
-        radius = rradius;
-        turns = rturns;
         look_at(&eye, &look, &up, &mvm);
+        cam = BASE;
         printf("\nRESET\n");
-        anim = BASE;
     }
     look_at(&eye, &look, &up, &mvm);
     glutPostRedisplay();
@@ -284,34 +278,22 @@ int main(int argc, char **argv) {
 
     // ===================== LOAD-IN RUBIX CUBE =====================
     rubix_cube(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
-    
-    // Load texels
-    width = 320;
-    height = 320;
-    texels = (GLubyte*) malloc(sizeof(GLubyte) * width * height * 3);
-
-    //Load sphere texture
-    image = fopen("texture01.raw", "r");
-    load_raw(image, texels, width, height);
-    fclose(image);
 
     // Assign color and print statistics
     //random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
-    // Demonstrates how texture scaling is only done AFTER creation, things should be in the ratio you plan to see them
-    mat4x4 sc, tra, fin;
-    scal((affine){.5,.5,.5}, &sc);
-    trans((affine){0,0,-1.75}, &tra);
-    mat_mult((mat4x4[2]){tra, sc}, 2, &fin);
-    matxvar(&fin, vertices, num_vertices, vertices);
-
-    // ===================== CHANGE CAMERA LOCATION =====================
-    vector4 co = zero_vector;
+    // Move Rubix Cube to the origin
     com(vertices, num_vertices, &co);
-    copy_vector(&co, &look);
-    copy_vector(&look, &rlook);
-    radius = rradius = look.z * -1;
+    mat4x4 tra = zero_matrix;
+    mat4x4 sc = zero_matrix;
+    mat4x4 fin = zero_matrix;
+    trans((affine){-co.x, -co.y, -co.z}, &tra);
+    scal((affine){.5,.5,.5}, &sc);
+    mat_mult((mat4x4[2]){sc,tra}, 2, &fin);
+    matxvar(&fin, vertices, num_vertices, vertices);
+    // ===================== CHANGE CAMERA LOCATION =====================
+    radius = rradius = 2;
     look_at(&eye, &look, &up, &mvm);
 
     printf("\nCENTER OF THE RUBIX CUBE\n");
@@ -327,7 +309,7 @@ int main(int argc, char **argv) {
     print_vector(up);
 
     // ===================== WORLD VIEW =====================
-    view world = {-1, 1, 1, -1, -1, -10};
+    view world = {-.1, .1, .1, -.1, -.1, -10};
     perspective(&world, &perm);
     printf("\nPERSPECTIVE MATRIX\n");
     print_matrix(perm);
