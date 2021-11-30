@@ -208,24 +208,37 @@ void idle() {
     GLfloat degree = 1;
     // ===================== ANIMATIONS =====================
     if(anim == LOOK_UP) {
-        GLfloat y = radius * cos((degree * --turns - 270) * M_PI / 180);
-        GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
-        eye = (vector4) {eye.x, y, z, 1.0};
-        look_at(&eye, &look, &up, &mvm);
-        anim = BASE;
+        // Calculate the degree using the normalized dot product
+        vector4 eye_vec = zero_vector;
+        vector_sub((vector4*[2]){&eye, &look}, 2, &eye_vec);
+        vector_norm(&eye_vec);
+        GLfloat dot = 0.0f;
+        vector_dot(&up, &eye_vec, &dot);
+        if(acos(dot) * 180 / M_PI > 1) {
+            GLfloat y = radius * cos((degree * --turns - 270) * M_PI / 180);
+            GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
+            eye = (vector4) {eye.x, y, z, 1.0};
+            look_at(&eye, &look, &up, &mvm);
+            anim = BASE;
+        }
     }
     else if(anim == LOOK_DOWN) {
-        GLfloat y = radius * cos((degree * ++turns - 270) * M_PI / 180);
-        GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
-        eye = (vector4) {eye.x, y, z, 1.0};
-        look_at(&eye, &look, &up, &mvm);
-        anim = BASE;
+        // Calculate the degree using the normalized dot product
+        vector4 eye_vec = zero_vector;
+        vector_sub((vector4*[2]){&eye, &look}, 2, &eye_vec);
+        vector_norm(&eye_vec);
+        GLfloat dot = 0.0f;
+        vector_dot(&up, &eye_vec, &dot);
+        if(acos(dot) * 180 / M_PI < 179) {
+            GLfloat y = radius * cos((degree * ++turns - 270) * M_PI / 180);
+            GLfloat z = radius * (sin((degree * turns - 270) * M_PI / 180) - 1);
+            eye = (vector4) {eye.x, y, z, 1.0};
+            look_at(&eye, &look, &up, &mvm);
+            anim = BASE;
+        }
     }
     else if(anim == LOOK_RIGHT) {
-        // Calculate the relative_radius
-        GLfloat relative_radius = sqrt(pow(eye.x - look.x, 2) + pow(eye.z - look.z, 2));
-        if(relative_radius < 1.75)
-            printf("\n%f %f %f\n", relative_radius, eye.x, eye.z);
+        GLfloat relative_radius = 0.0f;
         GLfloat x = relative_radius * cos((degree * --turns + 90) * M_PI / 180);
         GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
         eye = (vector4) {x, eye.y, z, 1.0};
@@ -233,10 +246,7 @@ void idle() {
         anim = BASE;
     }
     else if(anim == LOOK_LEFT) {
-        // Calculate the relative_radius
-        GLfloat relative_radius = sqrt(pow(eye.x - look.x, 2) + pow(eye.z - look.z, 2));
-        if(relative_radius < 1.75)
-            printf("\n%f %f %f\n", relative_radius, eye.x, eye.z);
+        GLfloat relative_radius = 0.0f;
         GLfloat x = relative_radius * cos((degree * ++turns + 90) * M_PI / 180);
         GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
         eye = (vector4) {x, eye.y, z, 1.0};
@@ -244,9 +254,11 @@ void idle() {
         anim = BASE;
     }
     else if(anim == ZOOM_IN) {
-       anim = BASE;
+        anim = BASE;
     }
-    else if(anim == ZOOM_OUT) {anim = BASE;}
+    else if(anim == ZOOM_OUT) {
+        anim = BASE;
+    }
     else if(anim == RESET) {
         eye = reye;
         look = rlook;
@@ -299,6 +311,9 @@ int main(int argc, char **argv) {
     copy_vector(&look, &rlook);
     radius = rradius = look.z * -1;
     look_at(&eye, &look, &up, &mvm);
+
+    printf("\nCENTER OF THE RUBIX CUBE\n");
+    print_vector(co);
 
     printf("\nMODEL-VIEW MATRIX\n");
     print_matrix(mvm);
