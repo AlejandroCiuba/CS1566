@@ -15,8 +15,10 @@ typedef vector4 color;
 extern color RED;
 extern color GREEN;
 extern color BLUE;
+extern color YELLOW;
+extern color ORANGE;
 extern color BLACK;
-extern color white;
+extern color WHITE;
 
 typedef unsigned char shape;
 

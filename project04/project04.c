@@ -124,7 +124,7 @@ void init(void) {
     
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClearColor(.7, .7, .7, 1.0);
     glDepthRange(1,0);
 }
 
@@ -238,7 +238,7 @@ void idle() {
         }
     }
     else if(anim == LOOK_RIGHT) {
-        GLfloat relative_radius = 0.0f;
+        GLfloat relative_radius = 1.75f;
         GLfloat x = relative_radius * cos((degree * --turns + 90) * M_PI / 180);
         GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
         eye = (vector4) {x, eye.y, z, 1.0};
@@ -246,7 +246,7 @@ void idle() {
         anim = BASE;
     }
     else if(anim == LOOK_LEFT) {
-        GLfloat relative_radius = 0.0f;
+        GLfloat relative_radius = 1.75f;
         GLfloat x = relative_radius * cos((degree * ++turns + 90) * M_PI / 180);
         GLfloat z = relative_radius * (sin((degree * turns + 90) * M_PI / 180) - 1);
         eye = (vector4) {x, eye.y, z, 1.0};
@@ -278,6 +278,7 @@ int menu() {return 0;}
 
 // I wrote the coloring of the cube here to keep the original shapes.c cleaner
 void color_rubix(vector4* colors, int num_vertices);
+void color_cube(vector4* colors, color* face_colors);
 
 int main(int argc, char **argv) {
 
@@ -295,7 +296,8 @@ int main(int argc, char **argv) {
     fclose(image);
 
     // Assign color and print statistics
-    random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+    //random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+    color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
     // Demonstrates how texture scaling is only done AFTER creation, things should be in the ratio you plan to see them
     mat4x4 sc, tra, fin;
@@ -360,6 +362,60 @@ void color_rubix(vector4* colors, int num_vertices) {
 
     if(colors == NULL) return;
 
-    // Fill black
-    for(int i = 0; i < num_vertices; i++) colors[i] = BLACK;
+    // ===================== YELLOW SIDE =====================
+    // Bottom
+    color_cube(colors, (color[6]){BLACK, BLUE, BLACK, ORANGE, BLACK, YELLOW});
+    color_cube(colors + 36, (color[6]){BLACK, BLACK, BLACK, ORANGE, BLACK, YELLOW});
+    color_cube(colors + 72, (color[6]){GREEN, BLACK, BLACK, ORANGE, BLACK, YELLOW});
+
+    // Mid
+    color_cube(colors + 108, (color[6]){BLACK, BLUE, BLACK, ORANGE, BLACK, BLACK});
+    color_cube(colors + 144, (color[6]){BLACK, BLACK, BLACK, ORANGE, BLACK, BLACK});
+    color_cube(colors + 180, (color[6]){GREEN, BLACK, BLACK, ORANGE, BLACK, BLACK});
+
+    // Top
+    color_cube(colors + 216, (color[6]){BLACK, BLUE, BLACK, ORANGE, WHITE, BLACK});
+    color_cube(colors + 252, (color[6]){BLACK, BLACK, BLACK, ORANGE, WHITE, BLACK});
+    color_cube(colors + 288, (color[6]){GREEN, BLACK, BLACK, ORANGE, WHITE, BLACK});
+
+    // ===================== MIDDLE PART =====================
+    // Bottom
+    color_cube(colors + 324, (color[6]){BLACK, BLUE, BLACK, BLACK, BLACK, YELLOW});
+    color_cube(colors + 360, (color[6]){BLACK, BLACK, BLACK, BLACK, BLACK, YELLOW});
+    color_cube(colors + 396, (color[6]){GREEN, BLACK, BLACK, BLACK, BLACK, YELLOW});
+
+    // Mid
+    color_cube(colors + 432, (color[6]){BLACK, BLUE, BLACK, BLACK, BLACK, BLACK});
+    color_cube(colors + 468, (color[6]){BLACK, BLACK, BLACK, BLACK, BLACK, BLACK});
+    color_cube(colors + 504, (color[6]){GREEN, BLACK, BLACK, BLACK, BLACK, BLACK});
+
+    // Top
+    color_cube(colors + 540, (color[6]){BLACK, BLUE, BLACK, BLACK, WHITE, BLACK});
+    color_cube(colors + 576, (color[6]){BLACK, BLACK, BLACK, BLACK, WHITE, BLACK});
+    color_cube(colors + 612, (color[6]){GREEN, BLACK, BLACK, BLACK, WHITE, BLACK});
+
+    // ===================== RED SIDE =====================
+    // Bottom
+    color_cube(colors + 648, (color[6]){BLACK, BLUE, RED, BLACK, BLACK, YELLOW});
+    color_cube(colors + 684, (color[6]){BLACK, BLACK, RED, BLACK, BLACK, YELLOW});
+    color_cube(colors + 720, (color[6]){GREEN, BLACK, RED, BLACK, BLACK, YELLOW});
+
+    // Mid
+    color_cube(colors + 756, (color[6]){BLACK, BLUE, RED, BLACK, BLACK, BLACK});
+    color_cube(colors + 792, (color[6]){BLACK, BLACK, RED, BLACK, BLACK, BLACK});
+    color_cube(colors + 828, (color[6]){GREEN, BLACK, RED, BLACK, BLACK, BLACK});
+
+    // Top
+    color_cube(colors + 864, (color[6]){BLACK, BLUE, RED, BLACK, WHITE, BLACK});
+    color_cube(colors + 900, (color[6]){BLACK, BLACK, RED, BLACK, WHITE, BLACK});
+    color_cube(colors + 936, (color[6]){GREEN, BLACK, RED, BLACK, WHITE, BLACK});
+}
+
+// Front, Back, Right, Left, Up, Down
+void color_cube(vector4* colors, color* face_colors) {
+
+    if(colors == NULL || face_colors == NULL) return;
+
+    for(int i = 0; i < 6; i++)
+        const_color(colors + (i * 6), 6, face_colors[i]);
 }
