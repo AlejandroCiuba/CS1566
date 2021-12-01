@@ -562,17 +562,21 @@ ERROR_NUM rubix_cube(vector4* vertices) {
     if(vertices == NULL) return MATLIB_POINTER_ERROR;
 
     // Make the cubes
-    for(int i = 0; i < 27; i++) 
-        rect3D(vertices + (i * 36), .5, .5, .5);
+    for(int i = 0; i < 27; i++) {
+        mat4x4 tra;
+        trans((affine){.5,.5,.5},&tra);
+        cubit(vertices + (i * 132));
+        matxvar(&tra, vertices + (i * 132), 132, vertices + (i * 132));
+    }
 
     // Transpose Everything
-    mat4x4 tra = zero_matrix;
+    mat4x4 tra;
     int i = 0;
-    for(float x = 0; x < 1.5; x+=.5) {
-        for(float y = 0; y < 1.5; y +=.5) {
-            for(float z = 0; z < 1.5; z +=.5) {
+    for(float x = 0; x < 3; x++) {
+        for(float y = 0; y < 3; y++) {
+            for(float z = 0; z < 3; z++) {
                 trans((affine){x, y, z}, &tra);
-                matxvar(&tra, vertices + (i * 36), 36, vertices + (i * 36));
+                matxvar(&tra, vertices + (i * 132), 132, vertices + (i * 132));
                 i++;
             }
         }
@@ -580,9 +584,95 @@ ERROR_NUM rubix_cube(vector4* vertices) {
     
     // Move it all back to the center
     vector4 co = zero_vector;
-    com(vertices, 972, &co);
+    com(vertices, 3564, &co);
     trans((affine){-co.x, -co.y, -co.z}, &tra);
-    matxvar(&tra, vertices, 972, vertices);
+    matxvar(&tra, vertices, 3564, vertices);
+
+    return 0;
+}
+
+// Assumes enough for 1 cubit (132 vertices!)
+ERROR_NUM cubit(vector4* vertices) {
+
+    if(vertices == NULL) return MATLIB_POINTER_ERROR;
+
+    for(int i = 0; i < 6; i++)
+        rectangle(vertices + (i * 6), .8, .8, (vector4){0,0,.5});
+
+    // Rotate
+    // Back
+    mat4x4 ro;
+    rotate(180, 'y', &ro);
+    matxvar(&ro, vertices + 6, 6, vertices + 6);
+
+    // Right
+    rotate(-90, 'y', &ro);
+    matxvar(&ro, vertices + 6, 6, vertices + 12);
+
+    // Left
+    rotate(90, 'y', &ro);
+    matxvar(&ro, vertices + 6, 6, vertices + 18);
+
+    // Bottom
+    rotate(90, 'x', &ro);
+    matxvar(&ro, vertices + 6, 6, vertices + 24);
+
+    // Top
+    rotate(-90, 'x', &ro);
+    matxvar(&ro, vertices + 6, 6, vertices + 30);
+
+    for(int i = 0; i < 12; i++) {
+
+        vertices[36 + (i * 6)] = vertices[5];
+        vertices[36 + ((i * 6) + 1)] = vertices[2];
+        vertices[36 + ((i * 6) + 2)] = vertices[29];
+        vertices[36 + ((i * 6) + 3)] = vertices[5];
+        vertices[36 + ((i * 6) + 4)] = vertices[29];
+        vertices[36 + ((i * 6) + 5)] = vertices[28];
+    }
+
+    // Rotate Top
+    for(int i = 0; i < 4; i++) {
+        rotate((GLfloat)(90 * (i + 1)), 'y', &ro);
+        matxvar(&ro, &vertices[36 + (i * 6)], 6, &vertices[36 + (i * 6)]);
+    }
+
+    // Rotate Bottom
+    for(int i = 0; i < 4; i++) {
+        rotate(90, 'x', &ro);
+        matxvar(&ro, &vertices[60 + (i * 6)], 6, &vertices[60 + (i * 6)]);
+        rotate((GLfloat)(90 * (i + 1)), 'y', &ro);
+        matxvar(&ro, &vertices[60 + (i * 6)], 6, &vertices[60 + (i * 6)]);
+    }
+
+    // Rotate to sides
+    for(int i = 0; i < 4; i++) {
+        rotate(90, 'z', &ro);
+        matxvar(&ro, &vertices[84 + (i * 6)], 6, &vertices[84 + (i * 6)]);
+        rotate((GLfloat)(90 * (i + 1)), 'y', &ro);
+        matxvar(&ro, &vertices[84 + (i * 6)], 6, &vertices[84 + (i * 6)]);
+    }
+
+    // Fill in the triangles
+    for(int i = 0; i < 8; i++) {
+        vertices[108 + (i * 3)] = vertices[2];
+        vertices[109 + (i * 3)] = vertices[17];
+        vertices[110 + (i * 3)] = vertices[29];
+    }
+
+    // Rotate Top
+    for(int i = 0; i < 4; i++) {
+        rotate((GLfloat)(90 * (i + 1)), 'y', &ro);
+        matxvar(&ro, &vertices[108 + (i * 3)], 3, &vertices[108 + (i * 3)]);
+    }
+
+    // Rotate Bottom
+    for(int i = 0; i < 4; i++) {
+        rotate(90, 'x', &ro);
+        matxvar(&ro, &vertices[120 + (i * 3)], 3, &vertices[120 + (i * 3)]);
+        rotate((GLfloat)(90 * (i + 1)), 'y', &ro);
+        matxvar(&ro, &vertices[120 + (i * 3)], 3, &vertices[120 + (i * 3)]);
+    }
 
     return 0;
 }

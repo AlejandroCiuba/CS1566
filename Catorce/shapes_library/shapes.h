@@ -65,4 +65,7 @@ ERROR_NUM rect3D(vector4* vertices, GLfloat length, GLfloat width, GLfloat heigh
 
 ERROR_NUM rubix_cube(vector4* vertices);
 
+// Assumes enough for 1 cubit
+ERROR_NUM cubit(vector4* vertices);
+
 #endif

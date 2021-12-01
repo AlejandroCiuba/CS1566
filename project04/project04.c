@@ -54,7 +54,7 @@ vector4* vertices;
 vector4* colors;
 vector2* texcoords;
 
-int num_vertices = 972;
+int num_vertices = 3564;
 
 void init(void) {
 
@@ -188,11 +188,10 @@ typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT
 camera cam = BASE;
 
 void keyboard(unsigned char key, int mousex, int mousey) {
+
     if(key == 'q') quit_program();
     	
-    if(key == 'v') for(int i = 0; i < num_vertices; i++) print_vector_ptr(&vertices[i]);
-
-    if(key == 't' && use_texture != -1) {glUniform1i(glGetUniformLocation(program, "use_texture"), use_texture = !use_texture); glutPostRedisplay();}// CURSED, but idc cuz it keeps it small
+    if(key == 'v') for(int i = 0; i < num_vertices; i++) {printf("%d: ", i); print_vector_ptr(&vertices[i]);}
 
     // ===================== CAMERA MOVEMENT =====================
     if(key == 'w') cam = LOOK_UP;
@@ -208,30 +207,36 @@ void keyboard(unsigned char key, int mousex, int mousey) {
 
 void idle() {
 
-    GLfloat degree = 1;
+    GLfloat degree = 5;
     // ===================== camATIONS =====================
     if(cam == LOOK_UP) {
-        // Calculate the cross product
-        vector4 cross = zero_vector;
-        vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
-        vector_cross(&up, &eye_vec, &cross);
-        vector_norm(&cross);
-        mat4x4 ro = zero_matrix;
-        rotate_arb(-degree, &cross, &co, &ro);
-        matxvec(&ro, &eye, &eye);
-        look_at(&eye, &look, &up, &mvm);
+        if(turns < 17) {
+            turns++;
+            // Calculate the cross product
+            vector4 cross = zero_vector;
+            vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
+            vector_cross(&up, &eye_vec, &cross);
+            vector_norm(&cross);
+            mat4x4 ro = zero_matrix;
+            rotate_arb(-degree, &cross, &co, &ro);
+            matxvec(&ro, &eye, &eye);
+            look_at(&eye, &look, &up, &mvm);
+        }
         cam = BASE;
     }
     else if(cam == LOOK_DOWN) {
-        // Calculate the cross product
-        vector4 cross = zero_vector;
-        vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
-        vector_cross(&up, &eye_vec, &cross);
-        vector_norm(&cross);
-        mat4x4 ro = zero_matrix;
-        rotate_arb(degree, &cross, &co, &ro);
-        matxvec(&ro, &eye, &eye);
-        look_at(&eye, &look, &up, &mvm);
+        if(turns > -17) {
+            turns--;
+            // Calculate the cross product
+            vector4 cross = zero_vector;
+            vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
+            vector_cross(&up, &eye_vec, &cross);
+            vector_norm(&cross);
+            mat4x4 ro = zero_matrix;
+            rotate_arb(degree, &cross, &co, &ro);
+            matxvec(&ro, &eye, &eye);
+            look_at(&eye, &look, &up, &mvm);
+        }
         cam = BASE;
     }
     else if(cam == LOOK_RIGHT) {
@@ -249,9 +254,17 @@ void idle() {
         cam = BASE;
     }
     else if(cam == ZOOM_IN) {
+        mat4x4 sca = zero_matrix;
+        scal((affine){.9,.9,.9}, &sca);
+        matxvec(&sca, &eye, &eye);
+        look_at(&eye, &look, &up, &mvm);
         cam = BASE;
     }
     else if(cam == ZOOM_OUT) {
+        mat4x4 sca = zero_matrix;
+        scal((affine){1.1,1.1,1.1}, &sca);
+        matxvec(&sca, &eye, &eye);
+        look_at(&eye, &look, &up, &mvm);
         cam = BASE;
     }
     else if(cam == RESET) {
@@ -278,7 +291,7 @@ int main(int argc, char **argv) {
 
     // ===================== LOAD-IN RUBIX CUBE =====================
     rubix_cube(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
-
+    //cubit(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
     // Assign color and print statistics
     //random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
@@ -289,7 +302,7 @@ int main(int argc, char **argv) {
     mat4x4 sc = zero_matrix;
     mat4x4 fin = zero_matrix;
     trans((affine){-co.x, -co.y, -co.z}, &tra);
-    scal((affine){.5,.5,.5}, &sc);
+    scal((affine){.2,.2,.2}, &sc);
     mat_mult((mat4x4[2]){sc,tra}, 2, &fin);
     matxvar(&fin, vertices, num_vertices, vertices);
     // ===================== CHANGE CAMERA LOCATION =====================
@@ -344,53 +357,56 @@ void color_rubix(vector4* colors, int num_vertices) {
 
     if(colors == NULL) return;
 
+    // Fill black
+    for(int i = 0; i < num_vertices; i++) colors[i] = BLACK;
+
     // ===================== YELLOW SIDE =====================
     // Bottom
     color_cube(colors, (color[6]){BLACK, BLUE, BLACK, ORANGE, BLACK, YELLOW});
-    color_cube(colors + 36, (color[6]){BLACK, BLACK, BLACK, ORANGE, BLACK, YELLOW});
-    color_cube(colors + 72, (color[6]){GREEN, BLACK, BLACK, ORANGE, BLACK, YELLOW});
+    color_cube(colors + 132, (color[6]){BLACK, BLACK, BLACK, ORANGE, BLACK, YELLOW});
+    color_cube(colors + 264, (color[6]){GREEN, BLACK, BLACK, ORANGE, BLACK, YELLOW});
 
     // Mid
-    color_cube(colors + 108, (color[6]){BLACK, BLUE, BLACK, ORANGE, BLACK, BLACK});
-    color_cube(colors + 144, (color[6]){BLACK, BLACK, BLACK, ORANGE, BLACK, BLACK});
-    color_cube(colors + 180, (color[6]){GREEN, BLACK, BLACK, ORANGE, BLACK, BLACK});
+    color_cube(colors + 396, (color[6]){BLACK, BLUE, BLACK, ORANGE, BLACK, BLACK});
+    color_cube(colors + 528, (color[6]){BLACK, BLACK, BLACK, ORANGE, BLACK, BLACK});
+    color_cube(colors + 660, (color[6]){GREEN, BLACK, BLACK, ORANGE, BLACK, BLACK});
 
     // Top
-    color_cube(colors + 216, (color[6]){BLACK, BLUE, BLACK, ORANGE, WHITE, BLACK});
-    color_cube(colors + 252, (color[6]){BLACK, BLACK, BLACK, ORANGE, WHITE, BLACK});
-    color_cube(colors + 288, (color[6]){GREEN, BLACK, BLACK, ORANGE, WHITE, BLACK});
+    color_cube(colors + 792, (color[6]){BLACK, BLUE, BLACK, ORANGE, WHITE, BLACK});
+    color_cube(colors + 924, (color[6]){BLACK, BLACK, BLACK, ORANGE, WHITE, BLACK});
+    color_cube(colors + 1056, (color[6]){GREEN, BLACK, BLACK, ORANGE, WHITE, BLACK});
 
     // ===================== MIDDLE PART =====================
     // Bottom
-    color_cube(colors + 324, (color[6]){BLACK, BLUE, BLACK, BLACK, BLACK, YELLOW});
-    color_cube(colors + 360, (color[6]){BLACK, BLACK, BLACK, BLACK, BLACK, YELLOW});
-    color_cube(colors + 396, (color[6]){GREEN, BLACK, BLACK, BLACK, BLACK, YELLOW});
+    color_cube(colors + 1188, (color[6]){BLACK, BLUE, BLACK, BLACK, BLACK, YELLOW});
+    color_cube(colors + 1320, (color[6]){BLACK, BLACK, BLACK, BLACK, BLACK, YELLOW});
+    color_cube(colors + 1452, (color[6]){GREEN, BLACK, BLACK, BLACK, BLACK, YELLOW});
 
     // Mid
-    color_cube(colors + 432, (color[6]){BLACK, BLUE, BLACK, BLACK, BLACK, BLACK});
-    color_cube(colors + 468, (color[6]){BLACK, BLACK, BLACK, BLACK, BLACK, BLACK});
-    color_cube(colors + 504, (color[6]){GREEN, BLACK, BLACK, BLACK, BLACK, BLACK});
+    color_cube(colors + 1584, (color[6]){BLACK, BLUE, BLACK, BLACK, BLACK, BLACK});
+    color_cube(colors + 1716, (color[6]){BLACK, BLACK, BLACK, BLACK, BLACK, BLACK});
+    color_cube(colors + 1848, (color[6]){GREEN, BLACK, BLACK, BLACK, BLACK, BLACK});
 
     // Top
-    color_cube(colors + 540, (color[6]){BLACK, BLUE, BLACK, BLACK, WHITE, BLACK});
-    color_cube(colors + 576, (color[6]){BLACK, BLACK, BLACK, BLACK, WHITE, BLACK});
-    color_cube(colors + 612, (color[6]){GREEN, BLACK, BLACK, BLACK, WHITE, BLACK});
+    color_cube(colors + 1980, (color[6]){BLACK, BLUE, BLACK, BLACK, WHITE, BLACK});
+    color_cube(colors + 2112, (color[6]){BLACK, BLACK, BLACK, BLACK, WHITE, BLACK});
+    color_cube(colors + 2244, (color[6]){GREEN, BLACK, BLACK, BLACK, WHITE, BLACK});
 
     // ===================== RED SIDE =====================
     // Bottom
-    color_cube(colors + 648, (color[6]){BLACK, BLUE, RED, BLACK, BLACK, YELLOW});
-    color_cube(colors + 684, (color[6]){BLACK, BLACK, RED, BLACK, BLACK, YELLOW});
-    color_cube(colors + 720, (color[6]){GREEN, BLACK, RED, BLACK, BLACK, YELLOW});
+    color_cube(colors + 2376, (color[6]){BLACK, BLUE, RED, BLACK, BLACK, YELLOW});
+    color_cube(colors + 2508, (color[6]){BLACK, BLACK, RED, BLACK, BLACK, YELLOW});
+    color_cube(colors + 2640, (color[6]){GREEN, BLACK, RED, BLACK, BLACK, YELLOW});
 
     // Mid
-    color_cube(colors + 756, (color[6]){BLACK, BLUE, RED, BLACK, BLACK, BLACK});
-    color_cube(colors + 792, (color[6]){BLACK, BLACK, RED, BLACK, BLACK, BLACK});
-    color_cube(colors + 828, (color[6]){GREEN, BLACK, RED, BLACK, BLACK, BLACK});
+    color_cube(colors + 2772, (color[6]){BLACK, BLUE, RED, BLACK, BLACK, BLACK});
+    color_cube(colors + 2904, (color[6]){BLACK, BLACK, RED, BLACK, BLACK, BLACK});
+    color_cube(colors + 3036, (color[6]){GREEN, BLACK, RED, BLACK, BLACK, BLACK});
 
     // Top
-    color_cube(colors + 864, (color[6]){BLACK, BLUE, RED, BLACK, WHITE, BLACK});
-    color_cube(colors + 900, (color[6]){BLACK, BLACK, RED, BLACK, WHITE, BLACK});
-    color_cube(colors + 936, (color[6]){GREEN, BLACK, RED, BLACK, WHITE, BLACK});
+    color_cube(colors + 3168, (color[6]){BLACK, BLUE, RED, BLACK, WHITE, BLACK});
+    color_cube(colors + 3300, (color[6]){BLACK, BLACK, RED, BLACK, WHITE, BLACK});
+    color_cube(colors + 3432, (color[6]){GREEN, BLACK, RED, BLACK, WHITE, BLACK});
 }
 
 // Front, Back, Right, Left, Up, Down
