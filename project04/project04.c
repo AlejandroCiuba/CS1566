@@ -183,9 +183,13 @@ int rturns = 0; // Used to describe the # of turns from the original position
 // Center of Objects Mass
 vector4 co = {0,0,0,1};
 
-// camera movements
+// Camera Movements
 typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT, RESET, CAM_NUM} camera;
 camera cam = BASE;
+
+// Rubix Cube Animations
+typedef enum {NONE, FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM, DEFAULT, ANIM_NUM} animation;
+animation anim = NONE;
 
 void keyboard(unsigned char key, int mousex, int mousey) {
 
@@ -203,12 +207,21 @@ void keyboard(unsigned char key, int mousex, int mousey) {
     else if(key == '-') cam = ZOOM_OUT;
 
     if(key == 'r') cam = RESET;
+
+    // ===================== RUBIX CUBE ANIMATIONS =====================
+    if(key == '1') anim = FRONT;
+    else if(key == '2') anim = BACK;
+    else if(key == '3') anim = LEFT;
+    else if(key == '4') anim = RIGHT;
+    else if(key == '5') anim = TOP;
+    else if(key == '6') anim = BOTTOM;
+    else if(key == '7') anim = DEFAULT;
 }
 
 void idle() {
 
     GLfloat degree = 5;
-    // ===================== camATIONS =====================
+    // ===================== CAMERA MOVEMENTS =====================
     if(cam == LOOK_UP) {
         if(turns < 17) {
             turns++;
@@ -276,16 +289,42 @@ void idle() {
         cam = BASE;
         printf("\nRESET\n");
     }
+
+    // Apply changes to modal-view matrix
     look_at(&eye, &look, &up, &mvm);
+
+    // ===================== CAMERA MOVEMENTS =====================
+    if(anim == FRONT) anim = NONE;
+    else if(anim == BACK) anim = NONE;
+    else if(anim == LEFT) anim = NONE;
+    else if(anim == RIGHT) anim = NONE;
+    else if(anim == TOP) anim = NONE;
+    else if(anim == BOTTOM) anim = NONE;
+    else if(anim == DEFAULT) anim = NONE;
+
     glutPostRedisplay();
 }
 
 // Obtains the user's input for the file to load
 int menu() {return 0;}
 
+// ===================== RUBIX REPRESENTATION =====================
 // I wrote the coloring of the cube here to keep the original shapes.c cleaner
 void color_rubix(vector4* colors, int num_vertices);
 void color_cube(vector4* colors, color* face_colors);
+
+// The Cubits are labelled 0-26 and stored into 6 2D arrays representing each face
+// The 0 - 26 are determined by how many cubits one needs to traverse in the Rubix Cube
+// Array to find it. These are their starting positions in the cube,
+int front[3][3] = {{2,11,20},{5,14,23},{8,17,26}};
+int back[3][3] = {{18,9,0},{21,12,3},{24,15,6}};
+int left[3][3] = {{0,1,2},{3,4,5},{6,7,8}};
+int right[3][3] = {{20,19,18},{23,22,21},{26,25,24}};
+int top[3][3] = {{8,17,26},{7,16,25},{6,15,24}};
+int bottom[3][3] = {{0,9,18},{1,10,19},{2,11,20}};
+
+// The array of ctms which correspond to 1 cubit each
+mat4x4 ctm_rubix[27];
 
 int main(int argc, char **argv) {
 
