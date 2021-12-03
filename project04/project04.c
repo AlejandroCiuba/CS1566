@@ -56,6 +56,53 @@ vector2* texcoords;
 
 int num_vertices = 3564;
 
+// ===================== CAMERA COORDINATES =====================
+// Spawn-point and Reset Points
+vector4 eye = {0.01, 0.01, 1, 1};
+vector4 look = {0, 0, 0, 1};
+vector4 up = {0, 1, 0, 0};
+GLfloat radius = 1; // Used for zooming in and out
+int turns = 0; // Used to describe the # of turns from the original position
+
+vector4 reye = {0.01, 0.01, 1, 1};
+vector4 rlook = {0, 0, 0, 1};
+vector4 rup = {0, 1, 0, 0};
+GLfloat rradius = 1; // Used for zooming in and out
+int rturns = 0; // Used to describe the # of turns from the original position
+
+// Center of Objects Mass
+vector4 co = {0,0,0,1};
+
+// Camera Movements
+typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT, RESET, CAM_NUM} camera;
+camera cam = BASE;
+
+// ===================== RUBIX REPRESENTATION =====================
+// Rubix Cube Animations
+typedef enum {FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM, DEFAULT, NONE, ANIM_NUM} animation;
+animation anim = NONE;
+
+// I wrote the coloring of the cube here to keep the original shapes.c cleaner
+void color_rubix(vector4* colors, int num_vertices);
+void color_cube(vector4* colors, color* face_colors);
+
+// The Cubits are labelled 0-26 and stored into 6 2D arrays representing each face
+// The 0 - 26 are determined by how many cubits one needs to traverse in the Rubix Cube
+// Array to find it. These are their starting positions in the cube,
+int front[3][3] = {{8,17,26},{5,14,23},{2,11,20}};
+int back[3][3] = {{24,15,6},{21,12,3},{18,9,0}};
+int left[3][3] = {{6,7,8},{3,4,5},{0,1,2}};
+int right[3][3] = {{26,25,24},{23,22,21},{20,19,18}};
+int top[3][3] = {{6,15,24},{7,16,25},{8,17,26}};
+int bottom[3][3] = {{2,11,20},{1,10,19},{0,9,18}};
+
+// The array of ctms which correspond to 1 cubit each
+mat4x4 ctm_rubix[27];
+
+// Functions that manipulate the rubix cube visuals and logic
+void rot_grid(animation side);
+void rot_cubits(mat4x4* ctms, animation side);
+
 void init(void) {
 
     // Load the vertex and fragment shaders
@@ -166,31 +213,6 @@ void mouse(int button, int state, int x, int y) {}
 // Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
 void motion(int x, int y) {}
 
-// ===================== CAMERA COORDINATES =====================
-// Spawn-point and Reset Points
-vector4 eye = {0.01, 0.01, 1, 1};
-vector4 look = {0, 0, 0, 1};
-vector4 up = {0, 1, 0, 0};
-GLfloat radius = 1; // Used for zooming in and out
-int turns = 0; // Used to describe the # of turns from the original position
-
-vector4 reye = {0.01, 0.01, 1, 1};
-vector4 rlook = {0, 0, 0, 1};
-vector4 rup = {0, 1, 0, 0};
-GLfloat rradius = 1; // Used for zooming in and out
-int rturns = 0; // Used to describe the # of turns from the original position
-
-// Center of Objects Mass
-vector4 co = {0,0,0,1};
-
-// Camera Movements
-typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT, RESET, CAM_NUM} camera;
-camera cam = BASE;
-
-// Rubix Cube Animations
-typedef enum {NONE, FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM, DEFAULT, ANIM_NUM} animation;
-animation anim = NONE;
-
 void keyboard(unsigned char key, int mousex, int mousey) {
 
     if(key == 'q') quit_program();
@@ -294,37 +316,75 @@ void idle() {
     look_at(&eye, &look, &up, &mvm);
 
     // ===================== CAMERA MOVEMENTS =====================
-    if(anim == FRONT) anim = NONE;
-    else if(anim == BACK) anim = NONE;
-    else if(anim == LEFT) anim = NONE;
-    else if(anim == RIGHT) anim = NONE;
-    else if(anim == TOP) anim = NONE;
-    else if(anim == BOTTOM) anim = NONE;
-    else if(anim == DEFAULT) anim = NONE;
-
+    if(anim == FRONT) {
+        rot_grid(FRONT);
+        anim = NONE;
+    }
+    else if(anim == BACK) {
+        rot_grid(BACK);
+        anim = NONE;
+    }
+    else if(anim == LEFT) {
+        rot_grid(LEFT);
+        anim = NONE;
+    }
+    else if(anim == RIGHT) {
+        rot_grid(RIGHT);
+        anim = NONE;
+    }
+    else if(anim == TOP) {
+        rot_grid(TOP);
+        anim = NONE;
+    }
+    else if(anim == BOTTOM) {
+        rot_grid(BOTTOM);
+        anim = NONE;
+    }
+    else if(anim == DEFAULT) {
+        printf("\n===================== CUBE SIDES =====================\n");
+        printf("\nFRONT\n");
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++)
+                printf("%d ", front[i][j]);
+            printf("\n");
+        }
+        printf("\nBACK\n");
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++)
+                printf("%d ", back[i][j]);
+            printf("\n");
+        }
+        printf("\nLEFT\n");
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++)
+                printf("%d ", left[i][j]);
+            printf("\n");
+        }
+        printf("\nRIGHT\n");
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++)
+                printf("%d ", right[i][j]);
+            printf("\n");
+        }
+        printf("\nTOP\n");
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++)
+                printf("%d ", top[i][j]);
+            printf("\n");
+        }
+        printf("\nBOTTOM\n");
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++)
+                printf("%d ", bottom[i][j]);
+            printf("\n");
+        }
+        anim = NONE;
+    }
     glutPostRedisplay();
 }
 
 // Obtains the user's input for the file to load
 int menu() {return 0;}
-
-// ===================== RUBIX REPRESENTATION =====================
-// I wrote the coloring of the cube here to keep the original shapes.c cleaner
-void color_rubix(vector4* colors, int num_vertices);
-void color_cube(vector4* colors, color* face_colors);
-
-// The Cubits are labelled 0-26 and stored into 6 2D arrays representing each face
-// The 0 - 26 are determined by how many cubits one needs to traverse in the Rubix Cube
-// Array to find it. These are their starting positions in the cube,
-int front[3][3] = {{2,11,20},{5,14,23},{8,17,26}};
-int back[3][3] = {{18,9,0},{21,12,3},{24,15,6}};
-int left[3][3] = {{0,1,2},{3,4,5},{6,7,8}};
-int right[3][3] = {{20,19,18},{23,22,21},{26,25,24}};
-int top[3][3] = {{8,17,26},{7,16,25},{6,15,24}};
-int bottom[3][3] = {{0,9,18},{1,10,19},{2,11,20}};
-
-// The array of ctms which correspond to 1 cubit each
-mat4x4 ctm_rubix[27];
 
 int main(int argc, char **argv) {
 
@@ -455,4 +515,166 @@ void color_cube(vector4* colors, color* face_colors) {
 
     for(int i = 0; i < 6; i++)
         const_color(colors + (i * 6), 6, face_colors[i]);
+}
+
+// Functions that manipulate the rubix cube visuals and logic
+void rot_grid(animation side) {
+    
+    int cube[6][3][3] = {{{front[0][0], front[0][1], front[0][2]},{front[1][0], front[1][1], front[1][2]},{front[2][0], front[2][1], front[2][2]}}, 
+                        {{back[0][0], back[0][1], back[0][2]},{back[1][0], back[1][1], back[1][2]},{back[2][0], back[2][1], back[2][2]}}, 
+                        {{left[0][0], left[0][1], left[0][2]},{left[1][0], left[1][1], left[1][2]},{left[2][0], left[2][1], left[2][2]}}, 
+                        {{right[0][0], right[0][1], right[0][2]},{right[1][0], right[1][1], right[1][2]},{right[2][0], right[2][1], right[2][2]}}, 
+                        {{top[0][0], top[0][1], top[0][2]},{top[1][0], top[1][1], top[1][2]},{top[2][0], top[2][1], top[2][2]}}, 
+                        {{bottom[0][0], bottom[0][1], bottom[0][2]},{bottom[1][0], bottom[1][1], bottom[1][2]},{bottom[2][0], bottom[2][1], bottom[2][2]}}};
+    
+    int temp[9] = {cube[side][0][0],cube[side][0][1],cube[side][0][2],
+                    cube[side][1][0],cube[side][1][1],cube[side][1][2],
+                    cube[side][2][0],cube[side][2][1],cube[side][2][2]};
+    
+    // Rotate the face
+    cube[side][0][0] = temp[3]; cube[side][0][1] = temp[0]; cube[side][0][2] = temp[1];
+    cube[side][1][0] = temp[6]; /*THE CENTER NEVER MOVES!*/ cube[side][1][2] = temp[2];
+    cube[side][2][0] = temp[7]; cube[side][2][1] = temp[8]; cube[side][2][2] = temp[5];
+    
+    // Change the appropriate sides accordingly
+    switch(side) {
+        case FRONT:
+            // Rotate the face
+            front[0][0] = temp[3]; front[0][1] = temp[0]; front[0][2] = temp[1];
+            front[1][0] = temp[6]; /*THE CENTER NEVER MOVES!*/ front[1][2] = temp[2];
+            front[2][0] = temp[7]; front[2][1] = temp[8]; front[2][2] = temp[5];
+
+            left[0][2] = cube[FRONT][0][0];
+            left[1][2] = cube[FRONT][1][0];
+            left[2][2] = cube[FRONT][2][0];
+
+            right[0][0] = cube[FRONT][0][2];
+            right[1][0] = cube[FRONT][1][2];
+            right[2][0] = cube[FRONT][2][2];
+
+            top[2][0] = cube[FRONT][0][0];
+            top[2][1] = cube[FRONT][0][1];
+            top[2][2] = cube[FRONT][0][2];
+
+            bottom[0][0] = cube[FRONT][2][0];
+            bottom[0][1] = cube[FRONT][2][1];
+            bottom[0][2] = cube[FRONT][2][2];
+            break;
+        case BACK:
+            // Rotate the face
+            back[0][0] = temp[3]; back[0][1] = temp[0]; back[0][2] = temp[1];
+            back[1][0] = temp[6]; /*THE CENTER NEVER MOVES!*/ back[1][2] = temp[2];
+            back[2][0] = temp[7]; back[2][1] = temp[8]; back[2][2] = temp[5];
+
+            left[0][0] = cube[BACK][0][2];
+            left[1][0] = cube[BACK][1][2];
+            left[2][0] = cube[BACK][2][2];
+
+            right[0][2] = cube[BACK][0][0];
+            right[1][2] = cube[BACK][1][0];
+            right[2][2] = cube[BACK][2][0];
+
+            top[0][0] = cube[BACK][0][2];
+            top[0][1] = cube[BACK][0][1];
+            top[0][2] = cube[BACK][0][0];
+
+            bottom[2][0] = cube[BACK][2][2];
+            bottom[2][1] = cube[BACK][2][1];
+            bottom[2][2] = cube[BACK][2][0];
+            break;
+        case LEFT:
+            // Rotate the face
+            left[0][0] = temp[3]; left[0][1] = temp[0]; left[0][2] = temp[1];
+            left[1][0] = temp[6]; /*THE CENTER NEVER MOVES!*/ left[1][2] = temp[2];
+            left[2][0] = temp[7]; left[2][1] = temp[8]; left[2][2] = temp[5];
+
+            front[0][0] = cube[LEFT][0][2];
+            front[1][0] = cube[LEFT][1][2];
+            front[2][0] = cube[LEFT][2][2];
+
+            back[0][2] = cube[LEFT][0][0];
+            back[1][2] = cube[LEFT][1][0];
+            back[2][2] = cube[LEFT][2][0];
+
+            top[0][0] = cube[LEFT][0][0];
+            top[1][0] = cube[LEFT][0][1];
+            top[2][0] = cube[LEFT][0][2];
+
+            bottom[2][2] = cube[LEFT][2][0];
+            bottom[1][2] = cube[LEFT][2][1];
+            bottom[0][2] = cube[LEFT][2][2];
+            break;
+        case RIGHT:
+            // Rotate the face
+            right[0][0] = temp[3]; right[0][1] = temp[0]; right[0][2] = temp[1];
+            right[1][0] = temp[6]; /*THE CENTER NEVER MOVES!*/ right[1][2] = temp[2];
+            right[2][0] = temp[7]; right[2][1] = temp[8]; right[2][2] = temp[5];
+
+            front[0][2] = cube[RIGHT][0][0];
+            front[1][2] = cube[RIGHT][1][0];
+            front[2][2] = cube[RIGHT][2][0];
+
+            back[0][0] = cube[RIGHT][0][2];
+            back[1][0] = cube[RIGHT][1][2];
+            back[2][0] = cube[RIGHT][2][2];
+
+            top[2][2] = cube[RIGHT][0][0];
+            top[1][2] = cube[RIGHT][0][1];
+            top[0][2] = cube[RIGHT][0][2];
+
+            bottom[0][2] = cube[RIGHT][2][0];
+            bottom[1][2] = cube[RIGHT][2][1];
+            bottom[2][2] = cube[RIGHT][2][2];
+            break;
+        case TOP:
+            // Rotate the face
+            top[0][0] = temp[3]; top[0][1] = temp[0]; top[0][2] = temp[1];
+            top[1][0] = temp[6]; /*THE CENTER NEVER MOVES!*/ top[1][2] = temp[2];
+            top[2][0] = temp[7]; top[2][1] = temp[8]; top[2][2] = temp[5];
+
+            front[0][0] = cube[TOP][2][0];
+            front[0][1] = cube[TOP][2][1];
+            front[0][2] = cube[TOP][2][2];
+
+            back[0][0] = cube[TOP][0][2];
+            back[0][1] = cube[TOP][0][1];
+            back[0][2] = cube[TOP][0][0];
+
+            left[0][0] = cube[TOP][0][0];
+            left[0][1] = cube[TOP][1][0];
+            left[0][2] = cube[TOP][2][0];
+
+            right[0][0] = cube[TOP][2][2];
+            right[0][1] = cube[TOP][1][2];
+            right[0][2] = cube[TOP][0][2];
+            break;
+        case BOTTOM:
+            // Rotate the face
+            bottom[0][0] = temp[3]; bottom[0][1] = temp[0]; bottom[0][2] = temp[1];
+            bottom[1][0] = temp[6]; /*THE CENTER NEVER MOVES!*/ bottom[1][2] = temp[2];
+            bottom[2][0] = temp[7]; bottom[2][1] = temp[8]; bottom[2][2] = temp[5];
+
+            front[2][0] = cube[BOTTOM][0][0];
+            front[2][1] = cube[BOTTOM][0][1];
+            front[2][2] = cube[BOTTOM][0][2];
+
+            back[2][2] = cube[BOTTOM][2][0];
+            back[2][1] = cube[BOTTOM][2][1];
+            back[2][0] = cube[BOTTOM][2][2];
+
+            left[2][0] = cube[BOTTOM][2][0];
+            left[2][1] = cube[BOTTOM][1][0];
+            left[2][2] = cube[BOTTOM][0][0];
+
+            right[2][0] = cube[BOTTOM][0][2];
+            right[2][1] = cube[BOTTOM][1][2];
+            right[2][2] = cube[BOTTOM][2][2];
+            break;
+        default:
+            break;
+    }
+}
+
+void rot_cubits(mat4x4* ctms, animation side) {
+
 }
