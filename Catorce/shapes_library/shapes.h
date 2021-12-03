@@ -63,6 +63,7 @@ ERROR_NUM torus(vector4* vertices, int count, int bands, GLfloat radius, GLfloat
 
 ERROR_NUM rect3D(vector4* vertices, GLfloat length, GLfloat width, GLfloat height);
 
+// 27 Cubes, 132 vertices per cubit
 ERROR_NUM rubix_cube(vector4* vertices);
 
 // Assumes enough for 1 cubit

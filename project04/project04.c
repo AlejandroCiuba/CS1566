@@ -101,7 +101,7 @@ mat4x4 ctm_rubix[27];
 
 // Functions that manipulate the rubix cube visuals and logic
 void rot_grid(animation side);
-void rot_cubits(mat4x4* ctms, animation side);
+void rot_cubits(mat4x4* ctms, GLfloat deg, animation side);
 
 void init(void) {
 
@@ -193,15 +193,17 @@ void display(void) {
     glPolygonMode(GL_BACK, GL_LINE);
 
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
-    glUniformMatrix4fv(ctm_location, 1, GL_FALSE, (GLfloat *) &ctm);
+    for(int i = 0; i < 27; i++) {
+        glUniformMatrix4fv(ctm_location, 1, GL_FALSE, (GLfloat *) &ctm_rubix[i]);
 
-    // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
-    glUniformMatrix4fv(mvm_location, 1, GL_FALSE, (GLfloat *) &mvm);
+        // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
+        glUniformMatrix4fv(mvm_location, 1, GL_FALSE, (GLfloat *) &mvm);
 
-    // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
-    glUniformMatrix4fv(perm_location, 1, GL_FALSE, (GLfloat *) &perm);
+        // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
+        glUniformMatrix4fv(perm_location, 1, GL_FALSE, (GLfloat *) &perm);
 
-    glDrawArrays(GL_TRIANGLES, 0, num_vertices);
+        glDrawArrays(GL_TRIANGLES, (i * 132), 132);
+    }
 
     glutSwapBuffers();
 }
@@ -316,8 +318,10 @@ void idle() {
     look_at(&eye, &look, &up, &mvm);
 
     // ===================== CAMERA MOVEMENTS =====================
+    GLfloat rot_cubits_deg = 2;
     if(anim == FRONT) {
-        rot_grid(FRONT);
+        rot_cubits(&ctm_rubix, -rot_cubits_deg, FRONT);
+        //rot_grid(FRONT);
         anim = NONE;
     }
     else if(anim == BACK) {
@@ -341,43 +345,6 @@ void idle() {
         anim = NONE;
     }
     else if(anim == DEFAULT) {
-        printf("\n===================== CUBE SIDES =====================\n");
-        printf("\nFRONT\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", front[i][j]);
-            printf("\n");
-        }
-        printf("\nBACK\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", back[i][j]);
-            printf("\n");
-        }
-        printf("\nLEFT\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", left[i][j]);
-            printf("\n");
-        }
-        printf("\nRIGHT\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", right[i][j]);
-            printf("\n");
-        }
-        printf("\nTOP\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", top[i][j]);
-            printf("\n");
-        }
-        printf("\nBOTTOM\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", bottom[i][j]);
-            printf("\n");
-        }
         anim = NONE;
     }
     glutPostRedisplay();
@@ -396,7 +363,7 @@ int main(int argc, char **argv) {
     color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
     // Set all RUbix Cube CTMs to identity
-    for(int i = 0; i < 27; i++) ctms[i] = identity;
+    for(int i = 0; i < 27; i++) ctm_rubix[i] = identity;
 
     // Move Rubix Cube to the origin
     com(vertices, num_vertices, &co);
@@ -678,6 +645,43 @@ void rot_grid(animation side) {
     }
 }
 
-void rot_cubits(mat4x4* ctms, animation side) {
+void rot_cubits(mat4x4* ctms, GLfloat deg, animation side) {
 
+    if(ctms == NULL) return;
+
+    // Rotate the ctms in the side
+    switch(side) {
+        case FRONT:
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    rotate_arb(deg, &z_axis, &co, &ctm_rubix[front[i][j]]);
+            break;
+        case BACK:
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    rotate_arb(deg, &z_axis, &co, &ctm_rubix[back[i][j]]);
+            break;
+        case LEFT:
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    rotate_arb(deg, &x_axis, &co, &ctm_rubix[left[i][j]]);
+            break;
+        case RIGHT:
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    rotate_arb(deg, &x_axis, &co, &ctm_rubix[right[i][j]]);
+            break;
+        case TOP:
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    rotate_arb(deg, &y_axis, &co, &ctm_rubix[top[i][j]]);
+            break;
+        case BOTTOM:
+            for(int i = 0; i < 3; i++)
+                for(int j = 0; j < 3; j++)
+                    rotate_arb(deg, &y_axis, &co, &ctm_rubix[bottom[i][j]]);
+            break;
+        default:
+            break; // HATE
+    }
 }

@@ -556,7 +556,7 @@ ERROR_NUM rect3D(vector4* vertices, GLfloat length, GLfloat width, GLfloat heigh
     return 0;
 }
 
-// 27 Cubes, 6 Verts per cube face, 6 cube faces
+// 27 Cubes, 132 vertices per cubit
 ERROR_NUM rubix_cube(vector4* vertices) {
 
     if(vertices == NULL) return MATLIB_POINTER_ERROR;

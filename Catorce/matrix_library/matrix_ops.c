@@ -11,6 +11,9 @@
 mat4x4 identity = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 mat4x4 zero_matrix = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}};
 vector4 zero_vector = {0,0,0,0};
+vector4 x_axis = {1,0,0,0};
+vector4 y_axis = {0,1,0,0};
+vector4 z_axis = {0,0,1,0};
 
 // ============== VECTOR AND MATRIX MATH FUNCTIONS ==============
 

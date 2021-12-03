@@ -10,7 +10,7 @@
 #include "matrix_def.h"
 
 extern mat4x4 identity, zero_matrix;
-extern vector4 zero_vector;
+extern vector4 zero_vector, x_axis, y_axis, z_axis;
 
 // ============== VECTOR AND MATRIX MATH FUNCTIONS ==============
 
