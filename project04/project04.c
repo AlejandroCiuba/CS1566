@@ -99,6 +99,12 @@ int bottom[3][3] = {{2,11,20},{1,10,19},{0,9,18}};
 // The array of ctms which correspond to 1 cubit each
 mat4x4* ctm_rubix;
 
+// Disables turning the rubix cube until one full rotation has been completed
+bool can_rot = true;
+
+// Tracks when the user may turn the rubix cube again
+GLfloat curr_rot_amount = 0;
+
 // Functions that manipulate the rubix cube visuals and logic
 void rot_grid(animation side);
 void rot_cubits(mat4x4* ctms, GLfloat deg, animation side);
@@ -215,31 +221,38 @@ void mouse(int button, int state, int x, int y) {}
 // Captures all movement of the mouse when GLUT_LEFT_BUTTON and GLUT_DOWN
 void motion(int x, int y) {}
 
+// DISABLES KEYBOARD WHILE ACTIVE, MAKE SURE YOU KNOW WHAT YOU'RE DOING!!!
+bool DISABLE_KEYBOARD = false;
+
 void keyboard(unsigned char key, int mousex, int mousey) {
 
-    if(key == 'q') quit_program();
-    	
-    if(key == 'v') for(int i = 0; i < num_vertices; i++) {printf("%d: ", i); print_vector_ptr(&vertices[i]);}
+    if(!DISABLE_KEYBOARD) {
+        if(key == 'q') quit_program();
+            
+        if(key == 'v') for(int i = 0; i < num_vertices; i++) {printf("%d: ", i); print_vector_ptr(&vertices[i]);}
 
-    // ===================== CAMERA MOVEMENT =====================
-    if(key == 'w') cam = LOOK_UP;
-    else if(key == 's') cam = LOOK_DOWN;
-    else if(key == 'a') cam = LOOK_LEFT;
-    else if(key == 'd') cam = LOOK_RIGHT;
+        // ===================== CAMERA MOVEMENT =====================
+        if(key == 'w') cam = LOOK_UP;
+        else if(key == 's') cam = LOOK_DOWN;
+        else if(key == 'a') cam = LOOK_LEFT;
+        else if(key == 'd') cam = LOOK_RIGHT;
 
-    if(key == '+') cam = ZOOM_IN;
-    else if(key == '-') cam = ZOOM_OUT;
+        if(key == '+') cam = ZOOM_IN;
+        else if(key == '-') cam = ZOOM_OUT;
 
-    if(key == 'r') cam = RESET;
+        if(key == 'r') cam = RESET;
 
-    // ===================== RUBIX CUBE ANIMATIONS =====================
-    if(key == '1') anim = FRONT;
-    else if(key == '2') anim = BACK;
-    else if(key == '3') anim = LEFT;
-    else if(key == '4') anim = RIGHT;
-    else if(key == '5') anim = TOP;
-    else if(key == '6') anim = BOTTOM;
-    else if(key == '7') anim = DEFAULT;
+        // ===================== RUBIX CUBE ANIMATIONS =====================
+        if(can_rot) {
+            if(key == '1') anim = FRONT;
+            else if(key == '2') anim = BACK;
+            else if(key == '3') anim = LEFT;
+            else if(key == '4') anim = RIGHT;
+            else if(key == '5') anim = TOP;
+            else if(key == '6') anim = BOTTOM;
+            else if(key == '7') anim = DEFAULT;
+        }
+    }
 }
 
 void idle() {
@@ -320,28 +333,70 @@ void idle() {
     // ===================== CAMERA MOVEMENTS =====================
     GLfloat rot_cubits_deg = 2;
     if(anim == FRONT) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, -rot_cubits_deg, FRONT);
-        anim = NONE;
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            can_rot = true;
+            curr_rot_amount = 0;
+            rot_grid(FRONT);
+        }
     }
     else if(anim == BACK) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, rot_cubits_deg, BACK);
-        anim = NONE;
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            can_rot = true;
+            curr_rot_amount = 0;
+            rot_grid(BACK);
+        }
     }
     else if(anim == LEFT) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, rot_cubits_deg, LEFT);
-        anim = NONE;
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            can_rot = true;
+            curr_rot_amount = 0;
+            rot_grid(LEFT);
+        }
     }
     else if(anim == RIGHT) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, -rot_cubits_deg, RIGHT);
-        anim = NONE;
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            can_rot = true;
+            curr_rot_amount = 0;
+            rot_grid(RIGHT);
+        }
     }
     else if(anim == TOP) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, -rot_cubits_deg, TOP);
-        anim = NONE;
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            can_rot = true;
+            curr_rot_amount = 0;
+            rot_grid(TOP);
+        }
     }
     else if(anim == BOTTOM) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, rot_cubits_deg, BOTTOM);
-        anim = NONE;
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            can_rot = true;
+            curr_rot_amount = 0;
+            rot_grid(BOTTOM);
+        }
     }
     else if(anim == DEFAULT) {
         anim = NONE;
