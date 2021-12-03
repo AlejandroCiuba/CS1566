@@ -600,9 +600,9 @@ void rot_grid(animation side) {
             top[1][0] = cube[LEFT][0][1];
             top[2][0] = cube[LEFT][0][2];
 
-            bottom[2][2] = cube[LEFT][2][0];
-            bottom[1][2] = cube[LEFT][2][1];
-            bottom[0][2] = cube[LEFT][2][2];
+            bottom[0][0] = cube[LEFT][2][2];
+            bottom[1][0] = cube[LEFT][2][1];
+            bottom[2][0] = cube[LEFT][2][0];
             break;
         case RIGHT:
             // Rotate the face
