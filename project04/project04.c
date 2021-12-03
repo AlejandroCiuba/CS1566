@@ -395,6 +395,9 @@ int main(int argc, char **argv) {
     //random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
+    // Set all RUbix Cube CTMs to identity
+    for(int i = 0; i < 27; i++) ctms[i] = identity;
+
     // Move Rubix Cube to the origin
     com(vertices, num_vertices, &co);
     mat4x4 tra = zero_matrix;
