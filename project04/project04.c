@@ -97,7 +97,7 @@ int top[3][3] = {{6,15,24},{7,16,25},{8,17,26}};
 int bottom[3][3] = {{2,11,20},{1,10,19},{0,9,18}};
 
 // The array of ctms which correspond to 1 cubit each
-mat4x4 ctm_rubix[27];
+mat4x4* ctm_rubix;
 
 // Functions that manipulate the rubix cube visuals and logic
 void rot_grid(animation side);
@@ -320,28 +320,27 @@ void idle() {
     // ===================== CAMERA MOVEMENTS =====================
     GLfloat rot_cubits_deg = 2;
     if(anim == FRONT) {
-        rot_cubits(&ctm_rubix, -rot_cubits_deg, FRONT);
-        //rot_grid(FRONT);
+        rot_cubits(ctm_rubix, -rot_cubits_deg, FRONT);
         anim = NONE;
     }
     else if(anim == BACK) {
-        rot_grid(BACK);
+        rot_cubits(ctm_rubix, rot_cubits_deg, BACK);
         anim = NONE;
     }
     else if(anim == LEFT) {
-        rot_grid(LEFT);
+        rot_cubits(ctm_rubix, rot_cubits_deg, LEFT);
         anim = NONE;
     }
     else if(anim == RIGHT) {
-        rot_grid(RIGHT);
+        rot_cubits(ctm_rubix, -rot_cubits_deg, RIGHT);
         anim = NONE;
     }
     else if(anim == TOP) {
-        rot_grid(TOP);
+        rot_cubits(ctm_rubix, -rot_cubits_deg, TOP);
         anim = NONE;
     }
     else if(anim == BOTTOM) {
-        rot_grid(BOTTOM);
+        rot_cubits(ctm_rubix, rot_cubits_deg, BOTTOM);
         anim = NONE;
     }
     else if(anim == DEFAULT) {
@@ -363,7 +362,9 @@ int main(int argc, char **argv) {
     color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
     // Set all RUbix Cube CTMs to identity
+    ctm_rubix = (mat4x4*) malloc(sizeof(mat4x4) * 27);
     for(int i = 0; i < 27; i++) ctm_rubix[i] = identity;
+    print_matrix(ctm_rubix[left[0][0]]);
 
     // Move Rubix Cube to the origin
     com(vertices, num_vertices, &co);
@@ -418,6 +419,8 @@ int main(int argc, char **argv) {
     glutReshapeFunc(reshape);
     glutMainLoop();
 
+    // Free here because it's separate from the standard procedure
+    free(ctm_rubix);
     return 0;
 }
 
@@ -649,37 +652,58 @@ void rot_cubits(mat4x4* ctms, GLfloat deg, animation side) {
 
     if(ctms == NULL) return;
 
+    mat4x4 ctm_copy = identity;
+    mat4x4 ro = zero_matrix;
+
     // Rotate the ctms in the side
     switch(side) {
         case FRONT:
+            rotate(deg, 'z', &ro);
             for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
-                    rotate_arb(deg, &z_axis, &co, &ctm_rubix[front[i][j]]);
+                for(int j = 0; j < 3; j++) {
+                    copy_matrix(&ctm_rubix[front[i][j]], &ctm_copy);
+                    matxmat(&ro, &ctm_copy, &ctm_rubix[front[i][j]]);
+                }
             break;
         case BACK:
+            rotate(deg, 'z', &ro);
             for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
-                    rotate_arb(deg, &z_axis, &co, &ctm_rubix[back[i][j]]);
+                for(int j = 0; j < 3; j++) {
+                    copy_matrix(&ctm_rubix[back[i][j]], &ctm_copy);
+                    matxmat(&ro, &ctm_copy, &ctm_rubix[back[i][j]]);
+                }
             break;
         case LEFT:
+            rotate(deg, 'x', &ro);
             for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
-                    rotate_arb(deg, &x_axis, &co, &ctm_rubix[left[i][j]]);
+                for(int j = 0; j < 3; j++) {
+                    copy_matrix(&ctm_rubix[left[i][j]], &ctm_copy);
+                    matxmat(&ro, &ctm_copy, &ctm_rubix[left[i][j]]);
+                }
             break;
         case RIGHT:
+            rotate(deg, 'x', &ro);
             for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
-                    rotate_arb(deg, &x_axis, &co, &ctm_rubix[right[i][j]]);
+                for(int j = 0; j < 3; j++) {
+                    copy_matrix(&ctm_rubix[right[i][j]], &ctm_copy);
+                    matxmat(&ro, &ctm_copy, &ctm_rubix[right[i][j]]);
+                }
             break;
         case TOP:
+            rotate(deg, 'y', &ro);
             for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
-                    rotate_arb(deg, &y_axis, &co, &ctm_rubix[top[i][j]]);
+                for(int j = 0; j < 3; j++) {
+                    copy_matrix(&ctm_rubix[top[i][j]], &ctm_copy);
+                    matxmat(&ro, &ctm_copy, &ctm_rubix[top[i][j]]);
+                }
             break;
         case BOTTOM:
+            rotate(deg, 'y', &ro);
             for(int i = 0; i < 3; i++)
-                for(int j = 0; j < 3; j++)
-                    rotate_arb(deg, &y_axis, &co, &ctm_rubix[bottom[i][j]]);
+                for(int j = 0; j < 3; j++) {
+                    copy_matrix(&ctm_rubix[bottom[i][j]], &ctm_copy);
+                    matxmat(&ro, &ctm_copy, &ctm_rubix[bottom[i][j]]);
+                }
             break;
         default:
             break; // HATE
