@@ -445,9 +445,7 @@ int main(int argc, char **argv) {
         for(int j = 0; j < 3; j++)
             for(int k = 0; k < 3; k++)
                 cube[i][j][k] = ogcube[i][j][k];
-    //cubit(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
     // Assign color and print statistics
-    //random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
     color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
     // Set all RUbix Cube CTMs to identity
