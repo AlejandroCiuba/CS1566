@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #include "../Catorce/matrix_library/initShader.h"
 #include "../Catorce/matrix_library/matrix_def.h"
@@ -62,13 +63,13 @@ vector4 eye = {0.01, 0.01, 1, 1};
 vector4 look = {0, 0, 0, 1};
 vector4 up = {0, 1, 0, 0};
 GLfloat radius = 1; // Used for zooming in and out
-int turns = 0; // Used to describe the # of turns from the original position
+GLfloat turns = 0; // Used to describe the # of turns from the original position
 
 vector4 reye = {0.01, 0.01, 1, 1};
 vector4 rlook = {0, 0, 0, 1};
 vector4 rup = {0, 1, 0, 0};
 GLfloat rradius = 1; // Used for zooming in and out
-int rturns = 0; // Used to describe the # of turns from the original position
+GLfloat rturns = 0; // Used to describe the # of turns from the original position
 
 // Center of Objects Mass
 vector4 co = {0,0,0,1};
@@ -89,25 +90,34 @@ void color_cube(vector4* colors, color* face_colors);
 // The Cubits are labelled 0-26 and stored into 6 2D arrays representing each face
 // The 0 - 26 are determined by how many cubits one needs to traverse in the Rubix Cube
 // Array to find it. These are their starting positions in the cube.
-int cube[6][3][3] = {{{8,17,26},{5,14,23},{2,11,20}},
+int ogcube[6][3][3] = {{{8,17,26},{5,14,23},{2,11,20}},
                     {{24,15,6},{21,12,3},{18,9,0}},
                     {{6,7,8},{3,4,5},{0,1,2}},
                     {{26,25,24},{23,22,21},{20,19,18}},
                     {{6,15,24},{7,16,25},{8,17,26}},
                     {{2,11,20},{1,10,19},{0,9,18}}};
+int cube[6][3][3]; // What will be manipulated
 
 // The array of ctms which correspond to 1 cubit each
 mat4x4* ctm_rubix;
 
+// Rotation per frame
+GLfloat rot_cubits_deg = .25;
 // Disables turning the rubix cube until one full rotation has been completed
 bool can_rot = true;
-
 // Tracks when the user may turn the rubix cube again
 GLfloat curr_rot_amount = 0;
+//Rotations of a random shuffle
+animation rots[25];
+int num = 25; // # of random rotations
 
 // Functions that manipulate the rubix cube visuals and logic
 void rot_grid(animation side);
 void rot_cubits(mat4x4* ctms, GLfloat deg, animation side);
+
+// Extra Functions
+void rubix_print(); // Print out which blocks are at what side
+void shuffle_rubix(); // Outputs a random set of rotations
 
 void init(void) {
 
@@ -250,18 +260,22 @@ void keyboard(unsigned char key, int mousex, int mousey) {
             else if(key == '4') anim = RIGHT;
             else if(key == '5') anim = TOP;
             else if(key == '6') anim = BOTTOM;
-            else if(key == '7') anim = DEFAULT;
+            else if(key == '8') anim = DEFAULT;
         }
+
+        if(key == '7') rubix_print();
     }
 }
 
+// Function equivalent of a for-loop... DISGUSTING, I lowkey miss OOP here
+int shuffle = 0;
 void idle() {
 
     GLfloat degree = 5;
     // ===================== CAMERA MOVEMENTS =====================
     if(cam == LOOK_UP) {
-        if(turns < 17) {
-            turns++;
+        if(turns < 85) {
+            turns += 5;
             // Calculate the cross product
             vector4 cross = zero_vector;
             vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
@@ -275,8 +289,8 @@ void idle() {
         cam = BASE;
     }
     else if(cam == LOOK_DOWN) {
-        if(turns > -17) {
-            turns--;
+        if(turns > -85) {
+            turns -= 5;
             // Calculate the cross product
             vector4 cross = zero_vector;
             vector4 eye_vec = {eye.x - look.x, eye.y - look.y, eye.z - look.z, 0};
@@ -330,8 +344,7 @@ void idle() {
     // Apply changes to modal-view matrix
     look_at(&eye, &look, &up, &mvm);
 
-    // ===================== CAMERA MOVEMENTS =====================
-    GLfloat rot_cubits_deg = .25;
+    // ===================== RUBIX CUBE ROTATIONS =====================
     if(anim == FRONT) {
         can_rot = false;
         curr_rot_amount += rot_cubits_deg;
@@ -399,44 +412,24 @@ void idle() {
         }
     }
     else if(anim == DEFAULT) {
-        printf("\n===================== CUBE SIDES =====================\n");
-        printf("\nFRONT\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", cube[FRONT][i][j]);
-            printf("\n");
+        if(can_rot) {
+            can_rot = false;
+            // Generate a random number 5 - 25
+            srand(time(NULL));
+            int num = (rand() % 20) + 5;
+
+            // Create a list of shuffles to perform
+            for(int i = 0; i < num; i++) rots[i] = rand() % 6;
         }
-        printf("\nBACK\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", cube[BACK][i][j]);
-            printf("\n");
+        if(shuffle < num && curr_rot_amount == 0)
+            shuffle_rubix(rots[++shuffle]);
+        else if(shuffle < num && curr_rot_amount != 0)
+            shuffle_rubix(rots[shuffle]);
+        else {
+            shuffle = 0;
+            can_rot = true;
+            anim = NONE;
         }
-        printf("\nLEFT\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", cube[LEFT][i][j]);
-            printf("\n");
-        }
-        printf("\nRIGHT\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", cube[RIGHT][i][j]);
-            printf("\n");
-        }
-        printf("\nTOP\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", cube[TOP][i][j]);
-            printf("\n");
-        }
-        printf("\nBOTTOM\n");
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++)
-                printf("%d ", cube[BOTTOM][i][j]);
-            printf("\n");
-        }
-        anim = NONE;
     }
     glutPostRedisplay();
 }
@@ -448,6 +441,10 @@ int main(int argc, char **argv) {
 
     // ===================== LOAD-IN RUBIX CUBE =====================
     rubix_cube(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
+    for(int i = 0; i < 6; i++)
+        for(int j = 0; j < 3; j++)
+            for(int k = 0; k < 3; k++)
+                cube[i][j][k] = ogcube[i][j][k];
     //cubit(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
     // Assign color and print statistics
     //random_colors(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
@@ -762,5 +759,112 @@ void rot_cubits(mat4x4* ctms, GLfloat deg, animation side) {
             break;
         default:
             break; // HATE
+    }
+}
+
+// Print out which blocks are at which sides
+void rubix_print() {
+    printf("\n===================== CUBE SIDES =====================\n");
+    printf("\nFRONT\n");
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++)
+            printf("%d ", cube[FRONT][i][j]);
+        printf("\n");
+    }
+    printf("\nBACK\n");
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++)
+            printf("%d ", cube[BACK][i][j]);
+        printf("\n");
+    }
+    printf("\nLEFT\n");
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++)
+            printf("%d ", cube[LEFT][i][j]);
+        printf("\n");
+    }
+    printf("\nRIGHT\n");
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++)
+            printf("%d ", cube[RIGHT][i][j]);
+        printf("\n");
+    }
+    printf("\nTOP\n");
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++)
+            printf("%d ", cube[TOP][i][j]);
+        printf("\n");
+    }
+    printf("\nBOTTOM\n");
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++)
+            printf("%d ", cube[BOTTOM][i][j]);
+        printf("\n");
+    }
+}
+
+// Outputs a random set of rotations
+void shuffle_rubix(animation anim) {
+
+    // ===================== RUBIX CUBE ROTATIONS =====================
+    if(anim == FRONT) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
+        rot_cubits(ctm_rubix, -rot_cubits_deg, FRONT);
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            curr_rot_amount = 0;
+            rot_grid(FRONT);
+        }
+    }
+    else if(anim == BACK) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
+        rot_cubits(ctm_rubix, rot_cubits_deg, BACK);
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            curr_rot_amount = 0;
+            rot_grid(BACK);
+        }
+    }
+    else if(anim == LEFT) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
+        rot_cubits(ctm_rubix, rot_cubits_deg, LEFT);
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            curr_rot_amount = 0;
+            rot_grid(LEFT);
+        }
+    }
+    else if(anim == RIGHT) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
+        rot_cubits(ctm_rubix, -rot_cubits_deg, RIGHT);
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            curr_rot_amount = 0;
+            rot_grid(RIGHT);
+        }
+    }
+    else if(anim == TOP) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
+        rot_cubits(ctm_rubix, -rot_cubits_deg, TOP);
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            curr_rot_amount = 0;
+            rot_grid(TOP);
+        }
+    }
+    else if(anim == BOTTOM) {
+        can_rot = false;
+        curr_rot_amount += rot_cubits_deg;
+        rot_cubits(ctm_rubix, rot_cubits_deg, BOTTOM);
+        if(curr_rot_amount == 90) {
+            anim = NONE;
+            curr_rot_amount = 0;
+            rot_grid(BOTTOM);
+        }
     }
 }
