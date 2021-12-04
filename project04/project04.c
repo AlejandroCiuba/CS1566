@@ -416,19 +416,24 @@ void idle() {
             can_rot = false;
             // Generate a random number 5 - 25
             srand(time(NULL));
-            int num = (rand() % 20) + 5;
+            num = (rand() % 20) + 5;
 
             // Create a list of shuffles to perform
             for(int i = 0; i < num; i++) rots[i] = rand() % 6;
+
+            // Print random stats
+            char sides[6][7] = {"FRONT", "BACK", "LEFT", "RIGHT", "TOP", "BOTTOM"};
+            printf("===================== STATISTICS FOR A RANDOM SHUFFLE OF %d ROTATIONS =====================\n", num);
+            for(int i = 0; i < num - 1; i++) printf("%s, ", sides[rots[i]]);
+            printf("%s", sides[rots[num - 1]]);
+            printf("\n");
         }
-        if(shuffle < num && curr_rot_amount == 0)
-            shuffle_rubix(rots[++shuffle]);
-        else if(shuffle < num && curr_rot_amount != 0)
-            shuffle_rubix(rots[shuffle]);
+        if(shuffle < num) shuffle_rubix(rots[shuffle]);
         else {
             shuffle = 0;
             can_rot = true;
             anim = NONE;
+            printf("\nHERE\n");
         }
     }
     glutPostRedisplay();
@@ -810,6 +815,7 @@ void shuffle_rubix(animation anim) {
         curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, -rot_cubits_deg, FRONT);
         if(curr_rot_amount == 90) {
+            shuffle++;
             anim = NONE;
             curr_rot_amount = 0;
             rot_grid(FRONT);
@@ -820,6 +826,7 @@ void shuffle_rubix(animation anim) {
         curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, rot_cubits_deg, BACK);
         if(curr_rot_amount == 90) {
+            shuffle++;
             anim = NONE;
             curr_rot_amount = 0;
             rot_grid(BACK);
@@ -830,6 +837,7 @@ void shuffle_rubix(animation anim) {
         curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, rot_cubits_deg, LEFT);
         if(curr_rot_amount == 90) {
+            shuffle++;
             anim = NONE;
             curr_rot_amount = 0;
             rot_grid(LEFT);
@@ -840,6 +848,7 @@ void shuffle_rubix(animation anim) {
         curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, -rot_cubits_deg, RIGHT);
         if(curr_rot_amount == 90) {
+            shuffle++;
             anim = NONE;
             curr_rot_amount = 0;
             rot_grid(RIGHT);
@@ -850,6 +859,7 @@ void shuffle_rubix(animation anim) {
         curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, -rot_cubits_deg, TOP);
         if(curr_rot_amount == 90) {
+            shuffle++;
             anim = NONE;
             curr_rot_amount = 0;
             rot_grid(TOP);
@@ -860,6 +870,7 @@ void shuffle_rubix(animation anim) {
         curr_rot_amount += rot_cubits_deg;
         rot_cubits(ctm_rubix, rot_cubits_deg, BOTTOM);
         if(curr_rot_amount == 90) {
+            shuffle++;
             anim = NONE;
             curr_rot_amount = 0;
             rot_grid(BOTTOM);
