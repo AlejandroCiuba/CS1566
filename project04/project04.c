@@ -102,7 +102,7 @@ int cube[6][3][3]; // What will be manipulated
 mat4x4* ctm_rubix;
 
 // Rotation per frame
-GLfloat rot_cubits_deg = .25;
+GLfloat rot_cubits_deg = 2;
 // Disables turning the rubix cube until one full rotation has been completed
 bool can_rot = true;
 // Tracks when the user may turn the rubix cube again
@@ -433,7 +433,6 @@ void idle() {
             shuffle = 0;
             can_rot = true;
             anim = NONE;
-            printf("\nHERE\n");
         }
     }
     glutPostRedisplay();
