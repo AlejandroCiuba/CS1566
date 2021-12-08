@@ -5,7 +5,8 @@ OBJDIR   = ../Catorce
 OBJS = $(OBJDIR)/matrix_library/initShader.o $(OBJDIR)/matrix_library/matrix_ops.o $(OBJDIR)/matrix_library/matrix_utility.o\
 $(OBJDIR)/shapes_library/shapes.o $(OBJDIR)/shapes_library/affine.o\
 $(OBJDIR)/other/file_reader.o $(OBJDIR)/other/array_list.o\
-$(OBJDIR)/camera/camera.o
+$(OBJDIR)/camera/camera.o\
+$(OBJDIR)/camera/lighting.o
 
 all: matrix project04
 

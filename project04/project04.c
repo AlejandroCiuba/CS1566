@@ -23,6 +23,7 @@
 #include "../Catorce/shapes_library/affine.h"
 #include "../Catorce/other/file_reader.h"
 #include "../Catorce/camera/camera.h"
+#include "../Catorce/camera/lighting.h"
 
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
@@ -42,18 +43,10 @@ GLuint perm_location;
 mat4x4 mvm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint mvm_location;
 
-// Texels for texture
-GLubyte* texels;
-int width = 0, height = 0;
-FILE* image = NULL;
-
-// Option to use texture or color, set to 1 by default (ASSUMES TEXTURE)
-int use_texture = 0;
-
 // ===================== VERTEX ATTRIBUTES =====================
 vector4* vertices;
+vector4* normals;
 vector4* colors;
-vector2* texcoords;
 
 int num_vertices = 3564;
 
@@ -119,25 +112,32 @@ void rot_cubits(mat4x4* ctms, GLfloat deg, animation side);
 void rubix_print(); // Print out which blocks are at what side
 void shuffle_rubix(); // Outputs a random set of rotations
 
+// ===================== LIGHTING THINGS =====================
+// Define light source characteristics, including position
+light source = {{.1,.1,.1,1.0},{1.0,1.0,1.0,1.0},{1.0,1.0,1.0,1.0}};
+light_pos source_pos = {1.0,1.0,1.0,1.0};
+
+// Attenuation Constants
+const GLfloat ATT;
+const GLfloat ATT_LIN;
+const GLfloat ATT_QUAD;
+
+// material/color properties
+vector4* ref_amb;
+vector4* ref_diff;
+vector4 ref_spec = {1.0,1.0,1.0,1.0};
+
+// Shininess constant
+const GLfloat shininess = .15;
+
+// Calculate the ref_amb and ref_diff for the rubix cube sides
+void light_rubix();
+
 void init(void) {
 
     // Load the vertex and fragment shaders
     program = initShader("vshader.glsl", "fshader.glsl");
     glUseProgram(program);
-    
-    // Puts texel array onto graphics pipeline
-    GLuint mytex[1];
-    glGenTextures(1, mytex);
-    glBindTexture(GL_TEXTURE_2D, mytex[0]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texels);
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-
-    // idk...
-    int param;
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &param);
 
     // Use this to transport between here and graphics pipeline
     GLuint vao;
@@ -148,10 +148,10 @@ void init(void) {
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices + sizeof(vector2) * num_vertices, NULL, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 3 * num_vertices, NULL, GL_STATIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, colors);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * num_vertices, sizeof(vector2) * num_vertices, texcoords);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, normals);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 *  num_vertices, sizeof(vector4) * num_vertices, colors);
 
     // Use this for passing the position info into the vertex and fragment shaders
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
@@ -159,14 +159,14 @@ void init(void) {
     glVertexAttribPointer(vPosition, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
 
     // Use this for passing the color info into the vertex and fragment shaders
+    GLuint vNormal = glGetAttribLocation(program, "vNormal");
+    glEnableVertexAttribArray(vNormal);
+    glVertexAttribPointer(vNormal, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
+
+    // Use this for passing the color info into the vertex and fragment shaders
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
-    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
-
-    // Use this for passing the texture coordinate info into the vertex and fragment shaders
-    GLuint vTexCoord = glGetAttribLocation(program, "vTexCoord");
-    glEnableVertexAttribArray(vTexCoord);
-    glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * num_vertices + 0));
+    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * num_vertices));
 
     // Locate and use transformation matrix ctm, we need a separate variable for ctm_location so we can change it in display()
     ctm_location = glGetUniformLocation(program, "ctm");
@@ -176,14 +176,6 @@ void init(void) {
 
     // Locate and use transformation matrix per, we need a separate variable for perm_location so we can change it in display()
     mvm_location = glGetUniformLocation(program, "model_view");
-
-    // Location of texture, like location of ctm
-    glUniform1i(glGetUniformLocation(program, "texture"), 0);
-
-    // Choose to use either color or texture
-    glUniform1i(glGetUniformLocation(program, "use_texture"), use_texture);
-
-    printf("\ntexture_location: %i\n", glGetUniformLocation(program, "texture"));
     
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -195,9 +187,7 @@ void init(void) {
 void quit_program() {
         glutLeaveMainLoop();
         free(vertices);
-        free(colors);
-        free(texels);
-        free(texcoords);
+        free(normals);
         printf("\nEXIT SUCCESSFUL\n");
 }
 
@@ -451,6 +441,9 @@ int main(int argc, char **argv) {
                 cube[i][j][k] = ogcube[i][j][k];
     // Assign color and print statistics
     color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
+
+    // Calculate the normals
+    surface_normals(vertices, num_vertices, normals = (vector4*) malloc(sizeof(vector4) * num_vertices));
 
     // Set all RUbix Cube CTMs to identity
     ctm_rubix = (mat4x4*) malloc(sizeof(mat4x4) * 27);
@@ -875,4 +868,10 @@ void shuffle_rubix(animation anim) {
             rot_grid(BOTTOM);
         }
     }
+}
+
+// Calculate the ref_amb and ref_diff for the rubix cube sides
+void light_rubix() {
+
+    // Make a vector4 colors and 
 }
