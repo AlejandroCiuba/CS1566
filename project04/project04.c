@@ -43,12 +43,18 @@ GLuint perm_location;
 mat4x4 mvm = {{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}};
 GLuint mvm_location;
 
+// control lighting
+int lighting = 1;
+GLuint lighting_location;
+
 // ===================== VERTEX ATTRIBUTES =====================
 vector4* vertices;
 vector4* normals;
 vector4* colors;
 
-int num_vertices = 3564;
+int num_vertices = 3564; // For the Rubix Cube
+int sphere_num = 3600; // For the Sphere
+int total_num = 7164; // Total for all
 
 // ===================== CAMERA COORDINATES =====================
 // Spawn-point and Reset Points
@@ -68,7 +74,7 @@ GLfloat rturns = 0; // Used to describe the # of turns from the original positio
 vector4 co = {0,0,0,1};
 
 // Camera Movements
-typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_RIGHT, LOOK_LEFT, ZOOM_IN, ZOOM_OUT, RESET, CAM_NUM} camera;
+typedef enum {BASE, LOOK_UP, LOOK_DOWN, LOOK_LEFT, LOOK_RIGHT, ZOOM_IN, ZOOM_OUT, RESET, CAM_NUM} camera;
 camera cam = BASE;
 
 // ===================== RUBIX REPRESENTATION =====================
@@ -115,24 +121,19 @@ void shuffle_rubix(); // Outputs a random set of rotations
 // ===================== LIGHTING THINGS =====================
 // Define light source characteristics, including position
 light source = {{.1,.1,.1,1.0},{1.0,1.0,1.0,1.0},{1.0,1.0,1.0,1.0}};
-light_pos source_pos = {1.0,1.0,1.0,1.0};
+light_pos source_pos = {-1.0,-1.0,-1.0,1.0};
 
-// Attenuation Constants
-const GLfloat ATT;
-const GLfloat ATT_LIN;
-const GLfloat ATT_QUAD;
+// Rubix Cube (And everything else) Texture
+material rubix;
 
-// material/color properties
-vector4* ref_amb;
-vector4* ref_diff;
-vector4 ref_spec = {1.0,1.0,1.0,1.0};
+GLfloat shininess = .9;
+light_pos lightp = {.5,.5,.5,1};
+GLfloat movel = .1;
 
-// Shininess constant
-const GLfloat shininess = .15;
-
-// Calculate the ref_amb and ref_diff for the rubix cube sides
-void light_rubix();
-
+// Light Movement
+typedef enum {FORWARD, BACKWARD, LLEFT, LRIGHT, LUP, LDOWN, LNONE, LIGHTANIMS} lightanimation;
+lightanimation lanim = LNONE;
+ 
 void init(void) {
 
     // Load the vertex and fragment shaders
@@ -148,10 +149,10 @@ void init(void) {
     GLuint buffer;
     glGenBuffers(1, &buffer);
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 3 * num_vertices, NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * num_vertices, vertices);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * num_vertices, sizeof(vector4) * num_vertices, normals);
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 *  num_vertices, sizeof(vector4) * num_vertices, colors);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vector4) * 2 * total_num + sizeof(vector4) * num_vertices, NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vector4) * total_num, vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) * total_num, sizeof(vector4) * num_vertices, normals);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(vector4) *  total_num + sizeof(vector4) * num_vertices, sizeof(vector4) * total_num, colors);
 
     // Use this for passing the position info into the vertex and fragment shaders
     GLuint vPosition = glGetAttribLocation(program, "vPosition");
@@ -161,12 +162,12 @@ void init(void) {
     // Use this for passing the color info into the vertex and fragment shaders
     GLuint vNormal = glGetAttribLocation(program, "vNormal");
     glEnableVertexAttribArray(vNormal);
-    glVertexAttribPointer(vNormal, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * num_vertices));
+    glVertexAttribPointer(vNormal, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * total_num));
 
     // Use this for passing the color info into the vertex and fragment shaders
     GLuint vColor = glGetAttribLocation(program, "vColor");
     glEnableVertexAttribArray(vColor);
-    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * 2 * num_vertices));
+    glVertexAttribPointer(vColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *) (sizeof(vector4) * total_num + sizeof(vector4) * num_vertices));
 
     // Locate and use transformation matrix ctm, we need a separate variable for ctm_location so we can change it in display()
     ctm_location = glGetUniformLocation(program, "ctm");
@@ -176,6 +177,12 @@ void init(void) {
 
     // Locate and use transformation matrix per, we need a separate variable for perm_location so we can change it in display()
     mvm_location = glGetUniformLocation(program, "model_view");
+
+    // Locate and use lighting, we need a separate variable for lighting_location so we can change it in display()
+    lighting_location = glGetUniformLocation(program, "lighting");
+
+    // Turn on lighting
+    glUniform1i(lighting_location, 1);
     
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -188,6 +195,7 @@ void quit_program() {
         glutLeaveMainLoop();
         free(vertices);
         free(normals);
+        free(colors);
         printf("\nEXIT SUCCESSFUL\n");
 }
 
@@ -196,7 +204,14 @@ void display(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPolygonMode(GL_FRONT, GL_FILL);
-    glPolygonMode(GL_BACK, GL_LINE);
+    glPolygonMode(GL_BACK, GL_FILL);
+
+    // Feed in the shininess and light position into the vshader
+    glUniform1fv(glGetUniformLocation(program, "shininess"), 1, (GLfloat*) &shininess);
+    glUniform4fv(glGetUniformLocation(program, "light_pos"), 1, (GLfloat*) &lightp);
+    
+    // Turn on lighting
+    glUniform1i(lighting_location, 1);
 
     // Allows for affine matrices: location, # of matrices, transpose, pointer to the matrix you want to send
     for(int i = 0; i < 27; i++) {
@@ -210,6 +225,11 @@ void display(void) {
 
         glDrawArrays(GL_TRIANGLES, (i * 132), 132);
     }
+
+    // Turn off lighting
+    glUniform1i(lighting_location, 0);
+    glUniformMatrix4fv(ctm_location, 1, GL_FALSE, (GLfloat *) &ctm);
+    glDrawArrays(GL_TRIANGLES, num_vertices, sphere_num);
 
     glutSwapBuffers();
 }
@@ -254,6 +274,14 @@ void keyboard(unsigned char key, int mousex, int mousey) {
         }
 
         if(key == '7') rubix_print();
+
+        // ===================== MOVE THE LIGHT =====================
+        if(key == 'i') {lanim = FORWARD;}
+        else if(key == 'j') {lanim = LLEFT;}
+        else if(key == 'k') {lanim = BACKWARD;}
+        else if(key == 'l') {lanim = LRIGHT;}
+        else if(key == 'u') {lanim = LUP;}
+        else if(key == 'o') {lanim = LDOWN;}
     }
 }
 
@@ -425,6 +453,18 @@ void idle() {
             anim = NONE;
         }
     }
+
+    // ===================== MOVE THE LIGHT =====================
+    if(lanim == FORWARD) {lightp.z -= movel; lanim = LNONE;}
+    else if(lanim == BACKWARD) {lightp.z += movel; lanim = LNONE;}
+    else if(lanim == LLEFT) {lightp.x -= movel; lanim = LNONE;}
+    else if(lanim == LRIGHT) {lightp.x += movel; lanim = LNONE;}
+    else if(lanim == LUP) {lightp.y += movel; lanim = LNONE;}
+    else if(lanim == LDOWN) {lightp.y -= movel; lanim = LNONE;}
+
+    // Translate sphere
+    trans((affine){lightp.x, lightp.y, lightp.z}, &ctm);
+
     glutPostRedisplay();
 }
 
@@ -434,16 +474,14 @@ int menu() {return 0;}
 int main(int argc, char **argv) {
 
     // ===================== LOAD-IN RUBIX CUBE =====================
-    rubix_cube(vertices = (vector4*) malloc(sizeof(vector4) * num_vertices));
+    rubix_cube(vertices = (vector4*) malloc(sizeof(vector4) * total_num));
     for(int i = 0; i < 6; i++)
         for(int j = 0; j < 3; j++)
             for(int k = 0; k < 3; k++)
                 cube[i][j][k] = ogcube[i][j][k];
-    // Assign color and print statistics
-    color_rubix(colors = (vector4*) malloc(sizeof(vector4) * num_vertices), num_vertices);
 
-    // Calculate the normals
-    surface_normals(vertices, num_vertices, normals = (vector4*) malloc(sizeof(vector4) * num_vertices));
+    // Assign color and print statistics
+    color_rubix(colors = (vector4*) malloc(sizeof(vector4) * total_num), num_vertices);
 
     // Set all RUbix Cube CTMs to identity
     ctm_rubix = (mat4x4*) malloc(sizeof(mat4x4) * 27);
@@ -458,6 +496,19 @@ int main(int argc, char **argv) {
     scal((affine){.2,.2,.2}, &sc);
     mat_mult((mat4x4[2]){sc,tra}, 2, &fin);
     matxvar(&fin, vertices, num_vertices, vertices);
+
+    // Calculate the normals
+    surface_normals(vertices, num_vertices, normals = (vector4*) malloc(sizeof(vector4) * num_vertices));
+
+    // ===================== LOAD-IN LIGHT SPHERE =====================
+
+    // Make sphere and place it wherever lightp is
+    sphere(vertices + num_vertices, sphere_num, .1, 8);
+    const_color(colors + num_vertices, sphere_num, WHITE);
+
+    trans((affine){lightp.x, lightp.y, lightp.z}, &tra);
+    matxvar(&tra, vertices + num_vertices, sphere_num, vertices + num_vertices);
+
     // ===================== CHANGE CAMERA LOCATION =====================
     radius = rradius = 2;
     look_at(&eye, &look, &up, &mvm);
@@ -868,10 +919,4 @@ void shuffle_rubix(animation anim) {
             rot_grid(BOTTOM);
         }
     }
-}
-
-// Calculate the ref_amb and ref_diff for the rubix cube sides
-void light_rubix() {
-
-    // Make a vector4 colors and 
 }

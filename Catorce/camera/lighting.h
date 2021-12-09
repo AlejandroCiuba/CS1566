@@ -22,6 +22,17 @@ typedef struct light {
 
 typedef vector4 light_pos;
 
+// Define the way a material interacts with light
+typedef struct material {
+
+    // material/color properties
+    vector4 ref_amb;
+    vector4 ref_diff;
+    vector4 ref_spec;
+
+    GLfloat shininess;
+} material;
+
 // Calculates the normals for every 3 vertices (assumes triangle-based shapes)
 ERROR_NUM surface_normals(vector4* vertices, int count, vector4* normals_array);
 

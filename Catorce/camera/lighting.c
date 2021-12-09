@@ -10,6 +10,7 @@
 #include "../matrix_library/matrix_ops.h"
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
 
 // Calculates the normals for every 3 vertices (assumes triangle-based shapes)
 ERROR_NUM surface_normals(vector4* vertices, int count, vector4* normals_array) {
