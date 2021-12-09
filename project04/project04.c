@@ -517,9 +517,6 @@ int main(int argc, char **argv) {
     sphere(vertices + num_vertices, sphere_num, .1, 8);
     const_color(colors + num_vertices, sphere_num, WHITE);
 
-    trans((affine){lightp.x, lightp.y, lightp.z}, &tra);
-    matxvar(&tra, vertices + num_vertices, sphere_num, vertices + num_vertices);
-
     // ===================== CHANGE CAMERA LOCATION =====================
     radius = rradius = 2;
     look_at(&eye, &look, &up, &mvm);
