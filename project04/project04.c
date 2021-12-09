@@ -133,6 +133,9 @@ GLfloat movel = .1;
 // Light Movement
 typedef enum {FORWARD, BACKWARD, LLEFT, LRIGHT, LUP, LDOWN, LNONE, LIGHTANIMS} lightanimation;
 lightanimation lanim = LNONE;
+
+// Menu header declaration so keyboard doesn't complain
+void menu();
  
 void init(void) {
 
@@ -248,6 +251,8 @@ void keyboard(unsigned char key, int mousex, int mousey) {
 
     if(!DISABLE_KEYBOARD) {
         if(key == 'q') quit_program();
+
+        if(key == 't') menu();
             
         if(key == 'v') for(int i = 0; i < num_vertices; i++) {printf("%d: ", i); print_vector_ptr(&vertices[i]);}
 
@@ -469,7 +474,13 @@ void idle() {
 }
 
 // Obtains the user's input for the file to load
-int menu() {return 0;}
+void menu() {
+
+    printf("\n===================== INSTRUCTIONS AND CONTROLS =====================\n");
+    printf("INSTRUCTIONS: Welcome to the Rubix Cube Lighting Project. Please Enjoy!!!\n");
+    printf("\nCONTROLS:\n\tWASD = MOVE CAMERA UP/DOWN/LEFT/RIGHT\n\t- and + = ZOOM-IN/OUT\n\tR = RESET CAMERA\n\tX = PRINT VERTICES INFORMATION\n\t123456 = ROTATE FRONT/BACK/LEFT/RIGHT/TOP/BOTTOM\n\tIJKL = MOVE LIGHT BACKWARD/FORWARD/LEFT/RIGHT\n\tUO = MOVE LIGHT UP/DOWN\n");
+    printf("PRESS T TO VIEW INSTRUCTIONS AGAIN AND Q TO QUIT THE PROGRAM!!!\n");
+}   
 
 int main(int argc, char **argv) {
 
@@ -532,6 +543,8 @@ int main(int argc, char **argv) {
     print_matrix(perm);
 
     printf("VERTEX COUNT: %d\n",  num_vertices);
+
+    menu();
 
     // Create program and initialize the viewing windos
     glutInit(&argc, argv);
